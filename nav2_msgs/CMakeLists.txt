@@ -22,6 +22,15 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/BehaviorTreeLog.msg"
   "msg/Particle.msg"
   "msg/ParticleCloud.msg"
+	"msg/Coordinate.msg"
+	"msg/Coordinates.msg"
+	"msg/HeadlandMode.msg"
+	"msg/PathComponents.msg"
+	"msg/PathMode.msg"
+	"msg/RouteMode.msg"
+	"msg/RowSwathMode.msg"
+	"msg/Swath.msg"
+	"msg/SwathMode.msg"
   "srv/GetCostmap.srv"
   "srv/IsPathValid.srv"
   "srv/ClearCostmapExceptRegion.srv"
@@ -43,6 +52,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "action/Spin.action"
   "action/DummyBehavior.action"
   "action/FollowWaypoints.action"
+	"action/ComputeCoveragePath.action"
+	"action/NavigateCompleteCoverage.action"
   DEPENDENCIES builtin_interfaces geometry_msgs std_msgs action_msgs nav_msgs
 )
 
