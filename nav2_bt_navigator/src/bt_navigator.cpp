@@ -123,7 +123,7 @@ BtNavigator::on_configure(const rclcpp_lifecycle::State & /*state*/)
   pose_navigator_ = std::make_unique<nav2_bt_navigator::NavigateToPoseNavigator>();
   poses_navigator_ = std::make_unique<nav2_bt_navigator::NavigateThroughPosesNavigator>();
 
-  nav2_bt_navigator::FeedbackUtils feedback_utils;
+  nav2_core::FeedbackUtils feedback_utils;
   feedback_utils.tf = tf_;
   feedback_utils.global_frame = global_frame_;
   feedback_utils.robot_frame = robot_frame_;
