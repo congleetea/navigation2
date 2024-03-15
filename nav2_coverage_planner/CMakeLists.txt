@@ -54,7 +54,7 @@ ament_target_dependencies(${library_name}
 )
 target_link_libraries(${library_name} Fields2Cover)
 
-rclcpp_components_register_nodes(${library_name} "coverage_planner::CoverageServer")
+rclcpp_components_register_nodes(${library_name} "nav2_coverage_planner::CoverageServer")
 
 # Executable
 add_executable(${executable_name}

@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <vector>
-#include <string>
-#include <memory>
-#include <limits>
 #include "nav2_bt_navigator/navigators/coverage_field.hpp"
+
+#include <limits>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace nav2_bt_navigator
 {
 
-bool
-CoverageNavigator::configure(
+bool CoverageNavigator::configure(
   rclcpp_lifecycle::LifecycleNode::WeakPtr parent_node,
   std::shared_ptr<nav2_util::OdomSmoother> odom_smoother)
 {
@@ -51,61 +51,61 @@ CoverageNavigator::configure(
 
   // Odometry smoother object for getting current speed
   odom_smoother_ = odom_smoother;
+
+  self_client_ = rclcpp_action::create_client<ActionT>(node, getName());
+
+  field_sub_ = node->create_subscription<geometry_msgs::msg::PolygonStamped>(
+    "/coverage_field", rclcpp::SystemDefaultsQoS(),
+    std::bind(&CoverageNavigator::onCoverageFieldReceived, this, std::placeholders::_1));
+
   return true;
 }
 
-std::string
-CoverageNavigator::getDefaultBTFilepath(
+std::string CoverageNavigator::getDefaultBTFilepath(
   rclcpp_lifecycle::LifecycleNode::WeakPtr parent_node)
 {
   std::string default_bt_xml_filename;
   auto node = parent_node.lock();
 
   if (!node->has_parameter("default_coverage_bt_xml")) {
-    std::string pkg_share_dir =
-      ament_index_cpp::get_package_share_directory("opennav_coverage_bt");
+    std::string pkg_share_dir = ament_index_cpp::get_package_share_directory("nav2_bt_navigator");
     node->declare_parameter<std::string>(
       "default_coverage_bt_xml",
-      pkg_share_dir +
-      "/behavior_trees/navigate_w_basic_complete_coverage.xml");
+      pkg_share_dir + "/behavior_trees/navigate_w_basic_complete_coverage.xml");
   }
 
   node->get_parameter("default_coverage_bt_xml", default_bt_xml_filename);
-
+  RCLCPP_INFO(logger_, "------------- coverage bt xml file: %s.", default_bt_xml_filename.c_str());
+  default_bt_xml_filename_ = default_bt_xml_filename;
   return default_bt_xml_filename;
 }
 
-bool
-CoverageNavigator::cleanup()
+bool CoverageNavigator::cleanup()
 {
+  field_sub_.reset();
   return true;
 }
 
-bool
-CoverageNavigator::goalReceived(ActionT::Goal::ConstSharedPtr goal)
+bool CoverageNavigator::goalReceived(ActionT::Goal::ConstSharedPtr goal)
 {
   auto bt_xml_filename = goal->behavior_tree;
 
+  RCLCPP_INFO(logger_, "BT file: %s.", bt_xml_filename.c_str());
   if (!bt_action_server_->loadBehaviorTree(bt_xml_filename)) {
-    RCLCPP_ERROR(
-      logger_, "BT file not found: %s. Navigation canceled.",
-      bt_xml_filename.c_str());
+    RCLCPP_ERROR(logger_, "BT file not found: %s. Navigation canceled.", bt_xml_filename.c_str());
     return false;
   }
-
   initializeGoalPose(goal);
   return true;
 }
 
-void
-CoverageNavigator::goalCompleted(
+void CoverageNavigator::goalCompleted(
   typename ActionT::Result::SharedPtr /*result*/,
   const nav2_behavior_tree::BtStatus /*final_bt_status*/)
 {
 }
 
-void
-CoverageNavigator::onLoop()
+void CoverageNavigator::onLoop()
 {
   // action server feedback (pose, duration of task,
   // number of recoveries, and distance remaining to goal)
@@ -113,8 +113,7 @@ CoverageNavigator::onLoop()
 
   geometry_msgs::msg::PoseStamped current_pose;
   nav2_util::getCurrentPose(
-    current_pose, *feedback_utils_.tf,
-    feedback_utils_.global_frame, feedback_utils_.robot_frame,
+    current_pose, *feedback_utils_.tf, feedback_utils_.global_frame, feedback_utils_.robot_frame,
     feedback_utils_.transform_tolerance);
 
   auto blackboard = bt_action_server_->getBlackboard();
@@ -125,20 +124,19 @@ CoverageNavigator::onLoop()
     blackboard->get<nav_msgs::msg::Path>(path_blackboard_id_, current_path);
 
     // Find the closest pose to current pose on global path
-    auto find_closest_pose_idx =
-      [&current_pose, &current_path]() {
-        size_t closest_pose_idx = 0;
-        double curr_min_dist = std::numeric_limits<double>::max();
-        for (size_t curr_idx = 0; curr_idx < current_path.poses.size(); ++curr_idx) {
-          double curr_dist = nav2_util::geometry_utils::euclidean_distance(
-            current_pose, current_path.poses[curr_idx]);
-          if (curr_dist < curr_min_dist) {
-            curr_min_dist = curr_dist;
-            closest_pose_idx = curr_idx;
-          }
+    auto find_closest_pose_idx = [&current_pose, &current_path]() {
+      size_t closest_pose_idx = 0;
+      double curr_min_dist = std::numeric_limits<double>::max();
+      for (size_t curr_idx = 0; curr_idx < current_path.poses.size(); ++curr_idx) {
+        double curr_dist =
+          nav2_util::geometry_utils::euclidean_distance(current_pose, current_path.poses[curr_idx]);
+        if (curr_dist < curr_min_dist) {
+          curr_min_dist = curr_dist;
+          closest_pose_idx = curr_idx;
         }
-        return closest_pose_idx;
-      };
+      }
+      return closest_pose_idx;
+    };
 
     // Calculate distance on the path
     double distance_remaining =
@@ -173,15 +171,14 @@ CoverageNavigator::onLoop()
   bt_action_server_->publishFeedback(feedback_msg);
 }
 
-void
-CoverageNavigator::onPreempt(ActionT::Goal::ConstSharedPtr goal)
+void CoverageNavigator::onPreempt(ActionT::Goal::ConstSharedPtr goal)
 {
   RCLCPP_INFO(logger_, "Received goal preemption request");
 
-  if (goal->behavior_tree == bt_action_server_->getCurrentBTFilename() ||
+  if (
+    goal->behavior_tree == bt_action_server_->getCurrentBTFilename() ||
     (goal->behavior_tree.empty() &&
-    bt_action_server_->getCurrentBTFilename() == bt_action_server_->getDefaultBTFilename()))
-  {
+     bt_action_server_->getCurrentBTFilename() == bt_action_server_->getDefaultBTFilename())) {
     // if pending goal requests the same BT as the current goal, accept the pending goal
     // if pending goal has an empty behavior_tree field, it requests the default BT file
     // accept the pending goal if the current goal is running the default BT file
@@ -198,13 +195,11 @@ CoverageNavigator::onPreempt(ActionT::Goal::ConstSharedPtr goal)
   }
 }
 
-void
-CoverageNavigator::initializeGoalPose(ActionT::Goal::ConstSharedPtr goal)
+void CoverageNavigator::initializeGoalPose(ActionT::Goal::ConstSharedPtr goal)
 {
   geometry_msgs::msg::PoseStamped current_pose;
   nav2_util::getCurrentPose(
-    current_pose, *feedback_utils_.tf,
-    feedback_utils_.global_frame, feedback_utils_.robot_frame,
+    current_pose, *feedback_utils_.tf, feedback_utils_.global_frame, feedback_utils_.robot_frame,
     feedback_utils_.transform_tolerance);
 
   if (goal->field_filepath.size() == 0) {
@@ -212,9 +207,7 @@ CoverageNavigator::initializeGoalPose(ActionT::Goal::ConstSharedPtr goal)
       logger_, "Begin coverage navigating with outer field of size: %lu!",
       goal->polygons[0].points.size());
   } else {
-    RCLCPP_INFO(
-      logger_, "Begin coverage navigating with field %s!",
-      goal->field_filepath.c_str());
+    RCLCPP_INFO(logger_, "Begin coverage navigating with field %s!", goal->field_filepath.c_str());
   }
 
   // Reset state for new action feedback
@@ -224,9 +217,20 @@ CoverageNavigator::initializeGoalPose(ActionT::Goal::ConstSharedPtr goal)
 
   // Update the field to cover on the blackboard
   blackboard->set<std::string>(field_blackboard_id_, goal->field_filepath);
-  blackboard->set<std::vector<geometry_msgs::msg::Polygon>>(
-    polygon_blackboard_id_, goal->polygons);
+  blackboard->set<std::vector<geometry_msgs::msg::Polygon>>(polygon_blackboard_id_, goal->polygons);
   blackboard->set<std::string>(polygon_frame_blackboard_id_, goal->frame_id);
+}
+
+void CoverageNavigator::onCoverageFieldReceived(
+  const geometry_msgs::msg::PolygonStamped::SharedPtr field)
+{
+  RCLCPP_INFO(logger_, "Received Coverage field------------------------");
+  ActionT::Goal goal;
+  goal.frame_id = "map";
+  goal.behavior_tree = default_bt_xml_filename_;
+  goal.polygons.clear();
+  goal.polygons.push_back(field->polygon);
+  self_client_->async_send_goal(goal);
 }
 
 }  // namespace nav2_bt_navigator

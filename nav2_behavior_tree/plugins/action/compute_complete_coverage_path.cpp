@@ -15,7 +15,7 @@
 #include <memory>
 #include <string>
 
-#include "nav2_behavior_tree/compute_complete_coverage_path.hpp"
+#include "nav2_behavior_tree/plugins/action/compute_complete_coverage_path.hpp"
 
 namespace nav2_behavior_tree
 {

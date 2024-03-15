@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <vector>
-#include <string>
-#include <set>
-#include <memory>
-#include <limits>
 #include "nav2_bt_navigator/navigators/navigate_to_pose.hpp"
+
+#include <limits>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
 
 namespace nav2_bt_navigator
 {
 
-bool
-NavigateToPoseNavigator::configure(
+bool NavigateToPoseNavigator::configure(
   rclcpp_lifecycle::LifecycleNode::WeakPtr parent_node,
   std::shared_ptr<nav2_util::OdomSmoother> odom_smoother)
 {
@@ -48,50 +48,41 @@ NavigateToPoseNavigator::configure(
   self_client_ = rclcpp_action::create_client<ActionT>(node, getName());
 
   goal_sub_ = node->create_subscription<geometry_msgs::msg::PoseStamped>(
-    "goal_pose",
-    rclcpp::SystemDefaultsQoS(),
+    "goal_pose", rclcpp::SystemDefaultsQoS(),
     std::bind(&NavigateToPoseNavigator::onGoalPoseReceived, this, std::placeholders::_1));
   return true;
 }
 
-std::string
-NavigateToPoseNavigator::getDefaultBTFilepath(
+std::string NavigateToPoseNavigator::getDefaultBTFilepath(
   rclcpp_lifecycle::LifecycleNode::WeakPtr parent_node)
 {
   std::string default_bt_xml_filename;
   auto node = parent_node.lock();
 
   if (!node->has_parameter("default_nav_to_pose_bt_xml")) {
-    std::string pkg_share_dir =
-      ament_index_cpp::get_package_share_directory("nav2_bt_navigator");
+    std::string pkg_share_dir = ament_index_cpp::get_package_share_directory("nav2_bt_navigator");
     node->declare_parameter<std::string>(
       "default_nav_to_pose_bt_xml",
-      pkg_share_dir +
-      "/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml");
+      pkg_share_dir + "/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml");
   }
 
   node->get_parameter("default_nav_to_pose_bt_xml", default_bt_xml_filename);
-
   return default_bt_xml_filename;
 }
 
-bool
-NavigateToPoseNavigator::cleanup()
+bool NavigateToPoseNavigator::cleanup()
 {
   goal_sub_.reset();
   self_client_.reset();
   return true;
 }
 
-bool
-NavigateToPoseNavigator::goalReceived(ActionT::Goal::ConstSharedPtr goal)
+bool NavigateToPoseNavigator::goalReceived(ActionT::Goal::ConstSharedPtr goal)
 {
   auto bt_xml_filename = goal->behavior_tree;
 
   if (!bt_action_server_->loadBehaviorTree(bt_xml_filename)) {
-    RCLCPP_ERROR(
-      logger_, "BT file not found: %s. Navigation canceled.",
-      bt_xml_filename.c_str());
+    RCLCPP_ERROR(logger_, "BT file not found: %s. Navigation canceled.", bt_xml_filename.c_str());
     return false;
   }
 
@@ -100,15 +91,13 @@ NavigateToPoseNavigator::goalReceived(ActionT::Goal::ConstSharedPtr goal)
   return true;
 }
 
-void
-NavigateToPoseNavigator::goalCompleted(
+void NavigateToPoseNavigator::goalCompleted(
   typename ActionT::Result::SharedPtr /*result*/,
   const nav2_behavior_tree::BtStatus /*final_bt_status*/)
 {
 }
 
-void
-NavigateToPoseNavigator::onLoop()
+void NavigateToPoseNavigator::onLoop()
 {
   // action server feedback (pose, duration of task,
   // number of recoveries, and distance remaining to goal)
@@ -116,8 +105,7 @@ NavigateToPoseNavigator::onLoop()
 
   geometry_msgs::msg::PoseStamped current_pose;
   nav2_util::getCurrentPose(
-    current_pose, *feedback_utils_.tf,
-    feedback_utils_.global_frame, feedback_utils_.robot_frame,
+    current_pose, *feedback_utils_.tf, feedback_utils_.global_frame, feedback_utils_.robot_frame,
     feedback_utils_.transform_tolerance);
 
   auto blackboard = bt_action_server_->getBlackboard();
@@ -128,20 +116,19 @@ NavigateToPoseNavigator::onLoop()
     blackboard->get<nav_msgs::msg::Path>(path_blackboard_id_, current_path);
 
     // Find the closest pose to current pose on global path
-    auto find_closest_pose_idx =
-      [&current_pose, &current_path]() {
-        size_t closest_pose_idx = 0;
-        double curr_min_dist = std::numeric_limits<double>::max();
-        for (size_t curr_idx = 0; curr_idx < current_path.poses.size(); ++curr_idx) {
-          double curr_dist = nav2_util::geometry_utils::euclidean_distance(
-            current_pose, current_path.poses[curr_idx]);
-          if (curr_dist < curr_min_dist) {
-            curr_min_dist = curr_dist;
-            closest_pose_idx = curr_idx;
-          }
+    auto find_closest_pose_idx = [&current_pose, &current_path]() {
+      size_t closest_pose_idx = 0;
+      double curr_min_dist = std::numeric_limits<double>::max();
+      for (size_t curr_idx = 0; curr_idx < current_path.poses.size(); ++curr_idx) {
+        double curr_dist =
+          nav2_util::geometry_utils::euclidean_distance(current_pose, current_path.poses[curr_idx]);
+        if (curr_dist < curr_min_dist) {
+          curr_min_dist = curr_dist;
+          closest_pose_idx = curr_idx;
         }
-        return closest_pose_idx;
-      };
+      }
+      return closest_pose_idx;
+    };
 
     // Calculate distance on the path
     double distance_remaining =
@@ -176,15 +163,14 @@ NavigateToPoseNavigator::onLoop()
   bt_action_server_->publishFeedback(feedback_msg);
 }
 
-void
-NavigateToPoseNavigator::onPreempt(ActionT::Goal::ConstSharedPtr goal)
+void NavigateToPoseNavigator::onPreempt(ActionT::Goal::ConstSharedPtr goal)
 {
   RCLCPP_INFO(logger_, "Received goal preemption request");
 
-  if (goal->behavior_tree == bt_action_server_->getCurrentBTFilename() ||
+  if (
+    goal->behavior_tree == bt_action_server_->getCurrentBTFilename() ||
     (goal->behavior_tree.empty() &&
-    bt_action_server_->getCurrentBTFilename() == bt_action_server_->getDefaultBTFilename()))
-  {
+     bt_action_server_->getCurrentBTFilename() == bt_action_server_->getDefaultBTFilename())) {
     // if pending goal requests the same BT as the current goal, accept the pending goal
     // if pending goal has an empty behavior_tree field, it requests the default BT file
     // accept the pending goal if the current goal is running the default BT file
@@ -201,19 +187,17 @@ NavigateToPoseNavigator::onPreempt(ActionT::Goal::ConstSharedPtr goal)
   }
 }
 
-void
-NavigateToPoseNavigator::initializeGoalPose(ActionT::Goal::ConstSharedPtr goal)
+void NavigateToPoseNavigator::initializeGoalPose(ActionT::Goal::ConstSharedPtr goal)
 {
   geometry_msgs::msg::PoseStamped current_pose;
   nav2_util::getCurrentPose(
-    current_pose, *feedback_utils_.tf,
-    feedback_utils_.global_frame, feedback_utils_.robot_frame,
+    current_pose, *feedback_utils_.tf, feedback_utils_.global_frame, feedback_utils_.robot_frame,
     feedback_utils_.transform_tolerance);
 
   RCLCPP_INFO(
     logger_, "Begin navigating from current location (%.2f, %.2f) to (%.2f, %.2f)",
-    current_pose.pose.position.x, current_pose.pose.position.y,
-    goal->pose.pose.position.x, goal->pose.pose.position.y);
+    current_pose.pose.position.x, current_pose.pose.position.y, goal->pose.pose.position.x,
+    goal->pose.pose.position.y);
 
   // Reset state for new action feedback
   start_time_ = clock_->now();
@@ -224,9 +208,10 @@ NavigateToPoseNavigator::initializeGoalPose(ActionT::Goal::ConstSharedPtr goal)
   blackboard->set<geometry_msgs::msg::PoseStamped>(goal_blackboard_id_, goal->pose);
 }
 
-void
-NavigateToPoseNavigator::onGoalPoseReceived(const geometry_msgs::msg::PoseStamped::SharedPtr pose)
+void NavigateToPoseNavigator::onGoalPoseReceived(
+  const geometry_msgs::msg::PoseStamped::SharedPtr pose)
 {
+  RCLCPP_INFO(logger_, "Received goal pose-------------------.");
   ActionT::Goal goal;
   goal.pose = *pose;
   self_client_->async_send_goal(goal);

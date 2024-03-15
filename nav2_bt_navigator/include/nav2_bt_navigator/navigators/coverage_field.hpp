@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 
+#include "geometry_msgs/msg/polygon_stamped.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_core/behavior_tree_navigator.hpp"
 #include "nav2_msgs/action/navigate_complete_coverage.hpp"
@@ -58,6 +59,13 @@ public:
    * @brief A cleanup state transition to remove memory allocated
    */
   bool cleanup() override;
+
+  /**
+   * @brief A subscription and callback to handle the topic-based coverage field published
+   * from rviz
+   * @param field Field received via a topic
+   */
+  void onCoverageFieldReceived(const geometry_msgs::msg::PolygonStamped::SharedPtr field);
 
   /**
    * @brief Get action name for this navigator
@@ -111,11 +119,14 @@ protected:
   void initializeGoalPose(ActionT::Goal::ConstSharedPtr goal);
 
   rclcpp::Time start_time_;
+  rclcpp::Subscription<geometry_msgs::msg::PolygonStamped>::SharedPtr field_sub_;
+  rclcpp_action::Client<ActionT>::SharedPtr self_client_;
   std::string path_blackboard_id_, field_blackboard_id_, polygon_blackboard_id_;
   std::string polygon_frame_blackboard_id_;
 
   // Odometry smoother object
   std::shared_ptr<nav2_util::OdomSmoother> odom_smoother_;
+  std::string default_bt_xml_filename_;
 };
 
 }  // namespace nav2_bt_navigator

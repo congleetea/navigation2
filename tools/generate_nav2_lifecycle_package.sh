@@ -32,7 +32,7 @@ function echo_error(){
 	echo -e "\033[31m ERROR: $1 \033[0m"
 }
 
-if ! options=$(getopt -o p:c:a:h -l package:,class:,author:help -- "$@")
+if ! options=$(getopt -o p:c:a:h -l package:,class:,author:,help -- "$@")
 then
     exit 1
 fi
@@ -182,7 +182,7 @@ add_library(\${library_name} SHARED
 ament_target_dependencies(\${library_name}
   \${dependencies}
 )
-rclcpp_components_register_nodes(\${library_name} "$namespace::$class")
+rclcpp_components_register_nodes(\${library_name} "$package::$class")
 
 # Executable
 add_executable(\${executable_name}

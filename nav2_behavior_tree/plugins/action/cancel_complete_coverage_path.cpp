@@ -15,7 +15,7 @@
 #include <string>
 #include <memory>
 
-#include "nav2_behavior_tree/cancel_complete_coverage_path.hpp"
+#include "nav2_behavior_tree/plugins/action/cancel_complete_coverage_path.hpp"
 
 namespace nav2_behavior_tree
 {

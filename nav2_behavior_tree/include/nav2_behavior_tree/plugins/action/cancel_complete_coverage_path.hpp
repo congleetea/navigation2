@@ -19,7 +19,7 @@
 
 #include "nav2_behavior_tree/bt_cancel_action_node.hpp"
 #include "nav2_msgs/action/compute_coverage_path.hpp"
-#include "nav2_msgs/action/utils.hpp"
+#include "nav2_behavior_tree/plugins/action/utils.hpp"
 
 namespace nav2_behavior_tree
 {

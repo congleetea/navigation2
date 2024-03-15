@@ -15,18 +15,19 @@
 #ifndef NAV2_BT_NAVIGATOR__NAVIGATORS__NAVIGATE_TO_POSE_HPP_
 #define NAV2_BT_NAVIGATOR__NAVIGATORS__NAVIGATE_TO_POSE_HPP_
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
+
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_core/behavior_tree_navigator.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "nav2_util/geometry_utils.hpp"
+#include "nav2_util/odometry_utils.hpp"
 #include "nav2_util/robot_utils.hpp"
 #include "nav_msgs/msg/path.hpp"
-#include "nav2_util/odometry_utils.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
 
 namespace nav2_bt_navigator
 {
@@ -35,8 +36,7 @@ namespace nav2_bt_navigator
  * @class NavigateToPoseNavigator
  * @brief A navigator for navigating to a specified pose
  */
-class NavigateToPoseNavigator
-  : public nav2_core::Navigator<nav2_msgs::action::NavigateToPose>
+class NavigateToPoseNavigator : public nav2_core::Navigator<nav2_msgs::action::NavigateToPose>
 {
 public:
   using ActionT = nav2_msgs::action::NavigateToPose;
@@ -44,8 +44,7 @@ public:
   /**
    * @brief A constructor for NavigateToPoseNavigator
    */
-  NavigateToPoseNavigator()
-  : Navigator() {}
+  NavigateToPoseNavigator() : Navigator() {}
 
   /**
    * @brief A configure state transition to configure navigator's state
@@ -72,7 +71,7 @@ public:
    * @brief Get action name for this navigator
    * @return string Name of action server
    */
-  std::string getName() override {return std::string("navigate_to_pose");}
+  std::string getName() override { return std::string("navigate_to_pose"); }
 
   /**
    * @brief Get navigator's default BT

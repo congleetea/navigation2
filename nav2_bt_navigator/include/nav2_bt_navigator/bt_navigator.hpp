@@ -19,14 +19,15 @@
 #include <string>
 #include <vector>
 
+#include "nav2_bt_navigator/navigators/coverage_field.hpp"
+#include "nav2_bt_navigator/navigators/navigate_through_poses.hpp"
+#include "nav2_bt_navigator/navigators/navigate_to_pose.hpp"
 #include "nav2_util/lifecycle_node.hpp"
 #include "nav2_util/odometry_utils.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_listener.h"
 #include "tf2_ros/create_timer_ros.h"
-#include "nav2_bt_navigator/navigators/navigate_to_pose.hpp"
-#include "nav2_bt_navigator/navigators/navigate_through_poses.hpp"
+#include "tf2_ros/transform_listener.h"
 
 namespace nav2_bt_navigator
 {
@@ -86,8 +87,9 @@ protected:
 
   // To handle all the BT related execution
   std::unique_ptr<nav2_core::Navigator<nav2_msgs::action::NavigateToPose>> pose_navigator_;
-  std::unique_ptr<nav2_core::Navigator<nav2_msgs::action::NavigateThroughPoses>>
-  poses_navigator_;
+  std::unique_ptr<nav2_core::Navigator<nav2_msgs::action::NavigateThroughPoses>> poses_navigator_;
+  std::unique_ptr<nav2_core::Navigator<nav2_msgs::action::NavigateCompleteCoverage>>
+    coverage_navigator_;
   nav2_core::NavigatorMuxer plugin_muxer_;
 
   // Odometry smoother object

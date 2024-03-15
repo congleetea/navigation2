@@ -20,7 +20,7 @@
 
 #include "geometry_msgs/msg/polygon.hpp"
 #include "nav2_behavior_tree/bt_action_node.hpp"
-#include "nav2_behavior_tree/utils.hpp"
+#include "nav2_behavior_tree/plugins/action/utils.hpp"
 #include "nav2_msgs/action/compute_coverage_path.hpp"
 
 namespace nav2_behavior_tree
