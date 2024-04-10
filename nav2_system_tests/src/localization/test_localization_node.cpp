@@ -12,23 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_amcl/amcl_node.hpp"
-#include "std_msgs/msg/string.hpp"
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav2_amcl/amcl_node.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/string.hpp"
+#include "gtest/gtest.h"
+#include <memory>
 
 using std::placeholders::_1;
 using namespace std::chrono_literals;
 
-// rclcpp::init can only be called once per process, so this needs to be a global variable
+// rclcpp::init can only be called once per process, so this needs to be a
+// global variable
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -88,9 +89,9 @@ bool TestAmclPose::defaultAmclTest()
     std::this_thread::sleep_for(1s);
     rclcpp::spin_some(node);
   }
-  if (std::abs(amcl_pose_x - testPose_.pose.pose.position.x) < tol_ &&
-    std::abs(amcl_pose_y - testPose_.pose.pose.position.y) < tol_)
-  {
+  if (
+    std::abs(amcl_pose_x - testPose_.pose.pose.position.x) < tol_ &&
+    std::abs(amcl_pose_y - testPose_.pose.pose.position.y) < tol_) {
     return true;
   } else {
     return false;
@@ -116,7 +117,4 @@ void TestAmclPose::initTestPose()
   testPose_.pose.covariance[35] = 0.05;
 }
 
-TEST_F(TestAmclPose, SimpleAmclTest)
-{
-  EXPECT_EQ(true, defaultAmclTest());
-}
+TEST_F(TestAmclPose, SimpleAmclTest) { EXPECT_EQ(true, defaultAmclTest()); }

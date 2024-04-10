@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,8 +42,8 @@ struct State
   geometry_msgs::msg::Twist speed;
 
   /**
-    * @brief Reset state data
-    */
+   * @brief Reset state data
+   */
   void reset(unsigned int batch_size, unsigned int time_steps)
   {
     vx = xt::zeros<float>({batch_size, time_steps});

@@ -18,14 +18,13 @@
 #include <set>
 #include <string>
 
-#include "nav_msgs/msg/path.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav_msgs/msg/path.hpp"
 
 #include "behaviortree_cpp_v3/bt_factory.h"
 
 #include "../../test_action_server.hpp"
 #include "nav2_behavior_tree/plugins/decorator/goal_updater_node.hpp"
-
 
 class GoalUpdaterTestFixture : public ::testing::Test
 {
@@ -40,19 +39,13 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
 
-    BT::NodeBuilder builder =
-      [](const std::string & name, const BT::NodeConfiguration & config)
-      {
-        return std::make_unique<nav2_behavior_tree::GoalUpdater>(
-          name, config);
-      };
+    BT::NodeBuilder builder = [](const std::string & name, const BT::NodeConfiguration & config) {
+      return std::make_unique<nav2_behavior_tree::GoalUpdater>(name, config);
+    };
 
-    factory_->registerBuilder<nav2_behavior_tree::GoalUpdater>(
-      "GoalUpdater", builder);
+    factory_->registerBuilder<nav2_behavior_tree::GoalUpdater>("GoalUpdater", builder);
   }
 
   static void TearDownTestCase()
@@ -63,10 +56,7 @@ public:
     factory_.reset();
   }
 
-  void TearDown() override
-  {
-    tree_.reset();
-  }
+  void TearDown() override { tree_.reset(); }
 
 protected:
   static rclcpp::Node::SharedPtr node_;

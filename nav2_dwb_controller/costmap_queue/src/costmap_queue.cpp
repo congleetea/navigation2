@@ -42,7 +42,10 @@ namespace costmap_queue
 {
 
 CostmapQueue::CostmapQueue(nav2_costmap_2d::Costmap2D & costmap, bool manhattan)
-: MapBasedQueue(), costmap_(costmap), max_distance_(-1), manhattan_(manhattan),
+: MapBasedQueue(),
+  costmap_(costmap),
+  max_distance_(-1),
+  manhattan_(manhattan),
   cached_max_distance_(-1)
 {
   reset();
@@ -66,10 +69,12 @@ void CostmapQueue::enqueueCell(unsigned int x, unsigned int y)
 }
 
 void CostmapQueue::enqueueCell(
-  unsigned int index, unsigned int cur_x, unsigned int cur_y,
-  unsigned int src_x, unsigned int src_y)
+  unsigned int index, unsigned int cur_x, unsigned int cur_y, unsigned int src_x,
+  unsigned int src_y)
 {
-  if (seen_[index]) {return;}
+  if (seen_[index]) {
+    return;
+  }
 
   // we compute our distance table one cell further than the inflation radius
   // dictates so we can make the check below
@@ -116,7 +121,9 @@ void CostmapQueue::computeCache()
   if (max_distance_ == -1) {
     max_distance_ = std::max(costmap_.getSizeInCellsX(), costmap_.getSizeInCellsY());
   }
-  if (max_distance_ == cached_max_distance_) {return;}
+  if (max_distance_ == cached_max_distance_) {
+    return;
+  }
   cached_distances_.clear();
 
   cached_distances_.resize(max_distance_ + 2);

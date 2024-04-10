@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,17 +16,17 @@
 #include <chrono>
 #include <thread>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_mppi_controller/tools/trajectory_visualizer.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 // Tests trajectory visualization
 
 class RosLockGuard
 {
 public:
-  RosLockGuard() {rclcpp::init(0, nullptr);}
-  ~RosLockGuard() {rclcpp::shutdown();}
+  RosLockGuard() { rclcpp::init(0, nullptr); }
+  ~RosLockGuard() { rclcpp::shutdown(); }
 };
 RosLockGuard g_rclcpp;
 
@@ -53,8 +54,7 @@ TEST(TrajectoryVisualizerTests, VisPathRepub)
   pub_path.poses.resize(5);
 
   auto my_sub = node->create_subscription<nav_msgs::msg::Path>(
-    "transformed_global_plan", 10,
-    [&](const nav_msgs::msg::Path msg) {recieved_path = msg;});
+    "transformed_global_plan", 10, [&](const nav_msgs::msg::Path msg) { recieved_path = msg; });
 
   TrajectoryVisualizer vis;
   vis.on_configure(node, "my_name", "map", parameters_handler.get());
@@ -74,7 +74,7 @@ TEST(TrajectoryVisualizerTests, VisOptimalTrajectory)
   visualization_msgs::msg::MarkerArray recieved_msg;
   auto my_sub = node->create_subscription<visualization_msgs::msg::MarkerArray>(
     "/trajectories", 10,
-    [&](const visualization_msgs::msg::MarkerArray msg) {recieved_msg = msg;});
+    [&](const visualization_msgs::msg::MarkerArray msg) { recieved_msg = msg; });
 
   // optimal_trajectory empty, should fail to publish
   xt::xtensor<float, 2> optimal_trajectory;
@@ -135,7 +135,7 @@ TEST(TrajectoryVisualizerTests, VisCandidateTrajectories)
   visualization_msgs::msg::MarkerArray recieved_msg;
   auto my_sub = node->create_subscription<visualization_msgs::msg::MarkerArray>(
     "/trajectories", 10,
-    [&](const visualization_msgs::msg::MarkerArray msg) {recieved_msg = msg;});
+    [&](const visualization_msgs::msg::MarkerArray msg) { recieved_msg = msg; });
 
   models::Trajectories candidate_trajectories;
   candidate_trajectories.x = xt::ones<float>({200, 12});

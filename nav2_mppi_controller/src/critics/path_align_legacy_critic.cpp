@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,23 +33,19 @@ void PathAlignLegacyCritic::initialize()
   getParam(max_path_occupancy_ratio_, "max_path_occupancy_ratio", 0.07);
   getParam(offset_from_furthest_, "offset_from_furthest", 20);
   getParam(trajectory_point_step_, "trajectory_point_step", 4);
-  getParam(
-    threshold_to_consider_,
-    "threshold_to_consider", 0.5);
+  getParam(threshold_to_consider_, "threshold_to_consider", 0.5);
   getParam(use_path_orientations_, "use_path_orientations", false);
 
   RCLCPP_INFO(
-    logger_,
-    "ReferenceTrajectoryCritic instantiated with %d power and %f weight",
-    power_, weight_);
+    logger_, "ReferenceTrajectoryCritic instantiated with %d power and %f weight", power_, weight_);
 }
 
 void PathAlignLegacyCritic::score(CriticData & data)
 {
   // Don't apply close to goal, let the goal critics take over
-  if (!enabled_ ||
-    utils::withinPositionGoalTolerance(threshold_to_consider_, data.state.pose.pose, data.path))
-  {
+  if (
+    !enabled_ ||
+    utils::withinPositionGoalTolerance(threshold_to_consider_, data.state.pose.pose, data.path)) {
     return;
   }
 
@@ -58,13 +55,16 @@ void PathAlignLegacyCritic::score(CriticData & data)
     return;
   }
 
-  // Don't apply when dynamic obstacles are blocking significant proportions of the local path
+  // Don't apply when dynamic obstacles are blocking significant proportions of
+  // the local path
   utils::setPathCostsIfNotSet(data, costmap_ros_);
   const size_t closest_initial_path_point = utils::findPathTrajectoryInitialPoint(data);
   unsigned int invalid_ctr = 0;
   const float range = *data.furthest_reached_path_point - closest_initial_path_point;
   for (size_t i = closest_initial_path_point; i < *data.furthest_reached_path_point; i++) {
-    if (!(*data.path_pts_valid)[i]) {invalid_ctr++;}
+    if (!(*data.path_pts_valid)[i]) {
+      invalid_ctr++;
+    }
     if (static_cast<float>(invalid_ctr) / range > max_path_occupancy_ratio_ && invalid_ctr > 2) {
       return;
     }
@@ -74,8 +74,8 @@ void PathAlignLegacyCritic::score(CriticData & data)
   const auto & T_y = data.trajectories.y;
   const auto & T_yaw = data.trajectories.yaws;
 
-  const auto P_x = xt::view(data.path.x, xt::range(_, -1));  // path points
-  const auto P_y = xt::view(data.path.y, xt::range(_, -1));  // path points
+  const auto P_x = xt::view(data.path.x, xt::range(_, -1));       // path points
+  const auto P_y = xt::view(data.path.y, xt::range(_, -1));       // path points
   const auto P_yaw = xt::view(data.path.yaws, xt::range(_, -1));  // path points
 
   const size_t batch_size = T_x.shape(0);
@@ -116,7 +116,8 @@ void PathAlignLegacyCritic::score(CriticData & data)
       }
 
       // The nearest path point to align to needs to be not in collision, else
-      // let the obstacle critic take over in this region due to dynamic obstacles
+      // let the obstacle critic take over in this region due to dynamic
+      // obstacles
       if (min_s != 0 && (*data.path_pts_valid)[min_s]) {
         summed_dist += sqrtf(min_dist_sq);
       }
@@ -132,6 +133,4 @@ void PathAlignLegacyCritic::score(CriticData & data)
 
 #include <pluginlib/class_list_macros.hpp>
 
-PLUGINLIB_EXPORT_CLASS(
-  mppi::critics::PathAlignLegacyCritic,
-  mppi::critics::CriticFunction)
+PLUGINLIB_EXPORT_CLASS(mppi::critics::PathAlignLegacyCritic, mppi::critics::CriticFunction)

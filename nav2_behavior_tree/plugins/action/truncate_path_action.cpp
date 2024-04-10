@@ -13,25 +13,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
-#include <memory>
 #include <limits>
+#include <memory>
+#include <string>
 
-#include "nav_msgs/msg/path.hpp"
+#include "behaviortree_cpp_v3/decorator_node.h"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_util/geometry_utils.hpp"
-#include "behaviortree_cpp_v3/decorator_node.h"
+#include "nav_msgs/msg/path.hpp"
 
 #include "nav2_behavior_tree/plugins/action/truncate_path_action.hpp"
 
 namespace nav2_behavior_tree
 {
 
-TruncatePath::TruncatePath(
-  const std::string & name,
-  const BT::NodeConfiguration & conf)
-: BT::ActionNodeBase(name, conf),
-  distance_(1.0)
+TruncatePath::TruncatePath(const std::string & name, const BT::NodeConfiguration & conf)
+: BT::ActionNodeBase(name, conf), distance_(1.0)
 {
   getInput("distance", distance_);
 }
@@ -51,13 +48,13 @@ inline BT::NodeStatus TruncatePath::tick()
 
   geometry_msgs::msg::PoseStamped final_pose = input_path.poses.back();
 
-  double distance_to_goal = nav2_util::geometry_utils::euclidean_distance(
-    input_path.poses.back(), final_pose);
+  double distance_to_goal =
+    nav2_util::geometry_utils::euclidean_distance(input_path.poses.back(), final_pose);
 
   while (distance_to_goal < distance_ && input_path.poses.size() > 2) {
     input_path.poses.pop_back();
-    distance_to_goal = nav2_util::geometry_utils::euclidean_distance(
-      input_path.poses.back(), final_pose);
+    distance_to_goal =
+      nav2_util::geometry_utils::euclidean_distance(input_path.poses.back(), final_pose);
   }
 
   double dx = final_pose.pose.position.x - input_path.poses.back().pose.position.x;
@@ -72,8 +69,8 @@ inline BT::NodeStatus TruncatePath::tick()
     final_angle = 0.0;
   }
 
-  input_path.poses.back().pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(
-    final_angle);
+  input_path.poses.back().pose.orientation =
+    nav2_util::geometry_utils::orientationAroundZAxis(final_angle);
 
   setOutput("output_path", input_path);
 

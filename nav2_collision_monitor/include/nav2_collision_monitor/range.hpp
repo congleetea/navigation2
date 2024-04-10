@@ -16,11 +16,11 @@
 #define NAV2_COLLISION_MONITOR__RANGE_HPP_
 
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
-#include "sensor_msgs/msg/range.hpp"
 #include "nav2_util/robot_utils.hpp"
+#include "sensor_msgs/msg/range.hpp"
 
 #include "nav2_collision_monitor/source.hpp"
 
@@ -38,22 +38,21 @@ public:
    * @param node Collision Monitor node pointer
    * @param source_name Name of data source
    * @param tf_buffer Shared pointer to a TF buffer
-   * @param base_frame_id Robot base frame ID. The output data will be transformed into this frame.
+   * @param base_frame_id Robot base frame ID. The output data will be
+   * transformed into this frame.
    * @param global_frame_id Global frame ID for correct transform calculation
    * @param transform_tolerance Transform tolerance
-   * @param source_timeout Maximum time interval in which data is considered valid
-   * @param base_shift_correction Whether to correct source data towards to base frame movement,
-   * considering the difference between current time and latest source time
+   * @param source_timeout Maximum time interval in which data is considered
+   * valid
+   * @param base_shift_correction Whether to correct source data towards to base
+   * frame movement, considering the difference between current time and latest
+   * source time
    */
   Range(
-    const nav2_util::LifecycleNode::WeakPtr & node,
-    const std::string & source_name,
-    const std::shared_ptr<tf2_ros::Buffer> tf_buffer,
-    const std::string & base_frame_id,
-    const std::string & global_frame_id,
-    const tf2::Duration & transform_tolerance,
-    const rclcpp::Duration & source_timeout,
-    const bool base_shift_correction);
+    const nav2_util::LifecycleNode::WeakPtr & node, const std::string & source_name,
+    const std::shared_ptr<tf2_ros::Buffer> tf_buffer, const std::string & base_frame_id,
+    const std::string & global_frame_id, const tf2::Duration & transform_tolerance,
+    const rclcpp::Duration & source_timeout, const bool base_shift_correction);
   /**
    * @brief Range destructor
    */
@@ -71,9 +70,7 @@ public:
    * @param data Array where the data from source to be added.
    * Added data is transformed to base_frame_id_ coordinate system at curr_time.
    */
-  void getData(
-    const rclcpp::Time & curr_time,
-    std::vector<Point> & data) const;
+  void getData(const rclcpp::Time & curr_time, std::vector<Point> & data) const;
 
 protected:
   /**
@@ -93,7 +90,8 @@ protected:
   /// @brief Range sensor data subscriber
   rclcpp::Subscription<sensor_msgs::msg::Range>::SharedPtr data_sub_;
 
-  /// @brief Angle increment (in rad) between two obstacle points at the range arc
+  /// @brief Angle increment (in rad) between two obstacle points at the range
+  /// arc
   double obstacles_angle_;
 
   /// @brief Latest data obtained from range sensor

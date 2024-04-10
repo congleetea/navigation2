@@ -14,10 +14,10 @@
 //
 // Modified by: Shivang Patel (shivaang14@gmail.com)
 
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <vector>
-#include <algorithm>
 
 #include "nav2_costmap_2d/footprint_collision_checker.hpp"
 
@@ -31,20 +31,17 @@ using namespace std::chrono_literals;
 namespace nav2_costmap_2d
 {
 
-template<typename CostmapT>
-FootprintCollisionChecker<CostmapT>::FootprintCollisionChecker()
-: costmap_(nullptr)
+template <typename CostmapT>
+FootprintCollisionChecker<CostmapT>::FootprintCollisionChecker() : costmap_(nullptr)
 {
 }
 
-template<typename CostmapT>
-FootprintCollisionChecker<CostmapT>::FootprintCollisionChecker(
-  CostmapT costmap)
-: costmap_(costmap)
+template <typename CostmapT>
+FootprintCollisionChecker<CostmapT>::FootprintCollisionChecker(CostmapT costmap) : costmap_(costmap)
 {
 }
 
-template<typename CostmapT>
+template <typename CostmapT>
 double FootprintCollisionChecker<CostmapT>::footprintCost(const Footprint footprint)
 {
   // now we really have to lay down the footprint in the costmap_ grid
@@ -84,14 +81,14 @@ double FootprintCollisionChecker<CostmapT>::footprintCost(const Footprint footpr
   return std::max(lineCost(xstart, x1, ystart, y1), footprint_cost);
 }
 
-template<typename CostmapT>
+template <typename CostmapT>
 double FootprintCollisionChecker<CostmapT>::lineCost(int x0, int x1, int y0, int y1) const
 {
   double line_cost = 0.0;
   double point_cost = -1.0;
 
   for (nav2_util::LineIterator line(x0, y0, x1, y1); line.isValid(); line.advance()) {
-    point_cost = pointCost(line.getX(), line.getY());   // Score the current point
+    point_cost = pointCost(line.getX(), line.getY());  // Score the current point
 
     // if in collision, no need to continue
     if (point_cost == static_cast<double>(LETHAL_OBSTACLE)) {
@@ -106,26 +103,26 @@ double FootprintCollisionChecker<CostmapT>::lineCost(int x0, int x1, int y0, int
   return line_cost;
 }
 
-template<typename CostmapT>
+template <typename CostmapT>
 bool FootprintCollisionChecker<CostmapT>::worldToMap(
   double wx, double wy, unsigned int & mx, unsigned int & my)
 {
   return costmap_->worldToMap(wx, wy, mx, my);
 }
 
-template<typename CostmapT>
+template <typename CostmapT>
 double FootprintCollisionChecker<CostmapT>::pointCost(int x, int y) const
 {
   return costmap_->getCost(x, y);
 }
 
-template<typename CostmapT>
+template <typename CostmapT>
 void FootprintCollisionChecker<CostmapT>::setCostmap(CostmapT costmap)
 {
   costmap_ = costmap;
 }
 
-template<typename CostmapT>
+template <typename CostmapT>
 double FootprintCollisionChecker<CostmapT>::footprintCostAtPose(
   double x, double y, double theta, const Footprint footprint)
 {

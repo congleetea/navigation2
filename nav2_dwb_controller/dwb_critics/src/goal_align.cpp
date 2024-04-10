@@ -33,11 +33,11 @@
  */
 
 #include "dwb_critics/goal_align.hpp"
-#include <vector>
-#include <string>
 #include "dwb_critics/alignment_util.hpp"
-#include "pluginlib/class_list_macros.hpp"
 #include "nav_2d_utils/parameters.hpp"
+#include "pluginlib/class_list_macros.hpp"
+#include <string>
+#include <vector>
 
 namespace dwb_critics
 {
@@ -53,14 +53,12 @@ void GoalAlignCritic::onInit()
   }
 
   forward_point_distance_ = nav_2d_utils::searchAndGetParam(
-    node,
-    dwb_plugin_name_ + "." + name_ + ".forward_point_distance", 0.325);
+    node, dwb_plugin_name_ + "." + name_ + ".forward_point_distance", 0.325);
 }
 
 bool GoalAlignCritic::prepare(
   const geometry_msgs::msg::Pose2D & pose, const nav_2d_msgs::msg::Twist2D & vel,
-  const geometry_msgs::msg::Pose2D & goal,
-  const nav_2d_msgs::msg::Path2D & global_plan)
+  const geometry_msgs::msg::Pose2D & goal, const nav_2d_msgs::msg::Path2D & global_plan)
 {
   // we want the robot nose to be drawn to its final position
   // (before robot turns towards goal orientation), not the end of the

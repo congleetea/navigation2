@@ -39,29 +39,28 @@
 #include <memory>
 #include <string>
 
-#include "nav2_costmap_2d/costmap_2d_ros.hpp"
-#include "tf2_ros/transform_listener.h"
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp_lifecycle/lifecycle_node.hpp"
-#include "pluginlib/class_loader.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
-#include "nav_msgs/msg/path.hpp"
 #include "nav2_core/goal_checker.hpp"
-
+#include "nav2_costmap_2d/costmap_2d_ros.hpp"
+#include "nav_msgs/msg/path.hpp"
+#include "pluginlib/class_loader.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
+#include "tf2_ros/transform_listener.h"
 
 namespace nav2_core
 {
 
 /**
  * @class Controller
- * @brief controller interface that acts as a virtual base class for all controller plugins
+ * @brief controller interface that acts as a virtual base class for all
+ * controller plugins
  */
 class Controller
 {
 public:
   using Ptr = std::shared_ptr<nav2_core::Controller>;
-
 
   /**
    * @brief Virtual destructor
@@ -73,9 +72,8 @@ public:
    * @param  costmap_ros A pointer to the costmap
    */
   virtual void configure(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr &,
-    std::string name, std::shared_ptr<tf2_ros::Buffer>,
-    std::shared_ptr<nav2_costmap_2d::Costmap2DROS>) = 0;
+    const rclcpp_lifecycle::LifecycleNode::WeakPtr &, std::string name,
+    std::shared_ptr<tf2_ros::Buffer>, std::shared_ptr<nav2_costmap_2d::Costmap2DROS>) = 0;
 
   /**
    * @brief Method to cleanup resources.
@@ -99,7 +97,8 @@ public:
   virtual void setPlan(const nav_msgs::msg::Path & path) = 0;
 
   /**
-   * @brief Controller computeVelocityCommands - calculates the best command given the current pose and velocity
+   * @brief Controller computeVelocityCommands - calculates the best command
+   * given the current pose and velocity
    *
    * It is presumed that the global plan is already set.
    *
@@ -108,12 +107,12 @@ public:
    *
    * @param pose Current robot pose
    * @param velocity Current robot velocity
-   * @param goal_checker Pointer to the current goal checker the task is utilizing
+   * @param goal_checker Pointer to the current goal checker the task is
+   * utilizing
    * @return The best command for the robot to drive
    */
   virtual geometry_msgs::msg::TwistStamped computeVelocityCommands(
-    const geometry_msgs::msg::PoseStamped & pose,
-    const geometry_msgs::msg::Twist & velocity,
+    const geometry_msgs::msg::PoseStamped & pose, const geometry_msgs::msg::Twist & velocity,
     nav2_core::GoalChecker * goal_checker) = 0;
 
   /**

@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <chrono>
+#include <gtest/gtest.h>
 #include <memory>
 #include <set>
 #include <string>
@@ -24,7 +24,7 @@
 #include "../../test_behavior_tree_fixture.hpp"
 #include "nav2_behavior_tree/plugins/condition/goal_reached_condition.hpp"
 
-using namespace std::chrono;  // NOLINT
+using namespace std::chrono;           // NOLINT
 using namespace std::chrono_literals;  // NOLINT
 
 class GoalReachedConditionTestFixture : public nav2_behavior_tree::BehaviorTreeTestFixture
@@ -53,10 +53,7 @@ public:
     tree_ = std::make_shared<BT::Tree>(factory_->createTreeFromText(xml_txt, config_->blackboard));
   }
 
-  void TearDown()
-  {
-    tree_.reset();
-  }
+  void TearDown() { tree_.reset(); }
 
 protected:
   static std::shared_ptr<BT::Tree> tree_;

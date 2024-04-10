@@ -12,38 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <vector>
-#include <memory>
 #include "nav2_smoother/simple_smoother.hpp"
+#include <memory>
+#include <vector>
 
 namespace nav2_smoother
 {
-using namespace smoother_utils;  // NOLINT
+using namespace smoother_utils;             // NOLINT
 using namespace nav2_util::geometry_utils;  // NOLINT
-using namespace std::chrono;  // NOLINT
+using namespace std::chrono;                // NOLINT
 using nav2_util::declare_parameter_if_not_declared;
 
 void SimpleSmoother::configure(
-  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-  std::string name, std::shared_ptr<tf2_ros::Buffer>/*tf*/,
+  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, std::string name,
+  std::shared_ptr<tf2_ros::Buffer> /*tf*/,
   std::shared_ptr<nav2_costmap_2d::CostmapSubscriber> costmap_sub,
-  std::shared_ptr<nav2_costmap_2d::FootprintSubscriber>/*footprint_sub*/)
+  std::shared_ptr<nav2_costmap_2d::FootprintSubscriber> /*footprint_sub*/)
 {
   costmap_sub_ = costmap_sub;
 
   auto node = parent.lock();
   logger_ = node->get_logger();
 
-  declare_parameter_if_not_declared(
-    node, name + ".tolerance", rclcpp::ParameterValue(1e-10));
-  declare_parameter_if_not_declared(
-    node, name + ".max_its", rclcpp::ParameterValue(1000));
-  declare_parameter_if_not_declared(
-    node, name + ".w_data", rclcpp::ParameterValue(0.2));
-  declare_parameter_if_not_declared(
-    node, name + ".w_smooth", rclcpp::ParameterValue(0.3));
-  declare_parameter_if_not_declared(
-    node, name + ".do_refinement", rclcpp::ParameterValue(true));
+  declare_parameter_if_not_declared(node, name + ".tolerance", rclcpp::ParameterValue(1e-10));
+  declare_parameter_if_not_declared(node, name + ".max_its", rclcpp::ParameterValue(1000));
+  declare_parameter_if_not_declared(node, name + ".w_data", rclcpp::ParameterValue(0.2));
+  declare_parameter_if_not_declared(node, name + ".w_smooth", rclcpp::ParameterValue(0.3));
+  declare_parameter_if_not_declared(node, name + ".do_refinement", rclcpp::ParameterValue(true));
 
   node->get_parameter(name + ".tolerance", tolerance_);
   node->get_parameter(name + ".max_its", max_its_);
@@ -52,9 +47,7 @@ void SimpleSmoother::configure(
   node->get_parameter(name + ".do_refinement", do_refinement_);
 }
 
-bool SimpleSmoother::smooth(
-  nav_msgs::msg::Path & path,
-  const rclcpp::Duration & max_time)
+bool SimpleSmoother::smooth(nav_msgs::msg::Path & path, const rclcpp::Duration & max_time)
 {
   auto costmap = costmap_sub_->getCostmap();
 
@@ -73,8 +66,7 @@ bool SimpleSmoother::smooth(
       // Populate path segment
       curr_path_segment.poses.clear();
       std::copy(
-        path.poses.begin() + path_segments[i].start,
-        path.poses.begin() + path_segments[i].end + 1,
+        path.poses.begin() + path_segments[i].start, path.poses.begin() + path_segments[i].end + 1,
         std::back_inserter(curr_path_segment.poses));
 
       // Make sure we're still able to smooth with time remaining
@@ -82,13 +74,12 @@ bool SimpleSmoother::smooth(
       time_remaining = max_time.seconds() - duration_cast<duration<double>>(now - start).count();
 
       // Smooth path segment naively
-      success = success && smoothImpl(
-        curr_path_segment, reversing_segment, costmap.get(), time_remaining);
+      success =
+        success && smoothImpl(curr_path_segment, reversing_segment, costmap.get(), time_remaining);
 
       // Assemble the path changes to the main path
       std::copy(
-        curr_path_segment.poses.begin(),
-        curr_path_segment.poses.end(),
+        curr_path_segment.poses.begin(), curr_path_segment.poses.end(),
         path.poses.begin() + path_segments[i].start);
     }
   }
@@ -97,9 +88,7 @@ bool SimpleSmoother::smooth(
 }
 
 bool SimpleSmoother::smoothImpl(
-  nav_msgs::msg::Path & path,
-  bool & reversing_segment,
-  const nav2_costmap_2d::Costmap2D * costmap,
+  nav_msgs::msg::Path & path, bool & reversing_segment, const nav2_costmap_2d::Costmap2D * costmap,
   const double & max_time)
 {
   steady_clock::time_point a = steady_clock::now();
@@ -120,9 +109,7 @@ bool SimpleSmoother::smoothImpl(
 
     // Make sure the smoothing function will converge
     if (its >= max_its_) {
-      RCLCPP_WARN(
-        logger_,
-        "Number of iterations has exceeded limit of %i.", max_its_);
+      RCLCPP_WARN(logger_, "Number of iterations has exceeded limit of %i.", max_its_);
       path = last_path;
       updateApproximatePathOrientations(path, reversing_segment);
       return false;
@@ -132,9 +119,7 @@ bool SimpleSmoother::smoothImpl(
     steady_clock::time_point b = steady_clock::now();
     rclcpp::Duration timespan(duration_cast<duration<double>>(b - a));
     if (timespan > max_dur) {
-      RCLCPP_WARN(
-        logger_,
-        "Smoothing time exceeded allowed duration of %0.2f.", max_time);
+      RCLCPP_WARN(logger_, "Smoothing time exceeded allowed duration of %0.2f.", max_time);
       path = last_path;
       updateApproximatePathOrientations(path, reversing_segment);
       return false;
@@ -148,19 +133,19 @@ bool SimpleSmoother::smoothImpl(
         y_ip1 = getFieldByDim(new_path.poses[i + 1], j);
         y_i_org = y_i;
 
-        // Smooth based on local 3 point neighborhood and original data locations
+        // Smooth based on local 3 point neighborhood and original data
+        // locations
         y_i += data_w_ * (x_i - y_i) + smooth_w_ * (y_ip1 + y_m1 - (2.0 * y_i));
         setFieldByDim(new_path.poses[i], j, y_i);
         change += abs(y_i - y_i_org);
       }
 
-      // validate update is admissible, only checks cost if a valid costmap pointer is provided
+      // validate update is admissible, only checks cost if a valid costmap
+      // pointer is provided
       float cost = 0.0;
       if (costmap) {
         costmap->worldToMap(
-          getFieldByDim(new_path.poses[i], 0),
-          getFieldByDim(new_path.poses[i], 1),
-          mx, my);
+          getFieldByDim(new_path.poses[i], 0), getFieldByDim(new_path.poses[i], 1), mx, my);
         cost = static_cast<float>(costmap->getCost(mx, my));
       }
 
@@ -178,8 +163,8 @@ bool SimpleSmoother::smoothImpl(
     last_path = new_path;
   }
 
-  // Lets do additional refinement, it shouldn't take more than a couple milliseconds
-  // but really puts the path quality over the top.
+  // Lets do additional refinement, it shouldn't take more than a couple
+  // milliseconds but really puts the path quality over the top.
   if (do_refinement_ && refinement_ctr_ < 4) {
     refinement_ctr_++;
     smoothImpl(new_path, reversing_segment, costmap, max_time);
@@ -203,8 +188,7 @@ double SimpleSmoother::getFieldByDim(
 }
 
 void SimpleSmoother::setFieldByDim(
-  geometry_msgs::msg::PoseStamped & msg, const unsigned int dim,
-  const double & value)
+  geometry_msgs::msg::PoseStamped & msg, const unsigned int dim, const double & value)
 {
   if (dim == 0) {
     msg.pose.position.x = value;

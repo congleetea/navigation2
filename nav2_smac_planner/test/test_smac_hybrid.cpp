@@ -17,23 +17,23 @@
 #include <string>
 #include <vector>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_costmap_2d/costmap_subscriber.hpp"
-#include "nav2_util/lifecycle_node.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "nav2_smac_planner/node_hybrid.hpp"
 #include "nav2_smac_planner/a_star.hpp"
 #include "nav2_smac_planner/collision_checker.hpp"
-#include "nav2_smac_planner/smac_planner_hybrid.hpp"
+#include "nav2_smac_planner/node_hybrid.hpp"
 #include "nav2_smac_planner/smac_planner_2d.hpp"
+#include "nav2_smac_planner/smac_planner_hybrid.hpp"
+#include "nav2_util/lifecycle_node.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -95,34 +95,31 @@ TEST(SmacTest, test_smac_se2_reconfigure)
 
   auto rec_param = std::make_shared<rclcpp::AsyncParametersClient>(
     nodeSE2->get_node_base_interface(), nodeSE2->get_node_topics_interface(),
-    nodeSE2->get_node_graph_interface(),
-    nodeSE2->get_node_services_interface());
+    nodeSE2->get_node_graph_interface(), nodeSE2->get_node_services_interface());
 
   auto results = rec_param->set_parameters_atomically(
     {rclcpp::Parameter("test.downsample_costmap", true),
-      rclcpp::Parameter("test.downsampling_factor", 2),
-      rclcpp::Parameter("test.angle_quantization_bins", 100),
-      rclcpp::Parameter("test.allow_unknown", false),
-      rclcpp::Parameter("test.max_iterations", -1),
-      rclcpp::Parameter("test.minimum_turning_radius", 1.0),
-      rclcpp::Parameter("test.cache_obstacle_heuristic", true),
-      rclcpp::Parameter("test.reverse_penalty", 5.0),
-      rclcpp::Parameter("test.change_penalty", 1.0),
-      rclcpp::Parameter("test.non_straight_penalty", 2.0),
-      rclcpp::Parameter("test.cost_penalty", 2.0),
-      rclcpp::Parameter("test.tolerance", 0.2),
-      rclcpp::Parameter("test.retrospective_penalty", 0.2),
-      rclcpp::Parameter("test.analytic_expansion_ratio", 4.0),
-      rclcpp::Parameter("test.max_planning_time", 10.0),
-      rclcpp::Parameter("test.lookup_table_size", 30.0),
-      rclcpp::Parameter("test.smooth_path", false),
-      rclcpp::Parameter("test.analytic_expansion_max_length", 42.0),
-      rclcpp::Parameter("test.max_on_approach_iterations", 42),
-      rclcpp::Parameter("test.motion_model_for_search", std::string("REEDS_SHEPP"))});
+     rclcpp::Parameter("test.downsampling_factor", 2),
+     rclcpp::Parameter("test.angle_quantization_bins", 100),
+     rclcpp::Parameter("test.allow_unknown", false),
+     rclcpp::Parameter("test.max_iterations", -1),
+     rclcpp::Parameter("test.minimum_turning_radius", 1.0),
+     rclcpp::Parameter("test.cache_obstacle_heuristic", true),
+     rclcpp::Parameter("test.reverse_penalty", 5.0),
+     rclcpp::Parameter("test.change_penalty", 1.0),
+     rclcpp::Parameter("test.non_straight_penalty", 2.0),
+     rclcpp::Parameter("test.cost_penalty", 2.0),
+     rclcpp::Parameter("test.tolerance", 0.2),
+     rclcpp::Parameter("test.retrospective_penalty", 0.2),
+     rclcpp::Parameter("test.analytic_expansion_ratio", 4.0),
+     rclcpp::Parameter("test.max_planning_time", 10.0),
+     rclcpp::Parameter("test.lookup_table_size", 30.0),
+     rclcpp::Parameter("test.smooth_path", false),
+     rclcpp::Parameter("test.analytic_expansion_max_length", 42.0),
+     rclcpp::Parameter("test.max_on_approach_iterations", 42),
+     rclcpp::Parameter("test.motion_model_for_search", std::string("REEDS_SHEPP"))});
 
-  rclcpp::spin_until_future_complete(
-    nodeSE2->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(nodeSE2->get_node_base_interface(), results);
 
   EXPECT_EQ(nodeSE2->get_parameter("test.downsample_costmap").as_bool(), true);
   EXPECT_EQ(nodeSE2->get_parameter("test.downsampling_factor").as_int(), 2);
@@ -144,6 +141,5 @@ TEST(SmacTest, test_smac_se2_reconfigure)
   EXPECT_EQ(nodeSE2->get_parameter("test.analytic_expansion_max_length").as_double(), 42.0);
   EXPECT_EQ(nodeSE2->get_parameter("test.max_on_approach_iterations").as_int(), 42);
   EXPECT_EQ(
-    nodeSE2->get_parameter("test.motion_model_for_search").as_string(),
-    std::string("REEDS_SHEPP"));
+    nodeSE2->get_parameter("test.motion_model_for_search").as_string(), std::string("REEDS_SHEPP"));
 }

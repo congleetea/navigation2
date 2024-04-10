@@ -16,17 +16,17 @@
 #define DEPRECATED__SMOOTHER_HPP_
 
 #include <cmath>
-#include <vector>
 #include <iostream>
 #include <memory>
 #include <queue>
 #include <utility>
+#include <vector>
 
-#include "nav2_smac_planner/types.hpp"
 #include "nav2_smac_planner/smoother_cost_function.hpp"
+#include "nav2_smac_planner/types.hpp"
 
-#include "ceres/ceres.h"
 #include "Eigen/Core"
+#include "ceres/ceres.h"
 
 namespace nav2_smac_planner
 {
@@ -99,8 +99,7 @@ public:
    * @return If smoothing was successful
    */
   bool smooth(
-    std::vector<Eigen::Vector2d> & path,
-    nav2_costmap_2d::Costmap2D * costmap,
+    std::vector<Eigen::Vector2d> & path, nav2_costmap_2d::Costmap2D * costmap,
     const SmootherParams & params)
   {
     _options.max_solver_time_in_seconds = params.max_time;
@@ -109,7 +108,7 @@ public:
     std::vector<double> parameters_vec(path.size() * 2);
     double * parameters = parameters_vec.data();
 #else
-    double parameters[path.size() * 2];    // NOLINT
+    double parameters[path.size() * 2];  // NOLINT
 #endif
     for (unsigned int i = 0; i != path.size(); i++) {
       parameters[2 * i] = path[i][0];

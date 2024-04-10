@@ -13,14 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <string>
-#include <random>
-#include <tuple>
-#include <memory>
-#include <iostream>
 #include <chrono>
-#include <sstream>
 #include <iomanip>
+#include <iostream>
+#include <memory>
+#include <random>
+#include <sstream>
+#include <string>
+#include <tuple>
 
 #include "backup_behavior_tester.hpp"
 #include "nav2_util/geometry_utils.hpp"
@@ -31,9 +31,7 @@ using namespace std::chrono;  // NOLINT
 namespace nav2_system_tests
 {
 
-BackupBehaviorTester::BackupBehaviorTester()
-: is_active_(false),
-  initial_pose_received_(false)
+BackupBehaviorTester::BackupBehaviorTester() : is_active_(false), initial_pose_received_(false)
 {
   node_ = rclcpp::Node::make_shared("backup_behavior_test");
 
@@ -41,11 +39,8 @@ BackupBehaviorTester::BackupBehaviorTester()
   tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
   client_ptr_ = rclcpp_action::create_client<BackUp>(
-    node_->get_node_base_interface(),
-    node_->get_node_graph_interface(),
-    node_->get_node_logging_interface(),
-    node_->get_node_waitables_interface(),
-    "backup");
+    node_->get_node_base_interface(), node_->get_node_graph_interface(),
+    node_->get_node_logging_interface(), node_->get_node_waitables_interface(), "backup");
 
   publisher_ =
     node_->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", 10);
@@ -106,8 +101,7 @@ void BackupBehaviorTester::deactivate()
 }
 
 bool BackupBehaviorTester::defaultBackupBehaviorTest(
-  const BackUp::Goal goal_msg,
-  const double tolerance)
+  const BackUp::Goal goal_msg, const double tolerance)
 {
   if (!is_active_) {
     RCLCPP_ERROR(node_->get_logger(), "Not activated");
@@ -128,9 +122,9 @@ bool BackupBehaviorTester::defaultBackupBehaviorTest(
 
   auto goal_handle_future = client_ptr_->async_send_goal(goal_msg);
 
-  if (rclcpp::spin_until_future_complete(node_, goal_handle_future) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  if (
+    rclcpp::spin_until_future_complete(node_, goal_handle_future) !=
+    rclcpp::FutureReturnCode::SUCCESS) {
     RCLCPP_ERROR(node_->get_logger(), "send goal call failed :(");
     return false;
   }
@@ -145,9 +139,8 @@ bool BackupBehaviorTester::defaultBackupBehaviorTest(
   auto result_future = client_ptr_->async_get_result(goal_handle);
 
   RCLCPP_INFO(node_->get_logger(), "Waiting for result");
-  if (rclcpp::spin_until_future_complete(node_, result_future) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  if (
+    rclcpp::spin_until_future_complete(node_, result_future) != rclcpp::FutureReturnCode::SUCCESS) {
     RCLCPP_ERROR(node_->get_logger(), "get result call failed :(");
     return false;
   }
@@ -155,16 +148,16 @@ bool BackupBehaviorTester::defaultBackupBehaviorTest(
   rclcpp_action::ClientGoalHandle<BackUp>::WrappedResult wrapped_result = result_future.get();
 
   switch (wrapped_result.code) {
-    case rclcpp_action::ResultCode::SUCCEEDED: break;
-    case rclcpp_action::ResultCode::ABORTED: RCLCPP_ERROR(
-        node_->get_logger(),
-        "Goal was aborted");
+    case rclcpp_action::ResultCode::SUCCEEDED:
+      break;
+    case rclcpp_action::ResultCode::ABORTED:
+      RCLCPP_ERROR(node_->get_logger(), "Goal was aborted");
       return false;
-    case rclcpp_action::ResultCode::CANCELED: RCLCPP_ERROR(
-        node_->get_logger(),
-        "Goal was canceled");
+    case rclcpp_action::ResultCode::CANCELED:
+      RCLCPP_ERROR(node_->get_logger(), "Goal was canceled");
       return false;
-    default: RCLCPP_ERROR(node_->get_logger(), "Unknown result code");
+    default:
+      RCLCPP_ERROR(node_->get_logger(), "Unknown result code");
       return false;
   }
 
@@ -180,8 +173,7 @@ bool BackupBehaviorTester::defaultBackupBehaviorTest(
 
   if (fabs(dist) > fabs(goal_msg.target.x) + tolerance) {
     RCLCPP_ERROR(
-      node_->get_logger(),
-      "Distance from goal is %lf (tolerance %lf)",
+      node_->get_logger(), "Distance from goal is %lf (tolerance %lf)",
       fabs(dist - goal_msg.target.x), tolerance);
     return false;
   }

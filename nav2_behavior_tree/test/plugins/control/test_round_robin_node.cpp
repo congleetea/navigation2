@@ -25,8 +25,7 @@ class RoundRobinNodeTestFixture : public nav2_behavior_tree::BehaviorTreeTestFix
 public:
   void SetUp() override
   {
-    bt_node_ = std::make_shared<nav2_behavior_tree::RoundRobinNode>(
-      "round_robin", *config_);
+    bt_node_ = std::make_shared<nav2_behavior_tree::RoundRobinNode>("round_robin", *config_);
     first_child_ = std::make_shared<nav2_behavior_tree::DummyNode>();
     second_child_ = std::make_shared<nav2_behavior_tree::DummyNode>();
     third_child_ = std::make_shared<nav2_behavior_tree::DummyNode>();

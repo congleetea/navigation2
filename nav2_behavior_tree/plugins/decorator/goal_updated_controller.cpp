@@ -15,18 +15,16 @@
 #include <chrono>
 #include <string>
 
-#include "rclcpp/rclcpp.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "behaviortree_cpp_v3/decorator_node.h"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_behavior_tree/plugins/decorator/goal_updated_controller.hpp"
-
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_behavior_tree
 {
 
 GoalUpdatedController::GoalUpdatedController(
-  const std::string & name,
-  const BT::NodeConfiguration & conf)
+  const std::string & name, const BT::NodeConfiguration & conf)
 : BT::DecoratorNode(name, conf)
 {
 }
@@ -57,8 +55,8 @@ BT::NodeStatus GoalUpdatedController::tick()
   }
 
   // The child gets ticked the first time through and any time the goal has
-  // changed or preempted. In addition, once the child begins to run, it is ticked each time
-  // 'til completion
+  // changed or preempted. In addition, once the child begins to run, it is
+  // ticked each time 'til completion
   if ((child_node_->status() == BT::NodeStatus::RUNNING) || goal_was_updated_) {
     goal_was_updated_ = false;
     const BT::NodeStatus child_state = child_node_->executeTick();

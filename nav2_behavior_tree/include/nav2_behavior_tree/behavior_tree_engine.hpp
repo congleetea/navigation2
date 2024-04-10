@@ -22,9 +22,8 @@
 
 #include "behaviortree_cpp_v3/behavior_tree.h"
 #include "behaviortree_cpp_v3/bt_factory.h"
-#include "behaviortree_cpp_v3/xml_parsing.h"
 #include "behaviortree_cpp_v3/loggers/bt_zmq_publisher.h"
-
+#include "behaviortree_cpp_v3/xml_parsing.h"
 
 namespace nav2_behavior_tree
 {
@@ -53,14 +52,13 @@ public:
    * @brief Function to execute a BT at a specific rate
    * @param tree BT to execute
    * @param onLoop Function to execute on each iteration of BT execution
-   * @param cancelRequested Function to check if cancel was requested during BT execution
+   * @param cancelRequested Function to check if cancel was requested during BT
+   * execution
    * @param loopTimeout Time period for each iteration of BT execution
    * @return nav2_behavior_tree::BtStatus Status of BT execution
    */
   BtStatus run(
-    BT::Tree * tree,
-    std::function<void()> onLoop,
-    std::function<bool()> cancelRequested,
+    BT::Tree * tree, std::function<void()> onLoop, std::function<bool()> cancelRequested,
     std::chrono::milliseconds loopTimeout = std::chrono::milliseconds(10));
 
   /**
@@ -69,9 +67,7 @@ public:
    * @param blackboard Blackboard for BT
    * @return BT::Tree Created behavior tree
    */
-  BT::Tree createTreeFromText(
-    const std::string & xml_string,
-    BT::Blackboard::Ptr blackboard);
+  BT::Tree createTreeFromText(const std::string & xml_string, BT::Blackboard::Ptr blackboard);
 
   /**
    * @brief Function to create a BT from an XML file
@@ -79,9 +75,7 @@ public:
    * @param blackboard Blackboard for BT
    * @return BT::Tree Created behavior tree
    */
-  BT::Tree createTreeFromFile(
-    const std::string & file_path,
-    BT::Blackboard::Ptr blackboard);
+  BT::Tree createTreeFromFile(const std::string & file_path, BT::Blackboard::Ptr blackboard);
 
   /**
    * @brief Function to explicitly reset all BT nodes to initial state

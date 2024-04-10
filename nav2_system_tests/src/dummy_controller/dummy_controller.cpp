@@ -14,8 +14,8 @@
 
 #include <chrono>
 #include <ctime>
-#include <thread>
 #include <memory>
+#include <thread>
 #include <utility>
 
 #include "dummy_controller.hpp"
@@ -25,15 +25,13 @@ using namespace std::chrono_literals;
 namespace nav2_system_tests
 {
 
-DummyController::DummyController()
-: Node("DummyController")
+DummyController::DummyController() : Node("DummyController")
 {
   RCLCPP_INFO(get_logger(), "Initializing DummyController...");
 
   auto temp_node = std::shared_ptr<rclcpp::Node>(this, [](auto) {});
 
-  vel_pub_ =
-    this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 1);
+  vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 1);
 
   task_server_ = std::make_unique<nav2_behavior_tree::FollowPathTaskServer>(temp_node, false),
   task_server_->setExecuteCallback(
@@ -45,13 +43,9 @@ DummyController::DummyController()
   RCLCPP_INFO(get_logger(), "Initialized DummyController");
 }
 
-DummyController::~DummyController()
-{
-  RCLCPP_INFO(get_logger(), "Shutting down DummyController");
-}
+DummyController::~DummyController() { RCLCPP_INFO(get_logger(), "Shutting down DummyController"); }
 
-void
-DummyController::followPath(const nav2_behavior_tree::FollowPathCommand::SharedPtr /*command*/)
+void DummyController::followPath(const nav2_behavior_tree::FollowPathCommand::SharedPtr /*command*/)
 {
   RCLCPP_INFO(get_logger(), "Starting controller ");
 

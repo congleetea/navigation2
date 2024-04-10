@@ -12,18 +12,18 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
+#include "nav2_theta_star_planner/theta_star.hpp"
+#include "nav2_theta_star_planner/theta_star_planner.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include <gtest/gtest.h>
 #include <memory>
 #include <vector>
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_theta_star_planner/theta_star.hpp"
-#include "nav2_theta_star_planner/theta_star_planner.hpp"
 
 class init_rclcpp
 {
 public:
-  init_rclcpp() {rclcpp::init(0, nullptr);}
-  ~init_rclcpp() {rclcpp::shutdown();}
+  init_rclcpp() { rclcpp::init(0, nullptr); }
+  ~init_rclcpp() { rclcpp::shutdown(); }
 };
 
 /// class created to access the protected members of the ThetaStar class
@@ -31,34 +31,36 @@ public:
 class test_theta_star : public theta_star::ThetaStar
 {
 public:
-  int getSizeOfNodePosition()
-  {
-    return static_cast<int>(node_position_.size());
-  }
+  int getSizeOfNodePosition() { return static_cast<int>(node_position_.size()); }
 
   bool ulosCheck(const int & x0, const int & y0, const int & x1, const int & y1, double & sl_cost)
   {
     return losCheck(x0, y0, x1, y1, sl_cost);
   }
 
-  bool uwithinLimits(const int & cx, const int & cy) {return withinLimits(cx, cy);}
+  bool uwithinLimits(const int & cx, const int & cy) { return withinLimits(cx, cy); }
 
-  bool uisGoal(const tree_node & this_node) {return isGoal(this_node);}
+  bool uisGoal(const tree_node & this_node) { return isGoal(this_node); }
 
   void uinitializePosn(int size_inc = 0)
   {
-    node_position_.reserve(size_x_ * size_y_); initializePosn(size_inc);
+    node_position_.reserve(size_x_ * size_y_);
+    initializePosn(size_inc);
   }
 
-  void uaddIndex(const int & cx, const int & cy) {addIndex(cx, cy, &nodes_data_[0]);}
+  void uaddIndex(const int & cx, const int & cy) { addIndex(cx, cy, &nodes_data_[0]); }
 
-  tree_node * ugetIndex(const int & cx, const int & cy) {return getIndex(cx, cy);}
+  tree_node * ugetIndex(const int & cx, const int & cy) { return getIndex(cx, cy); }
 
-  tree_node * test_getIndex() {return &nodes_data_[0];}
+  tree_node * test_getIndex() { return &nodes_data_[0]; }
 
-  void uaddToNodesData(const int & id) {addToNodesData(id);}
+  void uaddToNodesData(const int & id) { addToNodesData(id); }
 
-  void uresetContainers() {nodes_data_.clear(); resetContainers();}
+  void uresetContainers()
+  {
+    nodes_data_.clear();
+    resetContainers();
+  }
 
   bool runAlgo(std::vector<coordsW> & path)
   {
@@ -72,7 +74,8 @@ public:
 init_rclcpp node;
 
 // Tests meant to test the algorithm itself and its helper functions
-TEST(ThetaStarTest, test_theta_star) {
+TEST(ThetaStarTest, test_theta_star)
+{
   auto planner_ = std::make_unique<test_theta_star>();
   planner_->costmap_ = new nav2_costmap_2d::Costmap2D(50, 50, 1.0, 0.0, 0.0, 0);
   for (int i = 7; i <= 14; i++) {
@@ -106,18 +109,18 @@ TEST(ThetaStarTest, test_theta_star) {
   tree_node n = {g.x, g.y, 120, 0, NULL, false, 20};
   n.parent_id = &n;
   /// Check if the isGoal function works properly
-  EXPECT_TRUE(planner_->uisGoal(n));           // both (x,y) are the goal coordinates
+  EXPECT_TRUE(planner_->uisGoal(n));  // both (x,y) are the goal coordinates
   n.x = 25;
-  EXPECT_FALSE(planner_->uisGoal(n));          // only y coordinate matches with that of goal
+  EXPECT_FALSE(planner_->uisGoal(n));  // only y coordinate matches with that of goal
   n.x = g.x;
   n.y = 20;
-  EXPECT_FALSE(planner_->uisGoal(n));          // only x coordinate matches with that of goal
+  EXPECT_FALSE(planner_->uisGoal(n));  // only x coordinate matches with that of goal
   n.x = 30;
-  EXPECT_FALSE(planner_->uisGoal(n));          // both (x, y) are different from the goal coordinate
+  EXPECT_FALSE(planner_->uisGoal(n));  // both (x, y) are different from the goal coordinate
 
   /// Check if the isSafe functions work properly
-  EXPECT_TRUE(planner_->isSafe(5, 5));         // cost at this point is 0
-  EXPECT_FALSE(planner_->isSafe(10, 10));      // cost at this point is 253 (>LETHAL_COST)
+  EXPECT_TRUE(planner_->isSafe(5, 5));     // cost at this point is 0
+  EXPECT_FALSE(planner_->isSafe(10, 10));  // cost at this point is 253 (>LETHAL_COST)
 
   /// Check if the functions addIndex & getIndex work properly
   coordsM c = {18, 18};
@@ -144,8 +147,10 @@ TEST(ThetaStarTest, test_theta_star) {
   EXPECT_EQ(static_cast<int>(path.size()), 0);
 }
 
-// Smoke tests meant to detect issues arising from the plugin part rather than the algorithm
-TEST(ThetaStarPlanner, test_theta_star_planner) {
+// Smoke tests meant to detect issues arising from the plugin part rather than
+// the algorithm
+TEST(ThetaStarPlanner, test_theta_star_planner)
+{
   rclcpp_lifecycle::LifecycleNode::SharedPtr life_node =
     std::make_shared<rclcpp_lifecycle::LifecycleNode>("ThetaStarPlannerTest");
 
@@ -204,29 +209,21 @@ TEST(ThetaStarPlanner, test_theta_star_reconfigure)
 
   auto rec_param = std::make_shared<rclcpp::AsyncParametersClient>(
     life_node->get_node_base_interface(), life_node->get_node_topics_interface(),
-    life_node->get_node_graph_interface(),
-    life_node->get_node_services_interface());
+    life_node->get_node_graph_interface(), life_node->get_node_services_interface());
 
   auto results = rec_param->set_parameters_atomically(
-    {rclcpp::Parameter("test.how_many_corners", 8),
-      rclcpp::Parameter("test.w_euc_cost", 1.0),
-      rclcpp::Parameter("test.w_traversal_cost", 2.0),
-      rclcpp::Parameter("test.use_final_approach_orientation", false),
-      rclcpp::Parameter("test.allow_unknown", false)});
+    {rclcpp::Parameter("test.how_many_corners", 8), rclcpp::Parameter("test.w_euc_cost", 1.0),
+     rclcpp::Parameter("test.w_traversal_cost", 2.0),
+     rclcpp::Parameter("test.use_final_approach_orientation", false),
+     rclcpp::Parameter("test.allow_unknown", false)});
 
-  rclcpp::spin_until_future_complete(
-    life_node->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(life_node->get_node_base_interface(), results);
 
   EXPECT_EQ(life_node->get_parameter("test.how_many_corners").as_int(), 8);
-  EXPECT_EQ(
-    life_node->get_parameter("test.w_euc_cost").as_double(),
-    1.0);
+  EXPECT_EQ(life_node->get_parameter("test.w_euc_cost").as_double(), 1.0);
   EXPECT_EQ(life_node->get_parameter("test.w_traversal_cost").as_double(), 2.0);
   EXPECT_EQ(life_node->get_parameter("test.use_final_approach_orientation").as_bool(), false);
   EXPECT_EQ(life_node->get_parameter("test.allow_unknown").as_bool(), false);
 
-  rclcpp::spin_until_future_complete(
-    life_node->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(life_node->get_node_base_interface(), results);
 }

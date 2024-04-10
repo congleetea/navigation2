@@ -31,17 +31,14 @@ public:
       "globally_updated_goal", *config_);
   }
 
-  void TearDown()
-  {
-    bt_node_.reset();
-  }
+  void TearDown() { bt_node_.reset(); }
 
 protected:
   static std::shared_ptr<nav2_behavior_tree::GloballyUpdatedGoalCondition> bt_node_;
 };
 
 std::shared_ptr<nav2_behavior_tree::GloballyUpdatedGoalCondition>
-GloballyUpdatedGoalConditionTestFixture::bt_node_ = nullptr;
+  GloballyUpdatedGoalConditionTestFixture::bt_node_ = nullptr;
 
 TEST_F(GloballyUpdatedGoalConditionTestFixture, test_behavior)
 {

@@ -12,39 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
+#include <limits>
 #include <math.h>
 #include <memory>
 #include <string>
 #include <vector>
-#include <limits>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
+#include "ament_index_cpp/get_package_share_directory.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_costmap_2d/costmap_subscriber.hpp"
-#include "nav2_util/lifecycle_node.hpp"
-#include "nav2_smac_planner/node_hybrid.hpp"
 #include "nav2_smac_planner/a_star.hpp"
 #include "nav2_smac_planner/collision_checker.hpp"
+#include "nav2_smac_planner/node_hybrid.hpp"
 #include "nav2_smac_planner/smoother.hpp"
-#include "ament_index_cpp/get_package_share_directory.hpp"
+#include "nav2_util/lifecycle_node.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 using namespace nav2_smac_planner;  // NOLINT
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
 class SmootherWrapper : public nav2_smac_planner::Smoother
 {
 public:
-  explicit SmootherWrapper(const SmootherParams & params)
-  : nav2_smac_planner::Smoother(params)
-  {}
+  explicit SmootherWrapper(const SmootherParams & params) : nav2_smac_planner::Smoother(params) {}
 
   std::vector<PathSegment> findDirectionalPathSegmentsWrapper(nav_msgs::msg::Path path)
   {
@@ -81,7 +79,7 @@ TEST(SmootherTest, test_full_smoother)
   info.cost_penalty = 2.0;
   info.retrospective_penalty = 0.0;
   info.analytic_expansion_ratio = 3.5;
-  info.minimum_turning_radius = 8;  // in grid coordinates 0.4/0.05
+  info.minimum_turning_radius = 8;            // in grid coordinates 0.4/0.05
   info.analytic_expansion_max_length = 20.0;  // in grid coordinates
   unsigned int size_theta = 72;
   nav2_smac_planner::AStarAlgorithm<nav2_smac_planner::NodeHybrid> a_star(
@@ -135,7 +133,8 @@ TEST(SmootherTest, test_full_smoother)
   // and shorter overall length, while still being collision free.
   auto path_size_in = plan.poses.size();
   EXPECT_TRUE(smoother->smooth(plan, costmap, maxtime));
-  EXPECT_EQ(plan.poses.size(), path_size_in);  // Should have same number of poses
+  EXPECT_EQ(plan.poses.size(),
+            path_size_in);  // Should have same number of poses
   double length = 0.0;
   x_m = plan.poses[0].pose.position.x;
   y_m = plan.poses[0].pose.position.y;

@@ -16,20 +16,20 @@
 #ifndef NAV2_REGULATED_PURE_PURSUIT_CONTROLLER__REGULATED_PURE_PURSUIT_CONTROLLER_HPP_
 #define NAV2_REGULATED_PURE_PURSUIT_CONTROLLER__REGULATED_PURE_PURSUIT_CONTROLLER_HPP_
 
+#include <algorithm>
+#include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
-#include <memory>
-#include <algorithm>
-#include <mutex>
 
-#include "nav2_costmap_2d/footprint_collision_checker.hpp"
-#include "nav2_core/controller.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "pluginlib/class_loader.hpp"
-#include "pluginlib/class_list_macros.hpp"
-#include "nav2_util/odometry_utils.hpp"
-#include "nav2_util/geometry_utils.hpp"
 #include "geometry_msgs/msg/pose2_d.hpp"
+#include "nav2_core/controller.hpp"
+#include "nav2_costmap_2d/footprint_collision_checker.hpp"
+#include "nav2_util/geometry_utils.hpp"
+#include "nav2_util/odometry_utils.hpp"
+#include "pluginlib/class_list_macros.hpp"
+#include "pluginlib/class_loader.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_regulated_pure_pursuit_controller
 {
@@ -42,12 +42,14 @@ class RegulatedPurePursuitController : public nav2_core::Controller
 {
 public:
   /**
-   * @brief Constructor for nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController
+   * @brief Constructor for
+   * nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController
    */
   RegulatedPurePursuitController() = default;
 
   /**
-   * @brief Destrructor for nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController
+   * @brief Destrructor for
+   * nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController
    */
   ~RegulatedPurePursuitController() override = default;
 
@@ -59,8 +61,8 @@ public:
    * @param costmap_ros Costmap2DROS object of environment
    */
   void configure(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-    std::string name, std::shared_ptr<tf2_ros::Buffer> tf,
+    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, std::string name,
+    std::shared_ptr<tf2_ros::Buffer> tf,
     std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros) override;
 
   /**
@@ -79,7 +81,8 @@ public:
   void deactivate() override;
 
   /**
-   * @brief Compute the best command given the current pose and velocity, with possible debug information
+   * @brief Compute the best command given the current pose and velocity, with
+   * possible debug information
    *
    * Same as above computeVelocityCommands, but with debug results.
    * If the results pointer is not null, additional information about the twists
@@ -87,12 +90,12 @@ public:
    *
    * @param pose      Current robot pose
    * @param velocity  Current robot velocity
-   * @param goal_checker   Ptr to the goal checker for this task in case useful in computing commands
+   * @param goal_checker   Ptr to the goal checker for this task in case useful
+   * in computing commands
    * @return          Best command
    */
   geometry_msgs::msg::TwistStamped computeVelocityCommands(
-    const geometry_msgs::msg::PoseStamped & pose,
-    const geometry_msgs::msg::Twist & velocity,
+    const geometry_msgs::msg::PoseStamped & pose, const geometry_msgs::msg::Twist & velocity,
     nav2_core::GoalChecker * /*goal_checker*/) override;
 
   /**
@@ -112,14 +115,14 @@ public:
 
 protected:
   /**
-   * @brief Transforms global plan into same frame as pose and clips poses ineligible for lookaheadPoint
-   * Points ineligible to be selected as a lookahead point if they are any of the following:
+   * @brief Transforms global plan into same frame as pose and clips poses
+   * ineligible for lookaheadPoint Points ineligible to be selected as a
+   * lookahead point if they are any of the following:
    * - Outside the local_costmap (collision avoidance cannot be assured)
    * @param pose pose to transform
    * @return Path in new frame
    */
-  nav_msgs::msg::Path transformGlobalPlan(
-    const geometry_msgs::msg::PoseStamped & pose);
+  nav_msgs::msg::Path transformGlobalPlan(const geometry_msgs::msg::PoseStamped & pose);
 
   /**
    * @brief Transform a pose to another frame.
@@ -129,8 +132,7 @@ protected:
    * @return bool if successful
    */
   bool transformPose(
-    const std::string frame,
-    const geometry_msgs::msg::PoseStamped & in_pose,
+    const std::string frame, const geometry_msgs::msg::PoseStamped & in_pose,
     geometry_msgs::msg::PoseStamped & out_pose) const;
 
   /**
@@ -172,8 +174,8 @@ protected:
    * @param curr_speed the current robot speed
    */
   void rotateToHeading(
-    double & linear_vel, double & angular_vel,
-    const double & angle_to_path, const geometry_msgs::msg::Twist & curr_speed);
+    double & linear_vel, double & angular_vel, const double & angle_to_path,
+    const geometry_msgs::msg::Twist & curr_speed);
 
   /**
    * @brief Whether collision is imminent
@@ -185,9 +187,7 @@ protected:
    * @return Whether collision is imminent
    */
   bool isCollisionImminent(
-    const geometry_msgs::msg::PoseStamped &,
-    const double &, const double &,
-    const double &);
+    const geometry_msgs::msg::PoseStamped &, const double &, const double &, const double &);
 
   /**
    * @brief checks for collision at projected pose
@@ -196,10 +196,7 @@ protected:
    * @param theta orientation of Yaw
    * @return Whether in collision
    */
-  bool inCollision(
-    const double & x,
-    const double & y,
-    const double & theta);
+  bool inCollision(const double & x, const double & y, const double & theta);
   /**
    * @brief Cost at a point
    * @param x Pose of pose x
@@ -208,14 +205,9 @@ protected:
    */
   double costAtPose(const double & x, const double & y);
 
-  double approachVelocityScalingFactor(
-    const nav_msgs::msg::Path & path
-  ) const;
+  double approachVelocityScalingFactor(const nav_msgs::msg::Path & path) const;
 
-  void applyApproachVelocityScaling(
-    const nav_msgs::msg::Path & path,
-    double & linear_vel
-  ) const;
+  void applyApproachVelocityScaling(const nav_msgs::msg::Path & path, double & linear_vel) const;
 
   /**
    * @brief apply regulation constraints to the system
@@ -226,9 +218,8 @@ protected:
    * @param pose_cost cost at this pose
    */
   void applyConstraints(
-    const double & curvature, const geometry_msgs::msg::Twist & speed,
-    const double & pose_cost, const nav_msgs::msg::Path & path,
-    double & linear_vel, double & sign);
+    const double & curvature, const geometry_msgs::msg::Twist & speed, const double & pose_cost,
+    const nav_msgs::msg::Path & path, double & linear_vel, double & sign);
 
   /**
    * @brief Find the intersection a circle and a line segment.
@@ -240,9 +231,7 @@ protected:
    * @return point of intersection
    */
   static geometry_msgs::msg::Point circleSegmentIntersection(
-    const geometry_msgs::msg::Point & p1,
-    const geometry_msgs::msg::Point & p2,
-    double r);
+    const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2, double r);
 
   /**
    * @brief Get lookahead point
@@ -269,15 +258,15 @@ protected:
    * @brief Callback executed when a parameter change is detected
    * @param event ParameterEvent message
    */
-  rcl_interfaces::msg::SetParametersResult
-  dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters);
+  rcl_interfaces::msg::SetParametersResult dynamicParametersCallback(
+    std::vector<rclcpp::Parameter> parameters);
 
   rclcpp_lifecycle::LifecycleNode::WeakPtr node_;
   std::shared_ptr<tf2_ros::Buffer> tf_;
   std::string plugin_name_;
   std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros_;
   nav2_costmap_2d::Costmap2D * costmap_;
-  rclcpp::Logger logger_ {rclcpp::get_logger("RegulatedPurePursuitController")};
+  rclcpp::Logger logger_{rclcpp::get_logger("RegulatedPurePursuitController")};
   rclcpp::Clock::SharedPtr clock_;
 
   double desired_linear_vel_, base_desired_linear_vel_;
@@ -311,10 +300,10 @@ protected:
   nav_msgs::msg::Path global_plan_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>> global_path_pub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::PointStamped>>
-  carrot_pub_;
+    carrot_pub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>> carrot_arc_pub_;
   std::unique_ptr<nav2_costmap_2d::FootprintCollisionChecker<nav2_costmap_2d::Costmap2D *>>
-  collision_checker_;
+    collision_checker_;
 
   // Dynamic parameters handler
   std::mutex mutex_;

@@ -17,22 +17,19 @@
 
 #include "nav2_util/odometry_utils.hpp"
 
-using namespace std::chrono;  // NOLINT
+using namespace std::chrono;           // NOLINT
 using namespace std::chrono_literals;  // NOLINT
 
 namespace nav2_util
 {
 
 OdomSmoother::OdomSmoother(
-  const rclcpp::Node::WeakPtr & parent,
-  double filter_duration,
-  const std::string & odom_topic)
+  const rclcpp::Node::WeakPtr & parent, double filter_duration, const std::string & odom_topic)
 : odom_history_duration_(rclcpp::Duration::from_seconds(filter_duration))
 {
   auto node = parent.lock();
   odom_sub_ = node->create_subscription<nav_msgs::msg::Odometry>(
-    odom_topic,
-    rclcpp::SystemDefaultsQoS(),
+    odom_topic, rclcpp::SystemDefaultsQoS(),
     std::bind(&OdomSmoother::odomCallback, this, std::placeholders::_1));
 
   odom_cumulate_.twist.twist.linear.x = 0;
@@ -44,15 +41,13 @@ OdomSmoother::OdomSmoother(
 }
 
 OdomSmoother::OdomSmoother(
-  const nav2_util::LifecycleNode::WeakPtr & parent,
-  double filter_duration,
+  const nav2_util::LifecycleNode::WeakPtr & parent, double filter_duration,
   const std::string & odom_topic)
 : odom_history_duration_(rclcpp::Duration::from_seconds(filter_duration))
 {
   auto node = parent.lock();
   odom_sub_ = node->create_subscription<nav_msgs::msg::Odometry>(
-    odom_topic,
-    rclcpp::SystemDefaultsQoS(),
+    odom_topic, rclcpp::SystemDefaultsQoS(),
     std::bind(&OdomSmoother::odomCallback, this, std::placeholders::_1));
 
   odom_cumulate_.twist.twist.linear.x = 0;

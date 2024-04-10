@@ -16,9 +16,9 @@
 #include <memory>
 #include <vector>
 
-#include "rclcpp/rclcpp.hpp"
-#include "planner_tester.hpp"
 #include "nav2_util/lifecycle_utils.hpp"
+#include "planner_tester.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 using namespace std::chrono_literals;
 
@@ -33,13 +33,8 @@ TEST(testSimpleCostmaps, testSimpleCostmaps)
   auto obj = std::make_shared<PlannerTester>();
 
   std::vector<TestCostmap> costmaps = {
-    TestCostmap::open_space,
-    TestCostmap::bounded,
-    TestCostmap::top_left_obstacle,
-    TestCostmap::bottom_left_obstacle,
-    TestCostmap::maze1,
-    TestCostmap::maze2
-  };
+    TestCostmap::open_space,           TestCostmap::bounded, TestCostmap::top_left_obstacle,
+    TestCostmap::bottom_left_obstacle, TestCostmap::maze1,   TestCostmap::maze2};
 
   ComputePathToPoseResult result;
 

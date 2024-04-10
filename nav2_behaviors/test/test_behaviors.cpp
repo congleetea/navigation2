@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <string>
-#include <memory>
 #include <chrono>
 #include <iostream>
+#include <memory>
+#include <string>
 #include <thread>
 
-#include "gtest/gtest.h"
 #include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
-#include "rclcpp_action/rclcpp_action.hpp"
 #include "nav2_behaviors/timed_behavior.hpp"
 #include "nav2_msgs/action/dummy_behavior.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
 
-using nav2_behaviors::TimedBehavior;
 using nav2_behaviors::Status;
+using nav2_behaviors::TimedBehavior;
 using BehaviorAction = nav2_msgs::action::DummyBehavior;
 using ClientGoalHandle = rclcpp_action::ClientGoalHandle<BehaviorAction>;
 
@@ -37,9 +37,7 @@ using namespace std::chrono_literals;
 class DummyBehavior : public TimedBehavior<BehaviorAction>
 {
 public:
-  DummyBehavior()
-  : TimedBehavior<BehaviorAction>(),
-    initialized_(false) {}
+  DummyBehavior() : TimedBehavior<BehaviorAction>(), initialized_(false) {}
 
   ~DummyBehavior() = default;
 
@@ -50,8 +48,9 @@ public:
     command_ = goal->command.data;
     start_time_ = std::chrono::system_clock::now();
 
-    // onRun method can have various possible outcomes (success, failure, cancelled)
-    // The output is defined by the tester class on the command string.
+    // onRun method can have various possible outcomes (success, failure,
+    // cancelled) The output is defined by the tester class on the command
+    // string.
     if (command_ == "Testing success" || command_ == "Testing failure on run") {
       initialized_ = true;
       return Status::SUCCEEDED;
@@ -94,25 +93,21 @@ private:
 class BehaviorTest : public ::testing::Test
 {
 protected:
-  BehaviorTest() {SetUp();}
+  BehaviorTest() { SetUp(); }
   ~BehaviorTest() = default;
 
   void SetUp() override
   {
-    node_lifecycle_ =
-      std::make_shared<rclcpp_lifecycle::LifecycleNode>(
+    node_lifecycle_ = std::make_shared<rclcpp_lifecycle::LifecycleNode>(
       "LifecycleBehaviorTestNode", rclcpp::NodeOptions());
     node_lifecycle_->declare_parameter(
-      "costmap_topic",
-      rclcpp::ParameterValue(std::string("local_costmap/costmap_raw")));
+      "costmap_topic", rclcpp::ParameterValue(std::string("local_costmap/costmap_raw")));
     node_lifecycle_->declare_parameter(
-      "footprint_topic",
-      rclcpp::ParameterValue(std::string("local_costmap/published_footprint")));
+      "footprint_topic", rclcpp::ParameterValue(std::string("local_costmap/published_footprint")));
 
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(node_lifecycle_->get_clock());
     auto timer_interface = std::make_shared<tf2_ros::CreateTimerROS>(
-      node_lifecycle_->get_node_base_interface(),
-      node_lifecycle_->get_node_timers_interface());
+      node_lifecycle_->get_node_base_interface(), node_lifecycle_->get_node_timers_interface());
     tf_buffer_->setCreateTimerInterface(timer_interface);
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
@@ -120,23 +115,20 @@ protected:
     node_lifecycle_->get_parameter("costmap_topic", costmap_topic);
     node_lifecycle_->get_parameter("footprint_topic", footprint_topic);
     std::shared_ptr<nav2_costmap_2d::CostmapSubscriber> costmap_sub_ =
-      std::make_shared<nav2_costmap_2d::CostmapSubscriber>(
-      node_lifecycle_, costmap_topic);
+      std::make_shared<nav2_costmap_2d::CostmapSubscriber>(node_lifecycle_, costmap_topic);
     std::shared_ptr<nav2_costmap_2d::FootprintSubscriber> footprint_sub_ =
       std::make_shared<nav2_costmap_2d::FootprintSubscriber>(
-      node_lifecycle_, footprint_topic, *tf_buffer_);
+        node_lifecycle_, footprint_topic, *tf_buffer_);
     std::shared_ptr<nav2_costmap_2d::CostmapTopicCollisionChecker> collision_checker_ =
       std::make_shared<nav2_costmap_2d::CostmapTopicCollisionChecker>(
-      *costmap_sub_, *footprint_sub_,
-      node_lifecycle_->get_name());
+        *costmap_sub_, *footprint_sub_, node_lifecycle_->get_name());
 
     behavior_ = std::make_shared<DummyBehavior>();
     behavior_->configure(node_lifecycle_, "Behavior", tf_buffer_, collision_checker_);
     behavior_->activate();
 
     client_ = rclcpp_action::create_client<BehaviorAction>(
-      node_lifecycle_->get_node_base_interface(),
-      node_lifecycle_->get_node_graph_interface(),
+      node_lifecycle_->get_node_base_interface(), node_lifecycle_->get_node_graph_interface(),
       node_lifecycle_->get_node_logging_interface(),
       node_lifecycle_->get_node_waitables_interface(), "Behavior");
     std::cout << "Setup complete." << std::endl;
@@ -155,9 +147,9 @@ protected:
     goal.command.data = command;
     auto future_goal = client_->async_send_goal(goal);
 
-    if (rclcpp::spin_until_future_complete(node_lifecycle_, future_goal) !=
-      rclcpp::FutureReturnCode::SUCCESS)
-    {
+    if (
+      rclcpp::spin_until_future_complete(node_lifecycle_, future_goal) !=
+      rclcpp::FutureReturnCode::SUCCESS) {
       std::cout << "failed sending goal" << std::endl;
       // failed sending the goal
       return false;

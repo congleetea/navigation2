@@ -16,25 +16,25 @@
 #define NAV2_CONTROLLER__CONTROLLER_SERVER_HPP_
 
 #include <memory>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <unordered_map>
 #include <vector>
-#include <mutex>
 
 #include "nav2_core/controller.hpp"
-#include "nav2_core/progress_checker.hpp"
 #include "nav2_core/goal_checker.hpp"
+#include "nav2_core/progress_checker.hpp"
 #include "nav2_costmap_2d/costmap_2d_ros.hpp"
-#include "tf2_ros/transform_listener.h"
 #include "nav2_msgs/action/follow_path.hpp"
 #include "nav2_msgs/msg/speed_limit.hpp"
-#include "nav_2d_utils/odom_subscriber.hpp"
 #include "nav2_util/lifecycle_node.hpp"
-#include "nav2_util/simple_action_server.hpp"
 #include "nav2_util/robot_utils.hpp"
-#include "pluginlib/class_loader.hpp"
+#include "nav2_util/simple_action_server.hpp"
+#include "nav_2d_utils/odom_subscriber.hpp"
 #include "pluginlib/class_list_macros.hpp"
+#include "pluginlib/class_loader.hpp"
+#include "tf2_ros/transform_listener.h"
 
 namespace nav2_controller
 {
@@ -137,7 +137,8 @@ protected:
    * @brief Find the valid goal checker ID name for the specified parameter
    *
    * @param c_name The goal checker name
-   * @param name Reference to the name to use for goal checking if any valid available
+   * @param name Reference to the name to use for goal checking if any valid
+   * available
    * @return bool Whether it found a valid goal checker to use
    */
   bool findGoalCheckerId(const std::string & c_name, std::string & name);
@@ -206,8 +207,8 @@ protected:
    * @brief Callback executed when a parameter change is detected
    * @param event ParameterEvent message
    */
-  rcl_interfaces::msg::SetParametersResult
-  dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters);
+  rcl_interfaces::msg::SetParametersResult dynamicParametersCallback(
+    std::vector<rclcpp::Parameter> parameters);
 
   // Dynamic parameters handler
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr dyn_params_handler_;
@@ -266,9 +267,9 @@ protected:
 
 private:
   /**
-    * @brief Callback for speed limiting messages
-    * @param msg Shared pointer to nav2_msgs::msg::SpeedLimit
-    */
+   * @brief Callback for speed limiting messages
+   * @param msg Shared pointer to nav2_msgs::msg::SpeedLimit
+   */
   void speedLimitCallback(const nav2_msgs::msg::SpeedLimit::SharedPtr msg);
 };
 

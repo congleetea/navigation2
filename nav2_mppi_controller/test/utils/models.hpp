@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,10 +14,10 @@
 // limitations under the License.
 
 #pragma once
-#include <vector>
-#include <utility>
-#include <string>
 #include <rclcpp/rclcpp.hpp>
+#include <string>
+#include <utility>
+#include <vector>
 
 struct TestOptimizerSettings
 {
@@ -44,12 +45,7 @@ struct TestCostmapSettings
   const unsigned char cost_map_default_value = 0;
   const double footprint_size = 0.15;
 
-  std::pair<unsigned int, unsigned int> getCenterIJ()
-  {
-    return {
-      cells_x / 2,
-      cells_y / 2};
-  }
+  std::pair<unsigned int, unsigned int> getCenterIJ() { return {cells_x / 2, cells_y / 2}; }
 
   TestPose getCenterPose()
   {

@@ -14,15 +14,15 @@
 
 #include <memory>
 
-#include "gtest/gtest.h"
 #include "nav2_util/lifecycle_node.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -32,7 +32,8 @@ RclCppFixture g_rclcppfixture;
 
 TEST(LifecycleNode, RclcppNodeExitsCleanly)
 {
-  // Make sure the node exits cleanly when using an rclcpp_node and associated thread
+  // Make sure the node exits cleanly when using an rclcpp_node and associated
+  // thread
   auto node1 = std::make_shared<nav2_util::LifecycleNode>("test_node", "");
   std::this_thread::sleep_for(std::chrono::seconds(1));
   SUCCEED();
@@ -54,14 +55,12 @@ TEST(LifecycleNode, OnPreshutdownCbFires)
 
   class MyNodeType : public nav2_util::LifecycleNode
   {
-public:
-    MyNodeType(
-      const std::string & node_name)
-    : nav2_util::LifecycleNode(node_name) {}
+  public:
+    MyNodeType(const std::string & node_name) : nav2_util::LifecycleNode(node_name) {}
 
     bool fired = false;
 
-protected:
+  protected:
     void on_rcl_preshutdown() override
     {
       fired = true;

@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,15 +18,15 @@
 #include <memory>
 #include <mutex>
 #include <xtensor/xmath.hpp>
-#include <xtensor/xrandom.hpp>
 #include <xtensor/xnoalias.hpp>
+#include <xtensor/xrandom.hpp>
 
 namespace mppi
 {
 
 void NoiseGenerator::initialize(
-  mppi::models::OptimizerSettings & settings, bool is_holonomic,
-  const std::string & name, ParametersHandler * param_handler)
+  mppi::models::OptimizerSettings & settings, bool is_holonomic, const std::string & name,
+  ParametersHandler * param_handler)
 {
   settings_ = settings;
   is_holonomic_ = is_holonomic;
@@ -63,8 +64,7 @@ void NoiseGenerator::generateNextNoises()
 }
 
 void NoiseGenerator::setNoisedControls(
-  models::State & state,
-  const models::ControlSequence & control_sequence)
+  models::State & state, const models::ControlSequence & control_sequence)
 {
   std::unique_lock<std::mutex> guard(noise_lock_);
 
@@ -98,7 +98,7 @@ void NoiseGenerator::noiseThread()
 {
   do {
     std::unique_lock<std::mutex> guard(noise_lock_);
-    noise_cond_.wait(guard, [this]() {return ready_;});
+    noise_cond_.wait(guard, [this]() { return ready_; });
     ready_ = false;
     generateNoisedControls();
   } while (active_);
@@ -108,16 +108,13 @@ void NoiseGenerator::generateNoisedControls()
 {
   auto & s = settings_;
 
-  xt::noalias(noises_vx_) = xt::random::randn<float>(
-    {s.batch_size, s.time_steps}, 0.0f,
-    s.sampling_std.vx);
-  xt::noalias(noises_wz_) = xt::random::randn<float>(
-    {s.batch_size, s.time_steps}, 0.0f,
-    s.sampling_std.wz);
+  xt::noalias(noises_vx_) =
+    xt::random::randn<float>({s.batch_size, s.time_steps}, 0.0f, s.sampling_std.vx);
+  xt::noalias(noises_wz_) =
+    xt::random::randn<float>({s.batch_size, s.time_steps}, 0.0f, s.sampling_std.wz);
   if (is_holonomic_) {
-    xt::noalias(noises_vy_) = xt::random::randn<float>(
-      {s.batch_size, s.time_steps}, 0.0f,
-      s.sampling_std.vy);
+    xt::noalias(noises_vy_) =
+      xt::random::randn<float>({s.batch_size, s.time_steps}, 0.0f, s.sampling_std.vy);
   }
 }
 

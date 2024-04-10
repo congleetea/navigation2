@@ -15,9 +15,9 @@
 #ifndef DEPRECATED__OPTIONS_HPP_
 #define DEPRECATED__OPTIONS_HPP_
 
-#include <string>
-#include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "nav2_util/node_utils.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
+#include <string>
 
 namespace nav2_smac_planner
 {
@@ -31,9 +31,7 @@ struct SmootherParams
   /**
    * @brief A constructor for nav2_smac_planner::SmootherParams
    */
-  SmootherParams()
-  {
-  }
+  SmootherParams() {}
 
   /**
    * @brief Get params from ROS parameter
@@ -116,14 +114,10 @@ struct OptimizerParams
 
       // Optimizer advanced params
       nav2_util::declare_parameter_if_not_declared(
-        node, local_name + "min_line_search_step_size",
-        rclcpp::ParameterValue(1e-20));
-      node->get_parameter(
-        local_name + "min_line_search_step_size",
-        min_line_search_step_size);
+        node, local_name + "min_line_search_step_size", rclcpp::ParameterValue(1e-20));
+      node->get_parameter(local_name + "min_line_search_step_size", min_line_search_step_size);
       nav2_util::declare_parameter_if_not_declared(
-        node, local_name + "max_num_line_search_step_size_iterations",
-        rclcpp::ParameterValue(50));
+        node, local_name + "max_num_line_search_step_size_iterations", rclcpp::ParameterValue(50));
       node->get_parameter(
         local_name + "max_num_line_search_step_size_iterations",
         max_num_line_search_step_size_iterations);
@@ -134,29 +128,25 @@ struct OptimizerParams
         local_name + "line_search_sufficient_function_decrease",
         line_search_sufficient_function_decrease);
       nav2_util::declare_parameter_if_not_declared(
-        node, local_name + "max_num_line_search_direction_restarts",
-        rclcpp::ParameterValue(10));
+        node, local_name + "max_num_line_search_direction_restarts", rclcpp::ParameterValue(10));
       node->get_parameter(
         local_name + "max_num_line_search_direction_restarts",
         max_num_line_search_direction_restarts);
       nav2_util::declare_parameter_if_not_declared(
-        node, local_name + "max_line_search_step_expansion",
-        rclcpp::ParameterValue(50));
+        node, local_name + "max_line_search_step_expansion", rclcpp::ParameterValue(50));
       node->get_parameter(
-        local_name + "max_line_search_step_expansion",
-        max_line_search_step_expansion);
+        local_name + "max_line_search_step_expansion", max_line_search_step_expansion);
     }
 
-
-    double min_line_search_step_size;  // Ceres default: 1e-9
-    int max_num_line_search_step_size_iterations;  // Ceres default: 20
+    double min_line_search_step_size;                 // Ceres default: 1e-9
+    int max_num_line_search_step_size_iterations;     // Ceres default: 20
     double line_search_sufficient_function_decrease;  // Ceres default: 1e-4
-    int max_num_line_search_direction_restarts;  // Ceres default: 5
+    int max_num_line_search_direction_restarts;       // Ceres default: 5
 
-    double max_line_search_step_contraction;  // Ceres default: 1e-3
-    double min_line_search_step_contraction;  // Ceres default: 0.6
+    double max_line_search_step_contraction;           // Ceres default: 1e-3
+    double min_line_search_step_contraction;           // Ceres default: 0.6
     double line_search_sufficient_curvature_decrease;  // Ceres default: 0.9
-    int max_line_search_step_expansion;  // Ceres default: 10
+    int max_line_search_step_expansion;                // Ceres default: 10
   };
 
   /**
@@ -193,10 +183,10 @@ struct OptimizerParams
 
   bool debug;
   int max_iterations;  // Ceres default: 50
-  double max_time;  // Ceres default: 1e4
+  double max_time;     // Ceres default: 1e4
 
-  double param_tol;  // Ceres default: 1e-8
-  double fn_tol;  // Ceres default: 1e-6
+  double param_tol;     // Ceres default: 1e-8
+  double fn_tol;        // Ceres default: 1e-6
   double gradient_tol;  // Ceres default: 1e-10
 
   AdvancedParams advanced;

@@ -19,11 +19,11 @@
 #include <string>
 #include <thread>
 
-#include "nav2_util/node_thread.hpp"
-#include "rclcpp_lifecycle/lifecycle_node.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "bondcpp/bond.hpp"
 #include "bond/msg/constants.hpp"
+#include "bondcpp/bond.hpp"
+#include "nav2_util/node_thread.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
 
 namespace nav2_util
 {
@@ -32,7 +32,8 @@ using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface
 
 /**
  * @class nav2_util::LifecycleNode
- * @brief A lifecycle node wrapper to enable common Nav2 needs such as manipulating parameters
+ * @brief A lifecycle node wrapper to enable common Nav2 needs such as
+ * manipulating parameters
  */
 class LifecycleNode : public rclcpp_lifecycle::LifecycleNode
 {
@@ -44,8 +45,7 @@ public:
    * @param options Node options
    */
   LifecycleNode(
-    const std::string & node_name,
-    const std::string & ns = "",
+    const std::string & node_name, const std::string & ns = "",
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
   virtual ~LifecycleNode();
 
@@ -64,11 +64,13 @@ public:
   } integer_range;
 
   /**
-   * @brief Declare a parameter that has no integer or floating point range constraints
+   * @brief Declare a parameter that has no integer or floating point range
+   * constraints
    * @param node_name Name of parameter
    * @param default_value Default node value to add
    * @param description Node description
-   * @param additional_constraints Any additional constraints on the parameters to list
+   * @param additional_constraints Any additional constraints on the parameters
+   * to list
    * @param read_only Whether this param should be considered read only
    */
   void add_parameter(
@@ -92,14 +94,14 @@ public:
    * @param default_value Default node value to add
    * @param fp_range floating point range
    * @param description Node description
-   * @param additional_constraints Any additional constraints on the parameters to list
+   * @param additional_constraints Any additional constraints on the parameters
+   * to list
    * @param read_only Whether this param should be considered read only
    */
   void add_parameter(
     const std::string & name, const rclcpp::ParameterValue & default_value,
-    const floating_point_range fp_range,
-    const std::string & description = "", const std::string & additional_constraints = "",
-    bool read_only = false)
+    const floating_point_range fp_range, const std::string & description = "",
+    const std::string & additional_constraints = "", bool read_only = false)
   {
     auto descriptor = rcl_interfaces::msg::ParameterDescriptor();
 
@@ -121,14 +123,14 @@ public:
    * @param default_value Default node value to add
    * @param integer_range Integer range
    * @param description Node description
-   * @param additional_constraints Any additional constraints on the parameters to list
+   * @param additional_constraints Any additional constraints on the parameters
+   * to list
    * @param read_only Whether this param should be considered read only
    */
   void add_parameter(
     const std::string & name, const rclcpp::ParameterValue & default_value,
-    const integer_range int_range,
-    const std::string & description = "", const std::string & additional_constraints = "",
-    bool read_only = false)
+    const integer_range int_range, const std::string & description = "",
+    const std::string & additional_constraints = "", bool read_only = false)
   {
     auto descriptor = rcl_interfaces::msg::ParameterDescriptor();
 
@@ -154,16 +156,15 @@ public:
   }
 
   /**
-   * @brief Abstracted on_error state transition callback, since unimplemented as of 2020
-   * in the managed ROS2 node state machine
+   * @brief Abstracted on_error state transition callback, since unimplemented
+   * as of 2020 in the managed ROS2 node state machine
    * @param state State prior to error transition
    * @return Return type for success or failed transition to error state
    */
   nav2_util::CallbackReturn on_error(const rclcpp_lifecycle::State & /*state*/)
   {
     RCLCPP_FATAL(
-      get_logger(),
-      "Lifecycle node %s does not have error state implemented", get_name());
+      get_logger(), "Lifecycle node %s does not have error state implemented", get_name());
     return nav2_util::CallbackReturn::SUCCESS;
   }
 
@@ -199,7 +200,8 @@ protected:
   std::unique_ptr<rclcpp::PreShutdownCallbackHandle> rcl_preshutdown_cb_handle_{nullptr};
 
   /**
-   * Run some common cleanup steps shared between rcl preshutdown and destruction.
+   * Run some common cleanup steps shared between rcl preshutdown and
+   * destruction.
    */
   void runCleanups();
 

@@ -13,11 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <chrono>
 #include <gtest/gtest.h>
 #include <memory>
 #include <set>
 #include <string>
-#include <chrono>
 
 #include "sensor_msgs/msg/battery_state.hpp"
 
@@ -37,15 +37,12 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
 
     factory_->registerNodeType<nav2_behavior_tree::IsBatteryLowCondition>("IsBatteryLow");
 
     battery_pub_ = node_->create_publisher<sensor_msgs::msg::BatteryState>(
-      "/battery_status",
-      rclcpp::SystemDefaultsQoS());
+      "/battery_status", rclcpp::SystemDefaultsQoS());
   }
 
   static void TearDownTestCase()
@@ -68,7 +65,7 @@ rclcpp::Node::SharedPtr IsBatteryLowConditionTestFixture::node_ = nullptr;
 BT::NodeConfiguration * IsBatteryLowConditionTestFixture::config_ = nullptr;
 std::shared_ptr<BT::BehaviorTreeFactory> IsBatteryLowConditionTestFixture::factory_ = nullptr;
 rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr
-IsBatteryLowConditionTestFixture::battery_pub_ = nullptr;
+  IsBatteryLowConditionTestFixture::battery_pub_ = nullptr;
 
 TEST_F(IsBatteryLowConditionTestFixture, test_behavior_percentage)
 {

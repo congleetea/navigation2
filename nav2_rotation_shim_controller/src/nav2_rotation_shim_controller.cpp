@@ -13,11 +13,11 @@
 // limitations under the License.
 
 #include <algorithm>
-#include <string>
 #include <limits>
 #include <memory>
-#include <vector>
+#include <string>
 #include <utility>
+#include <vector>
 
 #include "nav2_rotation_shim_controller/nav2_rotation_shim_controller.hpp"
 
@@ -34,9 +34,8 @@ RotationShimController::RotationShimController()
 }
 
 void RotationShimController::configure(
-  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-  std::string name, std::shared_ptr<tf2_ros::Buffer> tf,
-  std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros)
+  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, std::string name,
+  std::shared_ptr<tf2_ros::Buffer> tf, std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros)
 {
   plugin_name_ = name;
   node_ = parent;
@@ -50,7 +49,8 @@ void RotationShimController::configure(
   std::string primary_controller;
   double control_frequency;
   nav2_util::declare_parameter_if_not_declared(
-    node, plugin_name_ + ".angular_dist_threshold", rclcpp::ParameterValue(0.785));  // 45 deg
+    node, plugin_name_ + ".angular_dist_threshold",
+    rclcpp::ParameterValue(0.785));  // 45 deg
   nav2_util::declare_parameter_if_not_declared(
     node, plugin_name_ + ".forward_sampling_distance", rclcpp::ParameterValue(0.5));
   nav2_util::declare_parameter_if_not_declared(
@@ -65,8 +65,7 @@ void RotationShimController::configure(
   node->get_parameter(plugin_name_ + ".angular_dist_threshold", angular_dist_threshold_);
   node->get_parameter(plugin_name_ + ".forward_sampling_distance", forward_sampling_distance_);
   node->get_parameter(
-    plugin_name_ + ".rotate_to_heading_angular_vel",
-    rotate_to_heading_angular_vel_);
+    plugin_name_ + ".rotate_to_heading_angular_vel", rotate_to_heading_angular_vel_);
   node->get_parameter(plugin_name_ + ".max_angular_accel", max_angular_accel_);
   node->get_parameter(plugin_name_ + ".simulate_ahead_time", simulate_ahead_time_);
 
@@ -82,15 +81,18 @@ void RotationShimController::configure(
   } catch (const pluginlib::PluginlibException & ex) {
     RCLCPP_FATAL(
       logger_,
-      "Failed to create internal controller for rotation shimming. Exception: %s", ex.what());
+      "Failed to create internal controller for rotation shimming. "
+      "Exception: %s",
+      ex.what());
     return;
   }
 
   primary_controller_->configure(parent, name, tf, costmap_ros);
 
   // initialize collision checker and set costmap
-  collision_checker_ = std::make_unique<nav2_costmap_2d::
-      FootprintCollisionChecker<nav2_costmap_2d::Costmap2D *>>(costmap_ros->getCostmap());
+  collision_checker_ =
+    std::make_unique<nav2_costmap_2d::FootprintCollisionChecker<nav2_costmap_2d::Costmap2D *>>(
+      costmap_ros->getCostmap());
 }
 
 void RotationShimController::activate()
@@ -105,9 +107,7 @@ void RotationShimController::activate()
 
   auto node = node_.lock();
   dyn_params_handler_ = node->add_on_set_parameters_callback(
-    std::bind(
-      &RotationShimController::dynamicParametersCallback,
-      this, std::placeholders::_1));
+    std::bind(&RotationShimController::dynamicParametersCallback, this, std::placeholders::_1));
 }
 
 void RotationShimController::deactivate()
@@ -136,8 +136,7 @@ void RotationShimController::cleanup()
 }
 
 geometry_msgs::msg::TwistStamped RotationShimController::computeVelocityCommands(
-  const geometry_msgs::msg::PoseStamped & pose,
-  const geometry_msgs::msg::Twist & velocity,
+  const geometry_msgs::msg::PoseStamped & pose, const geometry_msgs::msg::Twist & velocity,
   nav2_core::GoalChecker * goal_checker)
 {
   if (path_updated_) {
@@ -153,12 +152,11 @@ geometry_msgs::msg::TwistStamped RotationShimController::computeVelocityCommands
       if (fabs(angular_distance_to_heading) > angular_dist_threshold_) {
         RCLCPP_DEBUG(
           logger_,
-          "Robot is not within the new path's rough heading, rotating to heading...");
+          "Robot is not within the new path's rough "
+          "heading, rotating to heading...");
         return computeRotateToHeadingCommand(angular_distance_to_heading, pose, velocity);
       } else {
-        RCLCPP_DEBUG(
-          logger_,
-          "Robot is at the new path's rough heading, passing to controller");
+        RCLCPP_DEBUG(logger_, "Robot is at the new path's rough heading, passing to controller");
         path_updated_ = false;
       }
     } catch (const std::runtime_error & e) {
@@ -166,7 +164,8 @@ geometry_msgs::msg::TwistStamped RotationShimController::computeVelocityCommands
         logger_,
         "Rotation Shim Controller was unable to find a sampling point,"
         " a rotational collision was detected, or TF failed to transform"
-        " into base frame! what(): %s", e.what());
+        " into base frame! what(): %s",
+        e.what());
       path_updated_ = false;
     }
   }
@@ -179,7 +178,7 @@ geometry_msgs::msg::PoseStamped RotationShimController::getSampledPathPt()
 {
   if (current_path_.poses.size() < 2) {
     throw nav2_core::PlannerException(
-            "Path is too short to find a valid sampled path point for rotation.");
+      "Path is too short to find a valid sampled path point for rotation.");
   }
 
   geometry_msgs::msg::Pose start = current_path_.poses.front().pose;
@@ -196,14 +195,14 @@ geometry_msgs::msg::PoseStamped RotationShimController::getSampledPathPt()
     }
   }
 
-  throw nav2_core::PlannerException(
-          std::string(
-            "Unable to find a sampling point at least %0.2f from the robot,"
-            "passing off to primary controller plugin.", forward_sampling_distance_));
+  throw nav2_core::PlannerException(std::string(
+    "Unable to find a sampling point at least %0.2f from the robot,"
+    "passing off to primary controller plugin.",
+    forward_sampling_distance_));
 }
 
-geometry_msgs::msg::Pose
-RotationShimController::transformPoseToBaseFrame(const geometry_msgs::msg::PoseStamped & pt)
+geometry_msgs::msg::Pose RotationShimController::transformPoseToBaseFrame(
+  const geometry_msgs::msg::PoseStamped & pt)
 {
   geometry_msgs::msg::PoseStamped pt_base;
   if (!nav2_util::transformPoseInTargetFrame(pt, pt_base, *tf_, costmap_ros_->getBaseFrameID())) {
@@ -212,10 +211,8 @@ RotationShimController::transformPoseToBaseFrame(const geometry_msgs::msg::PoseS
   return pt_base.pose;
 }
 
-geometry_msgs::msg::TwistStamped
-RotationShimController::computeRotateToHeadingCommand(
-  const double & angular_distance_to_heading,
-  const geometry_msgs::msg::PoseStamped & pose,
+geometry_msgs::msg::TwistStamped RotationShimController::computeRotateToHeadingCommand(
+  const double & angular_distance_to_heading, const geometry_msgs::msg::PoseStamped & pose,
   const geometry_msgs::msg::Twist & velocity)
 {
   geometry_msgs::msg::TwistStamped cmd_vel;
@@ -233,8 +230,7 @@ RotationShimController::computeRotateToHeadingCommand(
 }
 
 void RotationShimController::isCollisionFree(
-  const geometry_msgs::msg::TwistStamped & cmd_vel,
-  const double & angular_distance_to_heading,
+  const geometry_msgs::msg::TwistStamped & cmd_vel, const double & angular_distance_to_heading,
   const geometry_msgs::msg::PoseStamped & pose)
 {
   // Simulate rotation ahead by time in control frequency increments
@@ -249,19 +245,19 @@ void RotationShimController::isCollisionFree(
     simulated_time += control_duration_;
     yaw = initial_yaw + cmd_vel.twist.angular.z * simulated_time;
 
-    // Stop simulating past the point it would be passed onto the primary controller
+    // Stop simulating past the point it would be passed onto the primary
+    // controller
     if (angles::shortest_angular_distance(yaw, initial_yaw) >= remaining_rotation_before_thresh) {
       break;
     }
 
     using namespace nav2_costmap_2d;  // NOLINT
     footprint_cost = collision_checker_->footprintCostAtPose(
-      pose.pose.position.x, pose.pose.position.y,
-      yaw, costmap_ros_->getRobotFootprint());
+      pose.pose.position.x, pose.pose.position.y, yaw, costmap_ros_->getRobotFootprint());
 
-    if (footprint_cost == static_cast<double>(NO_INFORMATION) &&
-      costmap_ros_->getLayeredCostmap()->isTrackingUnknown())
-    {
+    if (
+      footprint_cost == static_cast<double>(NO_INFORMATION) &&
+      costmap_ros_->getLayeredCostmap()->isTrackingUnknown()) {
       throw std::runtime_error("RotationShimController detected a potential collision ahead!");
     }
 
@@ -283,8 +279,8 @@ void RotationShimController::setSpeedLimit(const double & speed_limit, const boo
   primary_controller_->setSpeedLimit(speed_limit, percentage);
 }
 
-rcl_interfaces::msg::SetParametersResult
-RotationShimController::dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters)
+rcl_interfaces::msg::SetParametersResult RotationShimController::dynamicParametersCallback(
+  std::vector<rclcpp::Parameter> parameters)
 {
   rcl_interfaces::msg::SetParametersResult result;
   std::lock_guard<std::mutex> lock_reinit(mutex_);
@@ -315,6 +311,4 @@ RotationShimController::dynamicParametersCallback(std::vector<rclcpp::Parameter>
 }  // namespace nav2_rotation_shim_controller
 
 // Register this controller as a nav2_core plugin
-PLUGINLIB_EXPORT_CLASS(
-  nav2_rotation_shim_controller::RotationShimController,
-  nav2_core::Controller)
+PLUGINLIB_EXPORT_CLASS(nav2_rotation_shim_controller::RotationShimController, nav2_core::Controller)

@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,19 +16,19 @@
 #ifndef NAV2_MPPI_CONTROLLER__TOOLS__NOISE_GENERATOR_HPP_
 #define NAV2_MPPI_CONTROLLER__TOOLS__NOISE_GENERATOR_HPP_
 
-#include <string>
-#include <memory>
-#include <thread>
-#include <mutex>
 #include <condition_variable>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <thread>
 
 #include <xtensor/xtensor.hpp>
 #include <xtensor/xview.hpp>
 
-#include "nav2_mppi_controller/models/optimizer_settings.hpp"
-#include "nav2_mppi_controller/tools/parameters_handler.hpp"
 #include "nav2_mppi_controller/models/control_sequence.hpp"
+#include "nav2_mppi_controller/models/optimizer_settings.hpp"
 #include "nav2_mppi_controller/models/state.hpp"
+#include "nav2_mppi_controller/tools/parameters_handler.hpp"
 
 namespace mppi
 {
@@ -40,8 +41,8 @@ class NoiseGenerator
 {
 public:
   /**
-    * @brief Constructor for mppi::NoiseGenerator
-    */
+   * @brief Constructor for mppi::NoiseGenerator
+   */
   NoiseGenerator() = default;
 
   /**
@@ -52,8 +53,8 @@ public:
    * @param param_handler Get parameters util
    */
   void initialize(
-    mppi::models::OptimizerSettings & settings,
-    bool is_holonomic, const std::string & name, ParametersHandler * param_handler);
+    mppi::models::OptimizerSettings & settings, bool is_holonomic, const std::string & name,
+    ParametersHandler * param_handler);
 
   /**
    * @brief Shutdown noise generator thread

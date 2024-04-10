@@ -15,20 +15,20 @@
 #ifndef DEPRECATED__UPSAMPLER_HPP_
 #define DEPRECATED__UPSAMPLER_HPP_
 
+#include <algorithm>
 #include <cmath>
-#include <vector>
 #include <iostream>
 #include <memory>
 #include <queue>
-#include <algorithm>
 #include <utility>
+#include <vector>
 
 #include "nav2_smac_planner/types.hpp"
 #include "nav2_smac_planner/upsampler_cost_function.hpp"
 #include "nav2_smac_planner/upsampler_cost_function_nlls.hpp"
 
-#include "ceres/ceres.h"
 #include "Eigen/Core"
+#include "ceres/ceres.h"
 
 namespace nav2_smac_planner
 {
@@ -65,7 +65,7 @@ public:
     _options.nonlinear_conjugate_gradient_type = ceres::POLAK_RIBIERE;
     _options.line_search_interpolation_type = ceres::CUBIC;
 
-    _options.max_num_iterations = params.max_iterations;  // 5000
+    _options.max_num_iterations = params.max_iterations;    // 5000
     _options.max_solver_time_in_seconds = params.max_time;  // 5.0; // TODO
 
     _options.function_tolerance = params.fn_tol;
@@ -100,9 +100,7 @@ public:
    * @return If Upsampler was successful
    */
   bool upsample(
-    std::vector<Eigen::Vector2d> & path,
-    const SmootherParams & params,
-    const int & upsample_ratio)
+    std::vector<Eigen::Vector2d> & path, const SmootherParams & params, const int & upsample_ratio)
   {
     _options.max_solver_time_in_seconds = params.max_time;
 
@@ -143,7 +141,6 @@ public:
     ceres::GradientProblem problem(new UpsamplerCostFunction(temp_path, params, upsample_ratio));
     ceres::Solve(_options, problem, parameters, &summary);
 
-
     path.resize(total_size / 2);
     for (int i = 0; i != total_size / 2; i++) {
       path[i][0] = parameters[2 * i];
@@ -152,18 +149,23 @@ public:
 
     // 10-15 hz, regularly
     // std::vector<Eigen::Vector2d> path_double_sampled;
-    // for (int i = 0; i != path.size() - 1; i++) {  // last term should not be upsampled
+    // for (int i = 0; i != path.size() - 1; i++) {  // last term should not be
+    // upsampled
     //   path_double_sampled.push_back(path[i]);
     //   path_double_sampled.push_back((path[i+1] + path[i]) / 2);
     // }
 
-    // std::unique_ptr<ceres::Problem> problem = std::make_unique<ceres::Problem>();
-    // for (uint i = 1; i != path_double_sampled.size() - 1; i++) {
+    // std::unique_ptr<ceres::Problem> problem =
+    // std::make_unique<ceres::Problem>(); for (uint i = 1; i !=
+    // path_double_sampled.size() - 1; i++) {
     //   ceres::CostFunction * cost_fn =
-    //     new UpsamplerConstrainedCostFunction(path_double_sampled, params, 2, i);
+    //     new UpsamplerConstrainedCostFunction(path_double_sampled, params, 2,
+    //     i);
     //   problem->AddResidualBlock(
-    //     cost_fn, nullptr, &path_double_sampled[i][0], &path_double_sampled[i][1]);
-    //   // locking initial coordinates unnecessary since there's no update between terms in NLLS
+    //     cost_fn, nullptr, &path_double_sampled[i][0],
+    //     &path_double_sampled[i][1]);
+    //   // locking initial coordinates unnecessary since there's no update
+    //   between terms in NLLS
     // }
 
     // ceres::Solver::Summary summary;
@@ -174,15 +176,19 @@ public:
     //   std::vector<Eigen::Vector2d> path_quad_sampled;
     //   for (int i = 0; i != path_double_sampled.size() - 1; i++) {
     //     path_quad_sampled.push_back(path_double_sampled[i]);
-    //     path_quad_sampled.push_back((path_double_sampled[i+1] + path_double_sampled[i]) / 2.0);
+    //     path_quad_sampled.push_back((path_double_sampled[i+1] +
+    //     path_double_sampled[i]) / 2.0);
     //   }
 
-    //   std::unique_ptr<ceres::Problem> problem2 = std::make_unique<ceres::Problem>();
-    //   for (uint i = 1; i != path_quad_sampled.size() - 1; i++) {
+    //   std::unique_ptr<ceres::Problem> problem2 =
+    //   std::make_unique<ceres::Problem>(); for (uint i = 1; i !=
+    //   path_quad_sampled.size() - 1; i++) {
     //     ceres::CostFunction * cost_fn =
-    //       new UpsamplerConstrainedCostFunction(path_quad_sampled, params, 4, i);
+    //       new UpsamplerConstrainedCostFunction(path_quad_sampled, params, 4,
+    //       i);
     //     problem2->AddResidualBlock(
-    //       cost_fn, nullptr, &path_quad_sampled[i][0], &path_quad_sampled[i][1]);
+    //       cost_fn, nullptr, &path_quad_sampled[i][0],
+    //       &path_quad_sampled[i][1]);
     //   }
 
     //   ceres::Solve(_options, problem2.get(), &summary);

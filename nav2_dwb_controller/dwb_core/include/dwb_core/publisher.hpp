@@ -39,15 +39,15 @@
 #include <string>
 #include <vector>
 
-#include "nav2_costmap_2d/costmap_2d_ros.hpp"
+#include "builtin_interfaces/msg/duration.hpp"
 #include "dwb_core/trajectory_critic.hpp"
 #include "dwb_msgs/msg/local_plan_evaluation.hpp"
+#include "nav2_costmap_2d/costmap_2d_ros.hpp"
+#include "nav2_util/lifecycle_node.hpp"
 #include "nav_msgs/msg/path.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
-#include "nav2_util/lifecycle_node.hpp"
-#include "builtin_interfaces/msg/duration.hpp"
 
 using rclcpp_lifecycle::LifecyclePublisher;
 
@@ -70,8 +70,7 @@ class DWBPublisher
 {
 public:
   explicit DWBPublisher(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-    const std::string & plugin_name);
+    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, const std::string & plugin_name);
 
   nav2_util::CallbackReturn on_configure();
   nav2_util::CallbackReturn on_activate();
@@ -80,17 +79,18 @@ public:
 
   /**
    * @brief Does the publisher require that the LocalPlanEvaluation be saved
-   * @return True if the Evaluation is needed to publish either directly or as trajectories
+   * @return True if the Evaluation is needed to publish either directly or as
+   * trajectories
    */
-  bool shouldRecordEvaluation() {return publish_evaluation_ || publish_trajectories_;}
+  bool shouldRecordEvaluation() { return publish_evaluation_ || publish_trajectories_; }
 
   /**
-   * @brief If the pointer is not null, publish the evaluation and trajectories as needed
+   * @brief If the pointer is not null, publish the evaluation and trajectories
+   * as needed
    */
   void publishEvaluation(std::shared_ptr<dwb_msgs::msg::LocalPlanEvaluation> results);
   void publishLocalPlan(
-    const std_msgs::msg::Header & header,
-    const dwb_msgs::msg::Trajectory2D & traj);
+    const std_msgs::msg::Header & header, const dwb_msgs::msg::Trajectory2D & traj);
   void publishCostGrid(
     const std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros,
     const std::vector<TrajectoryCritic::Ptr> critics);
@@ -103,8 +103,7 @@ protected:
 
   // Helper function for publishing other plans
   void publishGenericPlan(
-    const nav_2d_msgs::msg::Path2D plan,
-    rclcpp::Publisher<nav_msgs::msg::Path> & pub, bool flag);
+    const nav_2d_msgs::msg::Path2D plan, rclcpp::Publisher<nav_msgs::msg::Path> & pub, bool flag);
 
   // Flags for turning on/off publishing specific components
   bool publish_evaluation_;

@@ -30,23 +30,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-#include "nav2_amcl/pf/pf_vector.hpp"
 #include "nav2_amcl/pf/pf_kdtree.hpp"
-
+#include "nav2_amcl/pf/pf_vector.hpp"
 
 // Compare keys to see if they are equal
 static int pf_kdtree_equal(pf_kdtree_t * self, int key_a[], int key_b[]);
 
 // Insert a node into the tree
 static pf_kdtree_node_t * pf_kdtree_insert_node(
-  pf_kdtree_t * self, pf_kdtree_node_t * parent,
-  pf_kdtree_node_t * node, int key[], double value);
+  pf_kdtree_t * self, pf_kdtree_node_t * parent, pf_kdtree_node_t * node, int key[], double value);
 
 // Recursive node search
 static pf_kdtree_node_t * pf_kdtree_find_node(
-  pf_kdtree_t * self, pf_kdtree_node_t * node,
-  int key[]);
+  pf_kdtree_t * self, pf_kdtree_node_t * node, int key[]);
 
 // Recursively label nodes in this cluster
 static void pf_kdtree_cluster_node(pf_kdtree_t * self, pf_kdtree_node_t * node, int depth);
@@ -54,14 +50,12 @@ static void pf_kdtree_cluster_node(pf_kdtree_t * self, pf_kdtree_node_t * node, 
 // Recursive node printing
 // static void pf_kdtree_print_node(pf_kdtree_t *self, pf_kdtree_node_t *node);
 
-
 #ifdef INCLUDE_RTKGUI
 
 // Recursively draw nodes
 static void pf_kdtree_draw_node(pf_kdtree_t * self, pf_kdtree_node_t * node, rtk_fig_t * fig);
 
 #endif
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Create a tree
@@ -86,7 +80,6 @@ pf_kdtree_t * pf_kdtree_alloc(int max_size)
   return self;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Destroy a tree
 void pf_kdtree_free(pf_kdtree_t * self)
@@ -94,7 +87,6 @@ void pf_kdtree_free(pf_kdtree_t * self)
   free(self->nodes);
   free(self);
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Clear all entries from the tree
@@ -104,7 +96,6 @@ void pf_kdtree_clear(pf_kdtree_t * self)
   self->leaf_count = 0;
   self->node_count = 0;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Insert a pose into the tree.
@@ -140,7 +131,6 @@ void pf_kdtree_insert(pf_kdtree_t * self, pf_vector_t pose, double value)
   */
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Determine the probability estimate for the given pose. TODO: this
 // should do a kernel density estimate rather than a simple histogram.
@@ -160,7 +150,6 @@ void pf_kdtree_insert(pf_kdtree_t * self, pf_vector_t pose, double value)
 //   return node->value;
 // }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Determine the cluster label for the given pose
 int pf_kdtree_get_cluster(pf_kdtree_t * self, pf_vector_t pose)
@@ -178,7 +167,6 @@ int pf_kdtree_get_cluster(pf_kdtree_t * self, pf_vector_t pose)
   }
   return node->cluster;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Compare keys to see if they are equal
@@ -212,12 +200,10 @@ int pf_kdtree_equal(pf_kdtree_t * self, int key_a[], int key_b[])
   return 1;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Insert a node into the tree
 pf_kdtree_node_t * pf_kdtree_insert_node(
-  pf_kdtree_t * self, pf_kdtree_node_t * parent,
-  pf_kdtree_node_t * node, int key[], double value)
+  pf_kdtree_t * self, pf_kdtree_node_t * parent, pf_kdtree_node_t * node, int key[], double value)
 {
   int i;
   int split, max_split;
@@ -287,13 +273,13 @@ pf_kdtree_node_t * pf_kdtree_insert_node(
   return node;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Recursive node search
 pf_kdtree_node_t * pf_kdtree_find_node(pf_kdtree_t * self, pf_kdtree_node_t * node, int key[])
 {
   if (node->leaf) {
-    // printf("find  : leaf %p %d %d %d\n", node, node->key[0], node->key[1], node->key[2]);
+    // printf("find  : leaf %p %d %d %d\n", node, node->key[0], node->key[1],
+    // node->key[2]);
 
     // If the keys are the same...
     if (pf_kdtree_equal(self, key, node->key)) {
@@ -302,7 +288,8 @@ pf_kdtree_node_t * pf_kdtree_find_node(pf_kdtree_t * self, pf_kdtree_node_t * no
       return NULL;
     }
   } else {
-    // printf("find  : brch %p %d %f\n", node, node->pivot_dim, node->pivot_value);
+    // printf("find  : brch %p %d %f\n", node, node->pivot_dim,
+    // node->pivot_value);
 
     assert(node->children[0] != NULL);
     assert(node->children[1] != NULL);
@@ -317,7 +304,6 @@ pf_kdtree_node_t * pf_kdtree_find_node(pf_kdtree_t * self, pf_kdtree_node_t * no
 
   return NULL;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Recursive node printing
@@ -339,14 +325,13 @@ void pf_kdtree_print_node(pf_kdtree_t *self, pf_kdtree_node_t *node)
 }
 */
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Cluster the leaves in the tree
 void pf_kdtree_cluster(pf_kdtree_t * self)
 {
   int i;
   int queue_count, cluster_count;
-  pf_kdtree_node_t ** queue, * node;
+  pf_kdtree_node_t **queue, *node;
 
   queue_count = 0;
   queue = calloc(self->node_count, sizeof(queue[0]));
@@ -385,7 +370,6 @@ void pf_kdtree_cluster(pf_kdtree_t * self)
   free(queue);
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Recursively label nodes in this cluster
 void pf_kdtree_cluster_node(pf_kdtree_t * self, pf_kdtree_node_t * node, int depth)
@@ -420,7 +404,6 @@ void pf_kdtree_cluster_node(pf_kdtree_t * self, pf_kdtree_node_t * node, int dep
   }
 }
 
-
 #ifdef INCLUDE_RTKGUI
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -431,7 +414,6 @@ void pf_kdtree_draw(pf_kdtree_t * self, rtk_fig_t * fig)
     pf_kdtree_draw_node(self, self->root, fig);
   }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Recursively draw nodes

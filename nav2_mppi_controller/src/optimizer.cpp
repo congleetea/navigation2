@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,15 +15,15 @@
 
 #include "nav2_mppi_controller/optimizer.hpp"
 
+#include <cmath>
 #include <limits>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <cmath>
 #include <xtensor/xmath.hpp>
-#include <xtensor/xrandom.hpp>
 #include <xtensor/xnoalias.hpp>
+#include <xtensor/xrandom.hpp>
 
 #include "nav2_costmap_2d/costmap_filters/filter_values.hpp"
 
@@ -34,8 +35,7 @@ using xt::evaluation_strategy::immediate;
 
 void Optimizer::initialize(
   rclcpp_lifecycle::LifecycleNode::WeakPtr parent, const std::string & name,
-  std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros,
-  ParametersHandler * param_handler)
+  std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros, ParametersHandler * param_handler)
 {
   parent_ = parent;
   name_ = name;
@@ -54,10 +54,7 @@ void Optimizer::initialize(
   reset();
 }
 
-void Optimizer::shutdown()
-{
-  noise_generator_.shutdown();
-}
+void Optimizer::shutdown() { noise_generator_.shutdown(); }
 
 void Optimizer::getParams()
 {
@@ -85,7 +82,7 @@ void Optimizer::getParams()
 
   s.constraints = s.base_constraints;
   setMotionModel(motion_model_name);
-  parameters_handler_->addPostCallback([this]() {reset();});
+  parameters_handler_->addPostCallback([this]() { reset(); });
 
   double controller_frequency;
   getParentParam(controller_frequency, "controller_frequency", 0.0, ParameterType::Static);
@@ -98,9 +95,7 @@ void Optimizer::setOffset(double controller_frequency)
   constexpr double eps = 1e-6;
 
   if ((controller_period + eps) < settings_.model_dt) {
-    RCLCPP_WARN(
-      logger_,
-      "Controller period is less then model dt, consider setting it equal");
+    RCLCPP_WARN(logger_, "Controller period is less then model dt, consider setting it equal");
   } else if (abs(controller_period - settings_.model_dt) < eps) {
     RCLCPP_INFO(
       logger_,
@@ -108,8 +103,7 @@ void Optimizer::setOffset(double controller_frequency)
       "shifting is ON");
     settings_.shift_control_sequence = true;
   } else {
-    throw std::runtime_error(
-            "Controller period more then model dt, set it equal to model dt");
+    throw std::runtime_error("Controller period more then model dt, set it equal to model dt");
   }
 }
 
@@ -130,8 +124,7 @@ void Optimizer::reset()
 }
 
 geometry_msgs::msg::TwistStamped Optimizer::evalControl(
-  const geometry_msgs::msg::PoseStamped & robot_pose,
-  const geometry_msgs::msg::Twist & robot_speed,
+  const geometry_msgs::msg::PoseStamped & robot_pose, const geometry_msgs::msg::Twist & robot_speed,
   const nav_msgs::msg::Path & plan, nav2_core::GoalChecker * goal_checker)
 {
   prepare(robot_pose, robot_speed, plan, goal_checker);
@@ -179,8 +172,7 @@ bool Optimizer::fallback(bool fail)
 }
 
 void Optimizer::prepare(
-  const geometry_msgs::msg::PoseStamped & robot_pose,
-  const geometry_msgs::msg::Twist & robot_speed,
+  const geometry_msgs::msg::PoseStamped & robot_pose, const geometry_msgs::msg::Twist & robot_speed,
   const nav_msgs::msg::Path & plan, nav2_core::GoalChecker * goal_checker)
 {
   state_.pose = robot_pose;
@@ -201,18 +193,13 @@ void Optimizer::shiftControlSequence()
   control_sequence_.vx = xt::roll(control_sequence_.vx, -1);
   control_sequence_.wz = xt::roll(control_sequence_.wz, -1);
 
+  xt::view(control_sequence_.vx, -1) = xt::view(control_sequence_.vx, -2);
 
-  xt::view(control_sequence_.vx, -1) =
-    xt::view(control_sequence_.vx, -2);
-
-  xt::view(control_sequence_.wz, -1) =
-    xt::view(control_sequence_.wz, -2);
-
+  xt::view(control_sequence_.wz, -1) = xt::view(control_sequence_.wz, -2);
 
   if (isHolonomic()) {
     control_sequence_.vy = xt::roll(control_sequence_.vy, -1);
-    xt::view(control_sequence_.vy, -1) =
-      xt::view(control_sequence_.vy, -2);
+    xt::view(control_sequence_.vy, -1) = xt::view(control_sequence_.vy, -2);
   }
 }
 
@@ -224,7 +211,7 @@ void Optimizer::generateNoisedTrajectories()
   integrateStateVelocities(generated_trajectories_, state_);
 }
 
-bool Optimizer::isHolonomic() const {return motion_model_->isHolonomic();}
+bool Optimizer::isHolonomic() const { return motion_model_->isHolonomic(); }
 
 void Optimizer::applyControlSequenceConstraints()
 {
@@ -240,15 +227,13 @@ void Optimizer::applyControlSequenceConstraints()
   motion_model_->applyConstraints(control_sequence_);
 }
 
-void Optimizer::updateStateVelocities(
-  models::State & state) const
+void Optimizer::updateStateVelocities(models::State & state) const
 {
   updateInitialStateVelocities(state);
   propagateStateVelocitiesFromInitials(state);
 }
 
-void Optimizer::updateInitialStateVelocities(
-  models::State & state) const
+void Optimizer::updateInitialStateVelocities(models::State & state) const
 {
   xt::noalias(xt::view(state.vx, xt::all(), 0)) = state.speed.linear.x;
   xt::noalias(xt::view(state.wz, xt::all(), 0)) = state.speed.angular.z;
@@ -258,15 +243,13 @@ void Optimizer::updateInitialStateVelocities(
   }
 }
 
-void Optimizer::propagateStateVelocitiesFromInitials(
-  models::State & state) const
+void Optimizer::propagateStateVelocitiesFromInitials(models::State & state) const
 {
   motion_model_->predict(state);
 }
 
 void Optimizer::integrateStateVelocities(
-  xt::xtensor<float, 2> & trajectory,
-  const xt::xtensor<float, 2> & sequence) const
+  xt::xtensor<float, 2> & trajectory, const xt::xtensor<float, 2> & sequence) const
 {
   float initial_yaw = tf2::getYaw(state_.pose.pose.orientation);
 
@@ -303,13 +286,11 @@ void Optimizer::integrateStateVelocities(
 }
 
 void Optimizer::integrateStateVelocities(
-  models::Trajectories & trajectories,
-  const models::State & state) const
+  models::Trajectories & trajectories, const models::State & state) const
 {
   const float initial_yaw = tf2::getYaw(state.pose.pose.orientation);
 
-  xt::noalias(trajectories.yaws) =
-    xt::cumsum(state.wz * settings_.model_dt, 1) + initial_yaw;
+  xt::noalias(trajectories.yaws) = xt::cumsum(state.wz * settings_.model_dt, 1) + initial_yaw;
 
   const auto yaws_cutted = xt::view(trajectories.yaws, xt::all(), xt::range(0, -1));
 
@@ -328,10 +309,8 @@ void Optimizer::integrateStateVelocities(
     dy = dy + state.vy * yaw_cos;
   }
 
-  xt::noalias(trajectories.x) = state.pose.pose.position.x +
-    xt::cumsum(dx * settings_.model_dt, 1);
-  xt::noalias(trajectories.y) = state.pose.pose.position.y +
-    xt::cumsum(dy * settings_.model_dt, 1);
+  xt::noalias(trajectories.x) = state.pose.pose.position.x + xt::cumsum(dx * settings_.model_dt, 1);
+  xt::noalias(trajectories.y) = state.pose.pose.position.y + xt::cumsum(dy * settings_.model_dt, 1);
 }
 
 xt::xtensor<float, 2> Optimizer::getOptimizedTrajectory()
@@ -357,18 +336,20 @@ void Optimizer::updateControlSequence()
   auto bounded_noises_vx = state_.cvx - control_sequence_.vx;
   auto bounded_noises_wz = state_.cwz - control_sequence_.wz;
   xt::noalias(costs_) +=
-    s.gamma / powf(s.sampling_std.vx, 2) * xt::sum(
-    xt::view(control_sequence_.vx, xt::newaxis(), xt::all()) * bounded_noises_vx, 1, immediate);
+    s.gamma / powf(s.sampling_std.vx, 2) *
+    xt::sum(
+      xt::view(control_sequence_.vx, xt::newaxis(), xt::all()) * bounded_noises_vx, 1, immediate);
   xt::noalias(costs_) +=
-    s.gamma / powf(s.sampling_std.wz, 2) * xt::sum(
-    xt::view(control_sequence_.wz, xt::newaxis(), xt::all()) * bounded_noises_wz, 1, immediate);
+    s.gamma / powf(s.sampling_std.wz, 2) *
+    xt::sum(
+      xt::view(control_sequence_.wz, xt::newaxis(), xt::all()) * bounded_noises_wz, 1, immediate);
 
   if (isHolonomic()) {
     auto bounded_noises_vy = state_.cvy - control_sequence_.vy;
     xt::noalias(costs_) +=
-      s.gamma / powf(s.sampling_std.vy, 2) * xt::sum(
-      xt::view(control_sequence_.vy, xt::newaxis(), xt::all()) * bounded_noises_vy,
-      1, immediate);
+      s.gamma / powf(s.sampling_std.vy, 2) *
+      xt::sum(
+        xt::view(control_sequence_.vy, xt::newaxis(), xt::all()) * bounded_noises_vy, 1, immediate);
   }
 
   auto && costs_normalized = costs_ - xt::amin(costs_, immediate);
@@ -410,10 +391,10 @@ void Optimizer::setMotionModel(const std::string & model)
   } else if (model == "Ackermann") {
     motion_model_ = std::make_shared<AckermannMotionModel>(parameters_handler_);
   } else {
-    throw std::runtime_error(
-            std::string(
-              "Model " + model + " is not valid! Valid options are DiffDrive, Omni, "
-              "or Ackermann"));
+    throw std::runtime_error(std::string(
+      "Model " + model +
+      " is not valid! Valid options are DiffDrive, Omni, "
+      "or Ackermann"));
   }
 }
 
@@ -444,9 +425,6 @@ void Optimizer::setSpeedLimit(double speed_limit, bool percentage)
   }
 }
 
-models::Trajectories & Optimizer::getGeneratedTrajectories()
-{
-  return generated_trajectories_;
-}
+models::Trajectories & Optimizer::getGeneratedTrajectories() { return generated_trajectories_; }
 
 }  // namespace mppi

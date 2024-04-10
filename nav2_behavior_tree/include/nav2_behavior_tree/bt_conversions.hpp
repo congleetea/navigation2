@@ -17,25 +17,25 @@
 
 #include <string>
 
-#include "rclcpp/time.hpp"
 #include "behaviortree_cpp_v3/behavior_tree.h"
 #include "geometry_msgs/msg/point.hpp"
-#include "geometry_msgs/msg/quaternion.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/quaternion.hpp"
+#include "rclcpp/time.hpp"
 
 namespace BT
 {
 
 // The follow templates are required when using these types as parameters
-// in our BT XML files. They parse the strings in the XML into their corresponding
-// data type.
+// in our BT XML files. They parse the strings in the XML into their
+// corresponding data type.
 
 /**
  * @brief Parse XML string to geometry_msgs::msg::Point
  * @param key XML string
  * @return geometry_msgs::msg::Point
  */
-template<>
+template <>
 inline geometry_msgs::msg::Point convertFromString(const StringView key)
 {
   // three real numbers separated by semicolons
@@ -56,7 +56,7 @@ inline geometry_msgs::msg::Point convertFromString(const StringView key)
  * @param key XML string
  * @return geometry_msgs::msg::Quaternion
  */
-template<>
+template <>
 inline geometry_msgs::msg::Quaternion convertFromString(const StringView key)
 {
   // four real numbers separated by semicolons
@@ -78,7 +78,7 @@ inline geometry_msgs::msg::Quaternion convertFromString(const StringView key)
  * @param key XML string
  * @return geometry_msgs::msg::PoseStamped
  */
-template<>
+template <>
 inline geometry_msgs::msg::PoseStamped convertFromString(const StringView key)
 {
   // 7 real numbers separated by semicolons
@@ -105,7 +105,7 @@ inline geometry_msgs::msg::PoseStamped convertFromString(const StringView key)
  * @param key XML string
  * @return std::chrono::milliseconds
  */
-template<>
+template <>
 inline std::chrono::milliseconds convertFromString<std::chrono::milliseconds>(const StringView key)
 {
   return std::chrono::milliseconds(std::stoul(key.data()));

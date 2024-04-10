@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "nav2_behavior_tree/plugins/condition/globally_updated_goal_condition.hpp"
 
@@ -21,10 +21,8 @@ namespace nav2_behavior_tree
 {
 
 GloballyUpdatedGoalCondition::GloballyUpdatedGoalCondition(
-  const std::string & condition_name,
-  const BT::NodeConfiguration & conf)
-: BT::ConditionNode(condition_name, conf),
-  first_time(true)
+  const std::string & condition_name, const BT::NodeConfiguration & conf)
+: BT::ConditionNode(condition_name, conf), first_time(true)
 {
   node_ = config().blackboard->get<rclcpp::Node::SharedPtr>("node");
 }

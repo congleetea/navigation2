@@ -39,9 +39,7 @@ public:
    * @param name Name for the XML tag for this node
    * @param conf BT node configuration
    */
-  DistanceController(
-    const std::string & name,
-    const BT::NodeConfiguration & conf);
+  DistanceController(const std::string & name, const BT::NodeConfiguration & conf);
 
   /**
    * @brief Creates list of BT ports
@@ -52,8 +50,7 @@ public:
     return {
       BT::InputPort<double>("distance", 1.0, "Distance"),
       BT::InputPort<std::string>("global_frame", std::string("map"), "Global frame"),
-      BT::InputPort<std::string>("robot_base_frame", std::string("base_link"), "Robot base frame")
-    };
+      BT::InputPort<std::string>("robot_base_frame", std::string("base_link"), "Robot base frame")};
   }
 
 private:

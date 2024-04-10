@@ -14,9 +14,9 @@
 // limitations under the License.
 
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <stdexcept>
 
 #include "nav2_map_server/map_mode.hpp"
 #include "nav2_map_server/map_saver.hpp"
@@ -40,8 +40,7 @@ const char * USAGE_STRING{
   "\n"
   "NOTE: --ros-args should be passed at the end of command line"};
 
-typedef enum
-{
+typedef enum {
   COMMAND_MAP_TOPIC,
   COMMAND_MAP_FILE_NAME,
   COMMAND_IMAGE_FORMAT,
@@ -56,32 +55,23 @@ struct cmd_struct
   COMMAND_TYPE command_type;
 };
 
-typedef enum
-{
-  ARGUMENTS_INVALID,
-  ARGUMENTS_VALID,
-  HELP_MESSAGE
-} ARGUMENTS_STATUS;
+typedef enum { ARGUMENTS_INVALID, ARGUMENTS_VALID, HELP_MESSAGE } ARGUMENTS_STATUS;
 
 // Arguments parser
 // Input parameters: logger, argc, argv
 // Output parameters: map_topic, save_parameters
 ARGUMENTS_STATUS parse_arguments(
-  const rclcpp::Logger & logger, int argc, char ** argv,
-  std::string & map_topic, SaveParameters & save_parameters)
+  const rclcpp::Logger & logger, int argc, char ** argv, std::string & map_topic,
+  SaveParameters & save_parameters)
 {
   const struct cmd_struct commands[] = {
-    {"-t", COMMAND_MAP_TOPIC},
-    {"-f", COMMAND_MAP_FILE_NAME},
-    {"--occ", COMMAND_OCCUPIED_THRESH},
-    {"--free", COMMAND_FREE_THRESH},
-    {"--mode", COMMAND_MODE},
-    {"--fmt", COMMAND_IMAGE_FORMAT},
+    {"-t", COMMAND_MAP_TOPIC},          {"-f", COMMAND_MAP_FILE_NAME},
+    {"--occ", COMMAND_OCCUPIED_THRESH}, {"--free", COMMAND_FREE_THRESH},
+    {"--mode", COMMAND_MODE},           {"--fmt", COMMAND_IMAGE_FORMAT},
   };
 
   std::vector<std::string> arguments(argv + 1, argv + argc);
   std::vector<rclcpp::Parameter> params_from_args;
-
 
   size_t cmd_size = sizeof(commands) / sizeof(commands[0]);
   size_t i;
@@ -123,7 +113,8 @@ ARGUMENTS_STATUS parse_arguments(
               save_parameters.mode = MapMode::Trinary;
               RCLCPP_WARN(
                 logger,
-                "Map mode parameter not recognized: %s, using default value (trinary)",
+                "Map mode parameter not recognized: %s, using default "
+                "value (trinary)",
                 it->c_str());
             }
             break;

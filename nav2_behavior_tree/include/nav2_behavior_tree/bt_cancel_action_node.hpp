@@ -15,14 +15,14 @@
 #ifndef NAV2_BEHAVIOR_TREE__BT_CANCEL_ACTION_NODE_HPP_
 #define NAV2_BEHAVIOR_TREE__BT_CANCEL_ACTION_NODE_HPP_
 
+#include <chrono>
 #include <memory>
 #include <string>
-#include <chrono>
 
 #include "behaviortree_cpp_v3/action_node.h"
+#include "nav2_behavior_tree/bt_conversions.hpp"
 #include "nav2_util/node_utils.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
-#include "nav2_behavior_tree/bt_conversions.hpp"
 
 namespace nav2_behavior_tree
 {
@@ -33,7 +33,7 @@ using namespace std::chrono_literals;  // NOLINT
  * @brief Abstract class representing an action for cancelling BT node
  * @tparam ActionT Type of action
  */
-template<class ActionT>
+template <class ActionT>
 class BtCancelActionNode : public BT::ActionNodeBase
 {
 public:
@@ -44,15 +44,13 @@ public:
    * @param conf BT node configuration
    */
   BtCancelActionNode(
-    const std::string & xml_tag_name,
-    const std::string & action_name,
+    const std::string & xml_tag_name, const std::string & action_name,
     const BT::NodeConfiguration & conf)
   : BT::ActionNodeBase(xml_tag_name, conf), action_name_(action_name)
   {
     node_ = config().blackboard->template get<rclcpp::Node::SharedPtr>("node");
-    callback_group_ = node_->create_callback_group(
-      rclcpp::CallbackGroupType::MutuallyExclusive,
-      false);
+    callback_group_ =
+      node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false);
     callback_group_executor_.add_callback_group(callback_group_, node_->get_node_base_interface());
 
     // Get the required items from the blackboard
@@ -68,15 +66,12 @@ public:
 
     // Give the derive class a chance to do any initialization
     RCLCPP_DEBUG(
-      node_->get_logger(), "\"%s\" BtCancelActionNode initialized",
-      xml_tag_name.c_str());
+      node_->get_logger(), "\"%s\" BtCancelActionNode initialized", xml_tag_name.c_str());
   }
 
   BtCancelActionNode() = delete;
 
-  virtual ~BtCancelActionNode()
-  {
-  }
+  virtual ~BtCancelActionNode() {}
 
   /**
    * @brief Create instance of an action client
@@ -84,7 +79,8 @@ public:
    */
   void createActionClient(const std::string & action_name)
   {
-    // Now that we have the ROS node to use, create the action client for this BT action
+    // Now that we have the ROS node to use, create the action client for this
+    // BT action
     action_client_ = rclcpp_action::create_client<ActionT>(node_, action_name, callback_group_);
 
     // Make sure the server is actually there before continuing
@@ -94,14 +90,13 @@ public:
         node_->get_logger(), "\"%s\" action server not available after waiting for 1 s",
         action_name.c_str());
       throw std::runtime_error(
-              std::string("Action server ") + action_name +
-              std::string(" not available"));
+        std::string("Action server ") + action_name + std::string(" not available"));
     }
   }
 
   /**
-   * @brief Any subclass of BtCancelActionNode that accepts parameters must provide a
-   * providedPorts method and call providedBasicPorts in it.
+   * @brief Any subclass of BtCancelActionNode that accepts parameters must
+   * provide a providedPorts method and call providedBasicPorts in it.
    * @param addition Additional ports to add to BT port list
    * @return BT::PortsList Containing basic ports along with node-specific ports
    */
@@ -109,25 +104,19 @@ public:
   {
     BT::PortsList basic = {
       BT::InputPort<std::string>("server_name", "Action server name"),
-      BT::InputPort<std::chrono::milliseconds>("server_timeout")
-    };
+      BT::InputPort<std::chrono::milliseconds>("server_timeout")};
     basic.insert(addition.begin(), addition.end());
 
     return basic;
   }
 
-  void halt()
-  {
-  }
+  void halt() {}
 
   /**
    * @brief Creates list of BT ports
    * @return BT::PortsList Containing basic ports along with node-specific ports
    */
-  static BT::PortsList providedPorts()
-  {
-    return providedBasicPorts({});
-  }
+  static BT::PortsList providedPorts() { return providedBasicPorts({}); }
 
   /**
    * @brief The main override required by a BT action
@@ -145,12 +134,11 @@ public:
 
     auto future_cancel = action_client_->async_cancel_goals_before(goal_expiry_time);
 
-    if (callback_group_executor_.spin_until_future_complete(future_cancel, server_timeout_) !=
-      rclcpp::FutureReturnCode::SUCCESS)
-    {
+    if (
+      callback_group_executor_.spin_until_future_complete(future_cancel, server_timeout_) !=
+      rclcpp::FutureReturnCode::SUCCESS) {
       RCLCPP_ERROR(
-        node_->get_logger(),
-        "Failed to cancel the action server for %s", action_name_.c_str());
+        node_->get_logger(), "Failed to cancel the action server for %s", action_name_.c_str());
       return BT::NodeStatus::FAILURE;
     }
     return BT::NodeStatus::SUCCESS;

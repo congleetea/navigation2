@@ -13,11 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <gtest/gtest.h>
-#include <cmath>
-#include <tuple>
-#include <string>
 #include <algorithm>
+#include <cmath>
+#include <gtest/gtest.h>
+#include <string>
+#include <tuple>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -29,14 +29,13 @@ using nav2_system_tests::WaitBehaviorTester;
 
 std::string testNameGenerator(const testing::TestParamInfo<std::tuple<float, float>> & param)
 {
-  std::string name = std::to_string(std::abs(std::get<0>(param.param))) + "_" + std::to_string(
-    std::get<1>(param.param));
+  std::string name = std::to_string(std::abs(std::get<0>(param.param))) + "_" +
+                     std::to_string(std::get<1>(param.param));
   name.erase(std::remove(name.begin(), name.end(), '.'), name.end());
   return name;
 }
 
-class WaitBehaviorTestFixture
-  : public ::testing::TestWithParam<std::tuple<float, float>>
+class WaitBehaviorTestFixture : public ::testing::TestWithParam<std::tuple<float, float>>
 {
 public:
   static void SetUpTestCase()
@@ -81,12 +80,9 @@ TEST_P(WaitBehaviorTestFixture, testSWaitBehavior)
 }
 
 INSTANTIATE_TEST_SUITE_P(
-  WaitBehaviorTests,
-  WaitBehaviorTestFixture,
+  WaitBehaviorTests, WaitBehaviorTestFixture,
   ::testing::Values(
-    std::make_tuple(1.0, 0.0),
-    std::make_tuple(2.0, 0.0),
-    std::make_tuple(5.0, 0.0),
+    std::make_tuple(1.0, 0.0), std::make_tuple(2.0, 0.0), std::make_tuple(5.0, 0.0),
     std::make_tuple(10.0, 1.0)),
   testNameGenerator);
 

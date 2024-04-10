@@ -39,8 +39,7 @@ struct LoadParameters
   bool negate;
 };
 
-typedef enum
-{
+typedef enum {
   LOAD_MAP_SUCCESS,
   MAP_DOES_NOT_EXIST,
   INVALID_MAP_METADATA,
@@ -61,9 +60,7 @@ LoadParameters loadMapYaml(const std::string & yaml_filename);
  * @param map Output loaded map
  * @throw std::exception
  */
-void loadMapFromFile(
-  const LoadParameters & load_parameters,
-  nav_msgs::msg::OccupancyGrid & map);
+void loadMapFromFile(const LoadParameters & load_parameters, nav_msgs::msg::OccupancyGrid & map);
 
 /**
  * @brief Load the map YAML, image from map file and
@@ -72,10 +69,7 @@ void loadMapFromFile(
  * @param map Output loaded map
  * @return status of map loaded
  */
-LOAD_MAP_STATUS loadMapFromYaml(
-  const std::string & yaml_file,
-  nav_msgs::msg::OccupancyGrid & map);
-
+LOAD_MAP_STATUS loadMapFromYaml(const std::string & yaml_file, nav_msgs::msg::OccupancyGrid & map);
 
 /* Map output part */
 
@@ -95,8 +89,7 @@ struct SaveParameters
  * @return true or false
  */
 bool saveMapToFile(
-  const nav_msgs::msg::OccupancyGrid & map,
-  const SaveParameters & save_parameters);
+  const nav_msgs::msg::OccupancyGrid & map, const SaveParameters & save_parameters);
 
 }  // namespace nav2_map_server
 

@@ -36,9 +36,7 @@ public:
    * @param condition_name Name for the XML tag for this node
    * @param conf BT node configuration
    */
-  GoalUpdatedCondition(
-    const std::string & condition_name,
-    const BT::NodeConfiguration & conf);
+  GoalUpdatedCondition(const std::string & condition_name, const BT::NodeConfiguration & conf);
 
   GoalUpdatedCondition() = delete;
 
@@ -52,10 +50,7 @@ public:
    * @brief Creates list of BT ports
    * @return BT::PortsList Containing node-specific ports
    */
-  static BT::PortsList providedPorts()
-  {
-    return {};
-  }
+  static BT::PortsList providedPorts() { return {}; }
 
 private:
   geometry_msgs::msg::PoseStamped goal_;

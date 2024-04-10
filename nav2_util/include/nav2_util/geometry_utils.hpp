@@ -17,13 +17,13 @@
 
 #include <cmath>
 
-#include "geometry_msgs/msg/pose.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/pose2_d.hpp"
 #include "geometry_msgs/msg/point.hpp"
+#include "geometry_msgs/msg/pose.hpp"
+#include "geometry_msgs/msg/pose2_d.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 #include "nav_msgs/msg/path.hpp"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
 namespace nav2_util
 {
@@ -50,8 +50,7 @@ inline geometry_msgs::msg::Quaternion orientationAroundZAxis(double angle)
  * @return double L2 distance
  */
 inline double euclidean_distance(
-  const geometry_msgs::msg::Point & pos1,
-  const geometry_msgs::msg::Point & pos2,
+  const geometry_msgs::msg::Point & pos1, const geometry_msgs::msg::Point & pos2,
   const bool is_3d = false)
 {
   double dx = pos1.x - pos2.x;
@@ -73,8 +72,7 @@ inline double euclidean_distance(
  * @return double euclidean distance
  */
 inline double euclidean_distance(
-  const geometry_msgs::msg::Pose & pos1,
-  const geometry_msgs::msg::Pose & pos2,
+  const geometry_msgs::msg::Pose & pos1, const geometry_msgs::msg::Pose & pos2,
   const bool is_3d = false)
 {
   double dx = pos1.position.x - pos2.position.x;
@@ -96,8 +94,7 @@ inline double euclidean_distance(
  * @return double L2 distance
  */
 inline double euclidean_distance(
-  const geometry_msgs::msg::PoseStamped & pos1,
-  const geometry_msgs::msg::PoseStamped & pos2,
+  const geometry_msgs::msg::PoseStamped & pos1, const geometry_msgs::msg::PoseStamped & pos2,
   const bool is_3d = false)
 {
   return euclidean_distance(pos1.pose, pos2.pose, is_3d);
@@ -110,8 +107,7 @@ inline double euclidean_distance(
  * @return double L2 distance
  */
 inline double euclidean_distance(
-  const geometry_msgs::msg::Pose2D & pos1,
-  const geometry_msgs::msg::Pose2D & pos2)
+  const geometry_msgs::msg::Pose2D & pos1, const geometry_msgs::msg::Pose2D & pos2)
 {
   double dx = pos1.x - pos2.x;
   double dy = pos1.y - pos2.y;
@@ -122,7 +118,7 @@ inline double euclidean_distance(
 /**
  * Find element in iterator with the minimum calculated value
  */
-template<typename Iter, typename Getter>
+template <typename Iter, typename Getter>
 inline Iter min_by(Iter begin, Iter end, Getter getCompareVal)
 {
   if (begin == end) {
@@ -141,9 +137,10 @@ inline Iter min_by(Iter begin, Iter end, Getter getCompareVal)
 }
 
 /**
- * Find first element in iterator that is greater integrated distance than comparevalue
+ * Find first element in iterator that is greater integrated distance than
+ * comparevalue
  */
-template<typename Iter, typename Getter>
+template <typename Iter, typename Getter>
 inline Iter first_after_integrated_distance(Iter begin, Iter end, Getter getCompareVal)
 {
   if (begin == end) {
@@ -160,11 +157,12 @@ inline Iter first_after_integrated_distance(Iter begin, Iter end, Getter getComp
 }
 
 /**
- * @brief Calculate the length of the provided path, starting at the provided index
+ * @brief Calculate the length of the provided path, starting at the provided
+ * index
  * @param path Path containing the poses that are planned
  * @param start_index Optional argument specifying the starting index for
- * the calculation of path length. Provide this if you want to calculate length of a
- * subset of the path.
+ * the calculation of path length. Provide this if you want to calculate length
+ * of a subset of the path.
  * @return double Path length
  */
 inline double calculate_path_length(const nav_msgs::msg::Path & path, size_t start_index = 0)

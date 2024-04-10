@@ -32,14 +32,14 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <vector>
 #include <memory>
 #include <string>
+#include <vector>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
-#include "dwb_critics/alignment_util.hpp"
 #include "dwb_core/exceptions.hpp"
+#include "dwb_critics/alignment_util.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 TEST(AlignmentUtil, TestProjection)
 {

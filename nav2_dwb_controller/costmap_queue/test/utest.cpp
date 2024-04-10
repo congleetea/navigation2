@@ -32,13 +32,13 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cmath>
-#include <memory>
-#include <algorithm>
-#include "gtest/gtest.h"
 #include "costmap_queue/costmap_queue.hpp"
 #include "costmap_queue/limited_costmap_queue.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
+#include <algorithm>
+#include <cmath>
+#include <memory>
 
 using std::hypot;
 

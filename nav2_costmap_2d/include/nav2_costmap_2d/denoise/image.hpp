@@ -23,12 +23,13 @@ namespace nav2_costmap_2d
 
 /**
  * @brief Image with pixels of type T
- * Сan own data, be a wrapper over some memory buffer, or refer to a fragment of another image
- * Pixels of one row are stored continuity. But rows continuity is not guaranteed.
- * The distance (number of elements of type T) from row(i) to row(i + 1) is equal to step()
+ * Сan own data, be a wrapper over some memory buffer, or refer to a fragment of
+ * another image Pixels of one row are stored continuity. But rows continuity is
+ * not guaranteed. The distance (number of elements of type T) from row(i) to
+ * row(i + 1) is equal to step()
  * @tparam T type of pixel
  */
-template<class T>
+template <class T>
 class Image
 {
 public:
@@ -40,8 +41,8 @@ public:
    * @param rows number of image rows
    * @param columns number of image columns
    * @param data existing memory buffer with size at least rows * columns
-   * @param step offset from row(i) to row(i + 1) in memory buffer (number of elements of type T).
-   * offset = columns if rows are stored continuity
+   * @param step offset from row(i) to row(i + 1) in memory buffer (number of
+   * elements of type T). offset = columns if rows are stored continuity
    */
   Image(size_t rows, size_t columns, T * data, size_t step);
 
@@ -58,16 +59,16 @@ public:
   Image(Image && other) noexcept;
 
   /// @return number of image rows
-  size_t rows() const {return rows_;}
+  size_t rows() const { return rows_; }
 
   /// @return number of image columns
-  size_t columns() const {return columns_;}
+  size_t columns() const { return columns_; }
 
   /// @return true if image empty
-  bool empty() const {return rows_ == 0 || columns_ == 0;}
+  bool empty() const { return rows_ == 0 || columns_ == 0; }
 
   /// @return offset (number of elements of type T) from row(i) to row(i + 1)
-  size_t step() const {return step_;}
+  size_t step() const { return step_; }
 
   /**
    * @return pointer to first pixel of row
@@ -83,9 +84,10 @@ public:
    * @tparam Functor function object.
    * Signature should be equivalent to the following:
    * void fn(T& pixel) or void fn(const T& pixel)
-   * @param fn a function that will be applied to each pixel in the image. Can modify image data
+   * @param fn a function that will be applied to each pixel in the image. Can
+   * modify image data
    */
-  template<class Functor>
+  template <class Functor>
   void forEach(Functor && fn);
 
   /**
@@ -95,10 +97,11 @@ public:
    * void fn(const T& pixel)
    * @param fn a function that will be applied to each pixel in the image
    */
-  template<class Functor>
+  template <class Functor>
   void forEach(Functor && fn) const;
   /**
-   * @brief Convert each pixel to corresponding pixel of target using a custom function
+   * @brief Convert each pixel to corresponding pixel of target using a custom
+   * function
    *
    * The source and target must be the same size.
    * For calculation of new target value the operation can use source value and
@@ -114,7 +117,7 @@ public:
    * first (const) from source and second (mutable) from target
    * @throw std::logic_error if the source and target of different sizes
    */
-  template<class TargetElement, class Converter>
+  template <class TargetElement, class Converter>
   void convert(Image<TargetElement> & target, Converter && converter) const;
 
 private:
@@ -124,47 +127,47 @@ private:
   size_t step_{};
 };
 
-template<class T>
+template <class T>
 Image<T>::Image(size_t rows, size_t columns, T * data, size_t step)
 : rows_{rows}, columns_{columns}, step_{step}
 {
   data_start_ = data;
 }
 
-template<class T>
+template <class T>
 Image<T>::Image(const Image & other)
-: data_start_{other.data_start_},
-  rows_{other.rows_}, columns_{other.columns_}, step_{other.step_} {}
-
-template<class T>
-Image<T>::Image(Image && other) noexcept
-: data_start_{other.data_start_},
-  rows_{other.rows_}, columns_{other.columns_}, step_{other.step_} {}
-
-template<class T>
-T * Image<T>::row(size_t row)
+: data_start_{other.data_start_}, rows_{other.rows_}, columns_{other.columns_}, step_{other.step_}
 {
-  return const_cast<T *>( static_cast<const Image<T> &>(*this).row(row) );
 }
 
-template<class T>
+template <class T>
+Image<T>::Image(Image && other) noexcept
+: data_start_{other.data_start_}, rows_{other.rows_}, columns_{other.columns_}, step_{other.step_}
+{
+}
+
+template <class T>
+T * Image<T>::row(size_t row)
+{
+  return const_cast<T *>(static_cast<const Image<T> &>(*this).row(row));
+}
+
+template <class T>
 const T * Image<T>::row(size_t row) const
 {
   return data_start_ + row * step_;
 }
 
-template<class T>
-template<class Functor>
+template <class T>
+template <class Functor>
 void Image<T>::forEach(Functor && fn)
 {
   static_cast<const Image<T> &>(*this).forEach(
-    [&](const T & pixel) {
-      fn(const_cast<T &>(pixel));
-    });
+    [&](const T & pixel) { fn(const_cast<T &>(pixel)); });
 }
 
-template<class T>
-template<class Functor>
+template <class T>
+template <class Functor>
 void Image<T>::forEach(Functor && fn) const
 {
   const T * rowPtr = row(0);
@@ -179,8 +182,8 @@ void Image<T>::forEach(Functor && fn) const
   }
 }
 
-template<class T>
-template<class TargetElement, class Converter>
+template <class T>
+template <class TargetElement, class Converter>
 void Image<T>::convert(Image<TargetElement> & target, Converter && converter) const
 {
   if (rows() != target.rows() || columns() != target.columns()) {

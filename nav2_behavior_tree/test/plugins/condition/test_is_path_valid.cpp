@@ -12,29 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <chrono>
+#include <gtest/gtest.h>
 #include <memory>
 #include <set>
 #include <string>
 
-#include "rclcpp/rclcpp.hpp"
+#include "../../test_service.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_util/robot_utils.hpp"
-#include "../../test_service.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "../../test_behavior_tree_fixture.hpp"
 #include "nav2_behavior_tree/plugins/condition/is_path_valid_condition.hpp"
 
-using namespace std::chrono;  // NOLINT
+using namespace std::chrono;           // NOLINT
 using namespace std::chrono_literals;  // NOLINT
 
 class IsPathValidService : public TestService<nav2_msgs::srv::IsPathValid>
 {
 public:
-  IsPathValidService()
-  : TestService("is_path_valid")
-  {}
+  IsPathValidService() : TestService("is_path_valid") {}
 
   virtual void handle_service(
     const std::shared_ptr<rmw_request_id_t> request_header,
@@ -58,8 +56,7 @@ public:
     config_->blackboard = BT::Blackboard::create();
     config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
     config_->blackboard->set<std::chrono::milliseconds>(
-      "server_timeout",
-      std::chrono::milliseconds(10));
+      "server_timeout", std::chrono::milliseconds(10));
     factory_->registerNodeType<nav2_behavior_tree::IsPathValidCondition>("IsPathValid");
   }
 
@@ -113,9 +110,7 @@ int main(int argc, char ** argv)
 
   // initialize service and spin on new thread
   IsPathValidTestFixture::server_ = std::make_shared<IsPathValidService>();
-  std::thread server_thread([]() {
-      rclcpp::spin(IsPathValidTestFixture::server_);
-    });
+  std::thread server_thread([]() { rclcpp::spin(IsPathValidTestFixture::server_); });
 
   bool all_successful = RUN_ALL_TESTS();
 

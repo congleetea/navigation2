@@ -23,15 +23,14 @@
 #include <unordered_map>
 #include <vector>
 
+#include "bondcpp/bond.hpp"
+#include "diagnostic_updater/diagnostic_updater.hpp"
+#include "nav2_msgs/srv/manage_lifecycle_nodes.hpp"
 #include "nav2_util/lifecycle_service_client.hpp"
 #include "nav2_util/node_thread.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_srvs/srv/empty.hpp"
-#include "nav2_msgs/srv/manage_lifecycle_nodes.hpp"
 #include "std_srvs/srv/trigger.hpp"
-#include "bondcpp/bond.hpp"
-#include "diagnostic_updater/diagnostic_updater.hpp"
-
 
 namespace nav2_lifecycle_manager
 {
@@ -165,16 +164,15 @@ protected:
   // Support function for checking if bond connections come back after respawn
   /**
    * @ brief Support function for checking on bond connections
-   * will bring back the system if something goes from non-responsive to responsive
+   * will bring back the system if something goes from non-responsive to
+   * responsive
    */
   void checkBondRespawnConnection();
 
   /**
    * @brief For a node, transition to the new target state
    */
-  bool changeStateForNode(
-    const std::string & node_name,
-    std::uint8_t transition);
+  bool changeStateForNode(const std::string & node_name, std::uint8_t transition);
 
   /**
    * @brief For each node in the map, transition to the new target state

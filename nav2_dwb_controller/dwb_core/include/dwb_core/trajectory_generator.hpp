@@ -35,31 +35,33 @@
 #ifndef DWB_CORE__TRAJECTORY_GENERATOR_HPP_
 #define DWB_CORE__TRAJECTORY_GENERATOR_HPP_
 
-#include <vector>
-#include <string>
-#include <memory>
-#include "rclcpp/rclcpp.hpp"
-#include "nav_2d_msgs/msg/twist2_d.hpp"
 #include "dwb_msgs/msg/trajectory2_d.hpp"
 #include "nav2_util/lifecycle_node.hpp"
+#include "nav_2d_msgs/msg/twist2_d.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace dwb_core
 {
 
 /**
  * @class TrajectoryGenerator
- * @brief Interface for iterating through possible velocities and creating trajectories
+ * @brief Interface for iterating through possible velocities and creating
+ * trajectories
  *
- * This class defines the plugin interface for two separate but related components.
+ * This class defines the plugin interface for two separate but related
+ * components.
  *
- * First, this class provides an iterator interface for exploring all of the velocities
- * to search, given the current velocity.
+ * First, this class provides an iterator interface for exploring all of the
+ * velocities to search, given the current velocity.
  *
- * Second, the class gives an independent interface for creating a trajectory from a twist,
- * i.e. projecting it out in time and space.
+ * Second, the class gives an independent interface for creating a trajectory
+ * from a twist, i.e. projecting it out in time and space.
  *
- * Both components rely heavily on the robot's kinematic model, and can share many parameters,
- * which is why they are grouped into a singular class.
+ * Both components rely heavily on the robot's kinematic model, and can share
+ * many parameters, which is why they are grouped into a singular class.
  */
 class TrajectoryGenerator
 {
@@ -73,8 +75,7 @@ public:
    * @param nh NodeHandle to read parameters from
    */
   virtual void initialize(
-    const nav2_util::LifecycleNode::SharedPtr & nh,
-    const std::string & plugin_name) = 0;
+    const nav2_util::LifecycleNode::SharedPtr & nh, const std::string & plugin_name) = 0;
   virtual void reset() {}
   /**
    * @brief Start a new iteration based on the current velocity
@@ -114,14 +115,14 @@ public:
   }
 
   /**
-   * @brief Given a cmd_vel in the robot's frame and initial conditions, generate a Trajectory2D
+   * @brief Given a cmd_vel in the robot's frame and initial conditions,
+   * generate a Trajectory2D
    * @param start_pose Current robot location
    * @param start_vel Current robot velocity
    * @param cmd_vel The desired command velocity
    */
   virtual dwb_msgs::msg::Trajectory2D generateTrajectory(
-    const geometry_msgs::msg::Pose2D & start_pose,
-    const nav_2d_msgs::msg::Twist2D & start_vel,
+    const geometry_msgs::msg::Pose2D & start_pose, const nav_2d_msgs::msg::Twist2D & start_vel,
     const nav_2d_msgs::msg::Twist2D & cmd_vel) = 0;
 
   /**

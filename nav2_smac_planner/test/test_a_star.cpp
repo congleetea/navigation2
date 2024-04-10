@@ -12,28 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
+#include <limits>
 #include <math.h>
 #include <memory>
 #include <string>
 #include <vector>
-#include <limits>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
+#include "ament_index_cpp/get_package_share_directory.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_costmap_2d/costmap_subscriber.hpp"
-#include "nav2_util/lifecycle_node.hpp"
-#include "nav2_smac_planner/node_hybrid.hpp"
-#include "nav2_smac_planner/node_lattice.hpp"
 #include "nav2_smac_planner/a_star.hpp"
 #include "nav2_smac_planner/collision_checker.hpp"
-#include "ament_index_cpp/get_package_share_directory.hpp"
+#include "nav2_smac_planner/node_hybrid.hpp"
+#include "nav2_smac_planner/node_lattice.hpp"
+#include "nav2_util/lifecycle_node.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -93,17 +93,17 @@ TEST(AStarTest, test_a_star_2d)
   num_it = 0;
   EXPECT_THROW(a_star_2.createPath(path, num_it, tolerance), std::runtime_error);
   a_star_2.setStart(50, 50, 0);  // invalid
-  a_star_2.setGoal(0, 0, 0);  // valid
+  a_star_2.setGoal(0, 0, 0);     // valid
   num_it = 0;
   EXPECT_THROW(a_star_2.createPath(path, num_it, tolerance), std::runtime_error);
-  a_star_2.setStart(0, 0, 0);  // valid
+  a_star_2.setStart(0, 0, 0);   // valid
   a_star_2.setGoal(50, 50, 0);  // invalid
   num_it = 0;
   EXPECT_THROW(a_star_2.createPath(path, num_it, tolerance), std::runtime_error);
   num_it = 0;
   // invalid goal but liberal tolerance
   a_star_2.setStart(20, 20, 0);  // valid
-  a_star_2.setGoal(50, 50, 0);  // invalid
+  a_star_2.setGoal(50, 50, 0);   // invalid
   EXPECT_TRUE(a_star_2.createPath(path, num_it, some_tolerance));
   EXPECT_EQ(path.size(), 21u);
   for (unsigned int i = 0; i != path.size(); i++) {
@@ -187,11 +187,10 @@ TEST(AStarTest, test_a_star_lattice)
   info.reverse_penalty = 2.0;
   info.retrospective_penalty = 0.1;
   info.analytic_expansion_ratio = 3.5;
-  info.lattice_filepath =
-    ament_index_cpp::get_package_share_directory("nav2_smac_planner") +
-    "/sample_primitives/5cm_resolution/0.5m_turning_radius/ackermann" +
-    "/output.json";
-  info.minimum_turning_radius = 8;  // in grid coordinates 0.4/0.05
+  info.lattice_filepath = ament_index_cpp::get_package_share_directory("nav2_smac_planner") +
+                          "/sample_primitives/5cm_resolution/0.5m_turning_radius/ackermann" +
+                          "/output.json";
+  info.minimum_turning_radius = 8;            // in grid coordinates 0.4/0.05
   info.analytic_expansion_max_length = 20.0;  // in grid coordinates
   unsigned int size_theta = 16;
   info.cost_penalty = 2.0;
@@ -248,7 +247,7 @@ TEST(AStarTest, test_se2_single_pose_path)
   info.non_straight_penalty = 1.1;
   info.reverse_penalty = 2.0;
   info.retrospective_penalty = 0.0;
-  info.minimum_turning_radius = 8;  // in grid coordinates
+  info.minimum_turning_radius = 8;            // in grid coordinates
   info.analytic_expansion_max_length = 20.0;  // in grid coordinates
   info.analytic_expansion_ratio = 3.5;
   unsigned int size_theta = 72;
@@ -297,12 +296,9 @@ TEST(AStarTest, test_constants)
   mm = nav2_smac_planner::MotionModel::REEDS_SHEPP;  // reeds-shepp
   EXPECT_EQ(nav2_smac_planner::toString(mm), std::string("Reeds-Shepp"));
 
-  EXPECT_EQ(
-    nav2_smac_planner::fromString(
-      "2D"), nav2_smac_planner::MotionModel::TWOD);
+  EXPECT_EQ(nav2_smac_planner::fromString("2D"), nav2_smac_planner::MotionModel::TWOD);
   EXPECT_EQ(nav2_smac_planner::fromString("DUBIN"), nav2_smac_planner::MotionModel::DUBIN);
   EXPECT_EQ(
-    nav2_smac_planner::fromString(
-      "REEDS_SHEPP"), nav2_smac_planner::MotionModel::REEDS_SHEPP);
+    nav2_smac_planner::fromString("REEDS_SHEPP"), nav2_smac_planner::MotionModel::REEDS_SHEPP);
   EXPECT_EQ(nav2_smac_planner::fromString("NONE"), nav2_smac_planner::MotionModel::UNKNOWN);
 }

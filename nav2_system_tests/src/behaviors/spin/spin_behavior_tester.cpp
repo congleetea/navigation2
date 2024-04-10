@@ -13,14 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <string>
-#include <random>
-#include <tuple>
-#include <memory>
-#include <iostream>
 #include <chrono>
-#include <sstream>
 #include <iomanip>
+#include <iostream>
+#include <memory>
+#include <random>
+#include <sstream>
+#include <string>
+#include <tuple>
 
 #include "spin_behavior_tester.hpp"
 
@@ -30,12 +30,9 @@ using namespace std::chrono;  // NOLINT
 namespace nav2_system_tests
 {
 
-SpinBehaviorTester::SpinBehaviorTester()
-: is_active_(false),
-  initial_pose_received_(false)
+SpinBehaviorTester::SpinBehaviorTester() : is_active_(false), initial_pose_received_(false)
 {
   node_ = rclcpp::Node::make_shared("spin_behavior_test");
-
 
   tf_buffer_ = std::make_shared<tf2_ros::Buffer>(node_->get_clock());
   tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
@@ -48,18 +45,13 @@ SpinBehaviorTester::SpinBehaviorTester()
   }
 
   client_ptr_ = rclcpp_action::create_client<Spin>(
-    node_->get_node_base_interface(),
-    node_->get_node_graph_interface(),
-    node_->get_node_logging_interface(),
-    node_->get_node_waitables_interface(),
-    "spin");
+    node_->get_node_base_interface(), node_->get_node_graph_interface(),
+    node_->get_node_logging_interface(), node_->get_node_waitables_interface(), "spin");
 
   publisher_ =
     node_->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", 10);
-  fake_costmap_publisher_ =
-    node_->create_publisher<nav2_msgs::msg::Costmap>(
-    "local_costmap/costmap_raw",
-    rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable());
+  fake_costmap_publisher_ = node_->create_publisher<nav2_msgs::msg::Costmap>(
+    "local_costmap/costmap_raw", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable());
   fake_footprint_publisher_ = node_->create_publisher<geometry_msgs::msg::PolygonStamped>(
     "local_costmap/published_footprint", rclcpp::SystemDefaultsQoS());
 
@@ -121,9 +113,7 @@ void SpinBehaviorTester::deactivate()
   is_active_ = false;
 }
 
-bool SpinBehaviorTester::defaultSpinBehaviorTest(
-  const float target_yaw,
-  const double tolerance)
+bool SpinBehaviorTester::defaultSpinBehaviorTest(const float target_yaw, const double tolerance)
 {
   if (!is_active_) {
     RCLCPP_ERROR(node_->get_logger(), "Not activated");
@@ -153,9 +143,7 @@ bool SpinBehaviorTester::defaultSpinBehaviorTest(
   }
   RCLCPP_INFO(node_->get_logger(), "Found current robot pose");
   RCLCPP_INFO(
-    node_->get_logger(),
-    "Init Yaw is %lf",
-    fabs(tf2::getYaw(initial_pose.pose.orientation)));
+    node_->get_logger(), "Init Yaw is %lf", fabs(tf2::getYaw(initial_pose.pose.orientation)));
   RCLCPP_INFO(node_->get_logger(), "Before sending goal");
 
   // Intialize fake costmap
@@ -168,9 +156,9 @@ bool SpinBehaviorTester::defaultSpinBehaviorTest(
 
   auto goal_handle_future = client_ptr_->async_send_goal(goal_msg);
 
-  if (rclcpp::spin_until_future_complete(node_, goal_handle_future) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  if (
+    rclcpp::spin_until_future_complete(node_, goal_handle_future) !=
+    rclcpp::FutureReturnCode::SUCCESS) {
     RCLCPP_ERROR(node_->get_logger(), "send goal call failed :(");
     return false;
   }
@@ -187,16 +175,16 @@ bool SpinBehaviorTester::defaultSpinBehaviorTest(
   RCLCPP_INFO(node_->get_logger(), "Waiting for result");
   rclcpp::sleep_for(std::chrono::milliseconds(1000));
 
-  if (make_fake_costmap_) {  // if we are faking the costmap, we will fake success.
+  if (make_fake_costmap_) {  // if we are faking the costmap, we will fake
+                             // success.
     sendFakeOdom(0.0);
     sendFakeCostmap(target_yaw);
     RCLCPP_INFO(node_->get_logger(), "target_yaw %lf", target_yaw);
-    // Slowly increment command yaw by increment to simulate the robot slowly spinning into place
+    // Slowly increment command yaw by increment to simulate the robot slowly
+    // spinning into place
     float step_size = tolerance / 4.0;
-    for (float command_yaw = 0.0;
-      abs(command_yaw) < abs(target_yaw);
-      command_yaw = command_yaw + step_size)
-    {
+    for (float command_yaw = 0.0; abs(command_yaw) < abs(target_yaw);
+         command_yaw = command_yaw + step_size) {
       sendFakeOdom(command_yaw);
       sendFakeCostmap(target_yaw);
       rclcpp::sleep_for(std::chrono::milliseconds(1));
@@ -205,9 +193,8 @@ bool SpinBehaviorTester::defaultSpinBehaviorTest(
     sendFakeCostmap(target_yaw);
     RCLCPP_INFO(node_->get_logger(), "After sending goal");
   }
-  if (rclcpp::spin_until_future_complete(node_, result_future) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  if (
+    rclcpp::spin_until_future_complete(node_, result_future) != rclcpp::FutureReturnCode::SUCCESS) {
     RCLCPP_ERROR(node_->get_logger(), "get result call failed :(");
     return false;
   }
@@ -215,16 +202,16 @@ bool SpinBehaviorTester::defaultSpinBehaviorTest(
   rclcpp_action::ClientGoalHandle<Spin>::WrappedResult wrapped_result = result_future.get();
 
   switch (wrapped_result.code) {
-    case rclcpp_action::ResultCode::SUCCEEDED: break;
-    case rclcpp_action::ResultCode::ABORTED: RCLCPP_ERROR(
-        node_->get_logger(),
-        "Goal was aborted");
+    case rclcpp_action::ResultCode::SUCCEEDED:
+      break;
+    case rclcpp_action::ResultCode::ABORTED:
+      RCLCPP_ERROR(node_->get_logger(), "Goal was aborted");
       return false;
-    case rclcpp_action::ResultCode::CANCELED: RCLCPP_ERROR(
-        node_->get_logger(),
-        "Goal was canceled");
+    case rclcpp_action::ResultCode::CANCELED:
+      RCLCPP_ERROR(node_->get_logger(), "Goal was canceled");
       return false;
-    default: RCLCPP_ERROR(node_->get_logger(), "Unknown result code");
+    default:
+      RCLCPP_ERROR(node_->get_logger(), "Unknown result code");
       return false;
   }
 
@@ -236,24 +223,21 @@ bool SpinBehaviorTester::defaultSpinBehaviorTest(
     return false;
   }
 
-  double goal_yaw = angles::normalize_angle(
-    tf2::getYaw(initial_pose.pose.orientation) + target_yaw);
-  double dyaw = angles::shortest_angular_distance(
-    goal_yaw, tf2::getYaw(current_pose.pose.orientation));
+  double goal_yaw =
+    angles::normalize_angle(tf2::getYaw(initial_pose.pose.orientation) + target_yaw);
+  double dyaw =
+    angles::shortest_angular_distance(goal_yaw, tf2::getYaw(current_pose.pose.orientation));
 
   if (fabs(dyaw) > tolerance) {
     RCLCPP_ERROR(
-      node_->get_logger(),
-      "Init Yaw is %lf (tolerance %lf)",
+      node_->get_logger(), "Init Yaw is %lf (tolerance %lf)",
       fabs(tf2::getYaw(initial_pose.pose.orientation)), tolerance);
     RCLCPP_ERROR(
-      node_->get_logger(),
-      "Current Yaw is %lf (tolerance %lf)",
+      node_->get_logger(), "Current Yaw is %lf (tolerance %lf)",
       fabs(tf2::getYaw(current_pose.pose.orientation)), tolerance);
     RCLCPP_ERROR(
-      node_->get_logger(),
-      "Angular distance from goal is %lf (tolerance %lf)",
-      fabs(dyaw), tolerance);
+      node_->get_logger(), "Angular distance from goal is %lf (tolerance %lf)", fabs(dyaw),
+      tolerance);
     return false;
   }
 
@@ -277,7 +261,8 @@ void SpinBehaviorTester::sendFakeCostmap(float angle)
   for (int ix = 0; ix < 100; ix++) {
     for (int iy = 0; iy < 100; iy++) {
       if (abs(angle) > M_PI_2f32) {
-        // fake obstacles in the way so we get failure due to potential collision
+        // fake obstacles in the way so we get failure due to potential
+        // collision
         costmap_val = 100;
       }
       fake_costmap.data.push_back(costmap_val);

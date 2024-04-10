@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <stdint.h>
-#include <chrono>
 #include "nav2_mppi_controller/controller.hpp"
 #include "nav2_mppi_controller/tools/utils.hpp"
+#include <chrono>
+#include <stdint.h>
 
 // #define BENCHMARK_TESTING
 
@@ -23,8 +24,8 @@ namespace nav2_mppi_controller
 {
 
 void MPPIController::configure(
-  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-  std::string name, const std::shared_ptr<tf2_ros::Buffer> tf,
+  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, std::string name,
+  const std::shared_ptr<tf2_ros::Buffer> tf,
   const std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros)
 {
   parent_ = parent;
@@ -45,8 +46,7 @@ void MPPIController::configure(
   optimizer_.initialize(parent_, name_, costmap_ros_, parameters_handler_.get());
   path_handler_.initialize(parent_, name_, costmap_ros_, tf_buffer_, parameters_handler_.get());
   trajectory_visualizer_.on_configure(
-    parent_, name_,
-    costmap_ros_->getGlobalFrameID(), parameters_handler_.get());
+    parent_, name_, costmap_ros_->getGlobalFrameID(), parameters_handler_.get());
 
   RCLCPP_INFO(logger_, "Configured MPPI Controller: %s", name_.c_str());
 }
@@ -72,14 +72,10 @@ void MPPIController::deactivate()
   RCLCPP_INFO(logger_, "Deactivated MPPI Controller: %s", name_.c_str());
 }
 
-void MPPIController::reset()
-{
-  optimizer_.reset();
-}
+void MPPIController::reset() { optimizer_.reset(); }
 
 geometry_msgs::msg::TwistStamped MPPIController::computeVelocityCommands(
-  const geometry_msgs::msg::PoseStamped & robot_pose,
-  const geometry_msgs::msg::Twist & robot_speed,
+  const geometry_msgs::msg::PoseStamped & robot_pose, const geometry_msgs::msg::Twist & robot_speed,
   nav2_core::GoalChecker * goal_checker)
 {
 #ifdef BENCHMARK_TESTING
@@ -120,10 +116,7 @@ void MPPIController::visualize(nav_msgs::msg::Path transformed_plan)
   trajectory_visualizer_.visualize(std::move(transformed_plan));
 }
 
-void MPPIController::setPlan(const nav_msgs::msg::Path & path)
-{
-  path_handler_.setPath(path);
-}
+void MPPIController::setPlan(const nav_msgs::msg::Path & path) { path_handler_.setPath(path); }
 
 void MPPIController::setSpeedLimit(const double & speed_limit, const bool & percentage)
 {

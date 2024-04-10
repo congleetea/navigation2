@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "nav2_costmap_2d/costmap_subscriber.hpp"
 
@@ -21,26 +21,22 @@ namespace nav2_costmap_2d
 {
 
 CostmapSubscriber::CostmapSubscriber(
-  const nav2_util::LifecycleNode::WeakPtr & parent,
-  const std::string & topic_name)
+  const nav2_util::LifecycleNode::WeakPtr & parent, const std::string & topic_name)
 : topic_name_(topic_name)
 {
   auto node = parent.lock();
   costmap_sub_ = node->create_subscription<nav2_msgs::msg::Costmap>(
-    topic_name_,
-    rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
+    topic_name_, rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
     std::bind(&CostmapSubscriber::costmapCallback, this, std::placeholders::_1));
 }
 
 CostmapSubscriber::CostmapSubscriber(
-  const rclcpp::Node::WeakPtr & parent,
-  const std::string & topic_name)
+  const rclcpp::Node::WeakPtr & parent, const std::string & topic_name)
 : topic_name_(topic_name)
 {
   auto node = parent.lock();
   costmap_sub_ = node->create_subscription<nav2_msgs::msg::Costmap>(
-    topic_name_,
-    rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
+    topic_name_, rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
     std::bind(&CostmapSubscriber::costmapCallback, this, std::placeholders::_1));
 }
 
@@ -62,17 +58,16 @@ void CostmapSubscriber::toCostmap2D()
       current_costmap_msg->metadata.size_x, current_costmap_msg->metadata.size_y,
       current_costmap_msg->metadata.resolution, current_costmap_msg->metadata.origin.position.x,
       current_costmap_msg->metadata.origin.position.y);
-  } else if (costmap_->getSizeInCellsX() != current_costmap_msg->metadata.size_x ||  // NOLINT
+  } else if (
+    costmap_->getSizeInCellsX() != current_costmap_msg->metadata.size_x ||  // NOLINT
     costmap_->getSizeInCellsY() != current_costmap_msg->metadata.size_y ||
     costmap_->getResolution() != current_costmap_msg->metadata.resolution ||
     costmap_->getOriginX() != current_costmap_msg->metadata.origin.position.x ||
-    costmap_->getOriginY() != current_costmap_msg->metadata.origin.position.y)
-  {
+    costmap_->getOriginY() != current_costmap_msg->metadata.origin.position.y) {
     // Update the size of the costmap
     costmap_->resizeMap(
       current_costmap_msg->metadata.size_x, current_costmap_msg->metadata.size_y,
-      current_costmap_msg->metadata.resolution,
-      current_costmap_msg->metadata.origin.position.x,
+      current_costmap_msg->metadata.resolution, current_costmap_msg->metadata.origin.position.x,
       current_costmap_msg->metadata.origin.position.y);
   }
 

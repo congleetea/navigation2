@@ -39,14 +39,14 @@
 #include <string>
 #include <vector>
 
-#include "nav2_costmap_2d/costmap_2d.hpp"
-#include "nav2_costmap_2d/layered_costmap.hpp"
-#include "nav2_costmap_2d/obstacle_layer.hpp"
-#include "nav2_costmap_2d/inflation_layer.hpp"
-#include "nav2_costmap_2d/observation_buffer.hpp"
 #include "../testing_helper.hpp"
-#include "nav2_util/node_utils.hpp"
+#include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_costmap_2d/costmap_2d_ros.hpp"
+#include "nav2_costmap_2d/inflation_layer.hpp"
+#include "nav2_costmap_2d/layered_costmap.hpp"
+#include "nav2_costmap_2d/observation_buffer.hpp"
+#include "nav2_costmap_2d/obstacle_layer.hpp"
+#include "nav2_util/node_utils.hpp"
 
 using geometry_msgs::msg::Point;
 using nav2_costmap_2d::CellData;
@@ -54,8 +54,8 @@ using nav2_costmap_2d::CellData;
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -67,14 +67,11 @@ public:
   ~TestNode() {}
 
   std::vector<Point> setRadii(
-    nav2_costmap_2d::LayeredCostmap & layers,
-    double length, double width);
+    nav2_costmap_2d::LayeredCostmap & layers, double length, double width);
 
   void validatePointInflation(
-    unsigned int mx, unsigned int my,
-    nav2_costmap_2d::Costmap2D * costmap,
-    std::shared_ptr<nav2_costmap_2d::InflationLayer> & ilayer,
-    double inflation_radius);
+    unsigned int mx, unsigned int my, nav2_costmap_2d::Costmap2D * costmap,
+    std::shared_ptr<nav2_costmap_2d::InflationLayer> & ilayer, double inflation_radius);
 
   void initNode(std::vector<rclcpp::Parameter> parameters);
   void initNode(double inflation_radius);
@@ -86,8 +83,7 @@ protected:
 };
 
 std::vector<Point> TestNode::setRadii(
-  nav2_costmap_2d::LayeredCostmap & layers,
-  double length, double width)
+  nav2_costmap_2d::LayeredCostmap & layers, double length, double width)
 {
   std::vector<Point> polygon;
   Point p;
@@ -117,19 +113,15 @@ void TestNode::waitForMap(std::shared_ptr<nav2_costmap_2d::StaticLayer> & slayer
 
 // Test that a single point gets inflated properly
 void TestNode::validatePointInflation(
-  unsigned int mx, unsigned int my,
-  nav2_costmap_2d::Costmap2D * costmap,
-  std::shared_ptr<nav2_costmap_2d::InflationLayer> & ilayer,
-  double inflation_radius)
+  unsigned int mx, unsigned int my, nav2_costmap_2d::Costmap2D * costmap,
+  std::shared_ptr<nav2_costmap_2d::InflationLayer> & ilayer, double inflation_radius)
 {
   bool * seen = new bool[costmap->getSizeInCellsX() * costmap->getSizeInCellsY()];
   memset(seen, false, costmap->getSizeInCellsX() * costmap->getSizeInCellsY() * sizeof(bool));
   std::map<double, std::vector<CellData>> m;
   CellData initial(costmap->getIndex(mx, my), mx, my, mx, my);
   m[0].push_back(initial);
-  for (std::map<double, std::vector<CellData>>::iterator bin = m.begin();
-    bin != m.end(); ++bin)
-  {
+  for (std::map<double, std::vector<CellData>>::iterator bin = m.begin(); bin != m.end(); ++bin) {
     for (unsigned int i = 0; i < bin->second.size(); ++i) {
       const CellData cell = bin->second[i];
       if (!seen[cell.index_]) {
@@ -152,23 +144,27 @@ void TestNode::validatePointInflation(
         }
 
         if (cell.x_ > 0) {
-          CellData data(costmap->getIndex(cell.x_ - 1, cell.y_),
-            cell.x_ - 1, cell.y_, cell.src_x_, cell.src_y_);
+          CellData data(
+            costmap->getIndex(cell.x_ - 1, cell.y_), cell.x_ - 1, cell.y_, cell.src_x_,
+            cell.src_y_);
           m[dist].push_back(data);
         }
         if (cell.y_ > 0) {
-          CellData data(costmap->getIndex(cell.x_, cell.y_ - 1),
-            cell.x_, cell.y_ - 1, cell.src_x_, cell.src_y_);
+          CellData data(
+            costmap->getIndex(cell.x_, cell.y_ - 1), cell.x_, cell.y_ - 1, cell.src_x_,
+            cell.src_y_);
           m[dist].push_back(data);
         }
         if (cell.x_ < costmap->getSizeInCellsX() - 1) {
-          CellData data(costmap->getIndex(cell.x_ + 1, cell.y_),
-            cell.x_ + 1, cell.y_, cell.src_x_, cell.src_y_);
+          CellData data(
+            costmap->getIndex(cell.x_ + 1, cell.y_), cell.x_ + 1, cell.y_, cell.src_x_,
+            cell.src_y_);
           m[dist].push_back(data);
         }
         if (cell.y_ < costmap->getSizeInCellsY() - 1) {
-          CellData data(costmap->getIndex(cell.x_, cell.y_ + 1),
-            cell.x_, cell.y_ + 1, cell.src_x_, cell.src_y_);
+          CellData data(
+            costmap->getIndex(cell.x_, cell.y_ + 1), cell.x_, cell.y_ + 1, cell.src_x_,
+            cell.src_y_);
           m[dist].push_back(data);
         }
       }
@@ -182,8 +178,7 @@ void TestNode::initNode(std::vector<rclcpp::Parameter> parameters)
   auto options = rclcpp::NodeOptions();
   options.parameter_overrides(parameters);
 
-  node_ = std::make_shared<nav2_util::LifecycleNode>(
-    "inflation_test_node", "", options);
+  node_ = std::make_shared<nav2_util::LifecycleNode>("inflation_test_node", "", options);
 
   // Declare non-plugin specific costmap parameters
   node_->declare_parameter("map_topic", rclcpp::ParameterValue(std::string("map")));
@@ -191,8 +186,7 @@ void TestNode::initNode(std::vector<rclcpp::Parameter> parameters)
   node_->declare_parameter("use_maximum", rclcpp::ParameterValue(false));
   node_->declare_parameter("lethal_cost_threshold", rclcpp::ParameterValue(100));
   node_->declare_parameter(
-    "unknown_cost_value",
-    rclcpp::ParameterValue(static_cast<unsigned char>(0xff)));
+    "unknown_cost_value", rclcpp::ParameterValue(static_cast<unsigned char>(0xff)));
   node_->declare_parameter("trinary_costmap", rclcpp::ParameterValue(true));
   node_->declare_parameter("transform_tolerance", rclcpp::ParameterValue(0.3));
   node_->declare_parameter("observation_sources", rclcpp::ParameterValue(std::string("")));
@@ -335,7 +329,8 @@ TEST_F(TestNode, testInflationAroundUnkown)
 }
 
 /**
- * Test for the cost function correctness with a larger range and different values
+ * Test for the cost function correctness with a larger range and different
+ * values
  */
 TEST_F(TestNode, testCostFunctionCorrectness)
 {
@@ -361,8 +356,8 @@ TEST_F(TestNode, testCostFunctionCorrectness)
   layers.updateMap(0, 0, 0);
   nav2_costmap_2d::Costmap2D * map = layers.getCostmap();
 
-  // Verify that the circumscribed cost lower bound is as expected: based on the cost function.
-  // unsigned char c = ilayer->computeCost(8.0);
+  // Verify that the circumscribed cost lower bound is as expected: based on the
+  // cost function. unsigned char c = ilayer->computeCost(8.0);
   // ASSERT_EQ(ilayer->getCircumscribedCost(), c);
 
   for (unsigned int i = 0; i <= (unsigned int)ceil(5.0); i++) {
@@ -474,9 +469,8 @@ TEST_F(TestNode, testInflation)
   ASSERT_EQ(countValues(*costmap, nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE), 28u);
 
   /*/ Iterate over all id's and verify they are obstacles
-  for(std::vector<unsigned int>::const_iterator it = occupiedCells.begin(); it != occupiedCells.end(); ++it){
-    unsigned int ind = *it;
-    unsigned int x, y;
+  for(std::vector<unsigned int>::const_iterator it = occupiedCells.begin(); it
+  != occupiedCells.end(); ++it){ unsigned int ind = *it; unsigned int x, y;
     map.indexToCells(ind, x, y);
     ASSERT_EQ(find(occupiedCells, map.getIndex(x, y)), true);
     ASSERT_EQ(map.getCost(x, y) == nav2_costmap_2d::LETHAL_OBSTACLE ||
@@ -489,10 +483,12 @@ TEST_F(TestNode, testInflation)
   // It and its 2 neighbors makes 3 obstacles
   ASSERT_EQ(
     countValues(*costmap, nav2_costmap_2d::LETHAL_OBSTACLE) +
-    countValues(*costmap, nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE), 51u);
+      countValues(*costmap, nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE),
+    51u);
 
   // @todo Rewrite
-  // Add an obstacle at <2,0> which will inflate and refresh to of the other inflated cells
+  // Add an obstacle at <2,0> which will inflate and refresh to of the other
+  // inflated cells
   addObservation(olayer, 2, 0);
   layers.updateMap(0, 0, 0);
 
@@ -503,7 +499,8 @@ TEST_F(TestNode, testInflation)
   // at <0, 1>
   ASSERT_EQ(
     countValues(*costmap, nav2_costmap_2d::LETHAL_OBSTACLE) +
-    countValues(*costmap, nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE), 54u);
+      countValues(*costmap, nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE),
+    54u);
 
   // Add an obstacle at <1, 9>. This will inflate obstacles around it
   addObservation(olayer, 1, 9);
@@ -521,7 +518,8 @@ TEST_F(TestNode, testInflation)
 }
 
 /**
- * Test specific inflation scenario to ensure we do not set inflated obstacles to be raw obstacles.
+ * Test specific inflation scenario to ensure we do not set inflated obstacles
+ * to be raw obstacles.
  */
 TEST_F(TestNode, testInflation2)
 {
@@ -616,21 +614,16 @@ TEST_F(TestNode, testDynParamsSet)
 
   auto parameter_client = std::make_shared<rclcpp::AsyncParametersClient>(
     costmap->get_node_base_interface(), costmap->get_node_topics_interface(),
-    costmap->get_node_graph_interface(),
-    costmap->get_node_services_interface());
+    costmap->get_node_graph_interface(), costmap->get_node_services_interface());
 
   auto results = parameter_client->set_parameters_atomically(
-  {
-    rclcpp::Parameter("inflation_layer.inflation_radius", 0.0),
-    rclcpp::Parameter("inflation_layer.cost_scaling_factor", 0.0),
-    rclcpp::Parameter("inflation_layer.inflate_unknown", true),
-    rclcpp::Parameter("inflation_layer.inflate_around_unknown", true),
-    rclcpp::Parameter("inflation_layer.enabled", false)
-  });
+    {rclcpp::Parameter("inflation_layer.inflation_radius", 0.0),
+     rclcpp::Parameter("inflation_layer.cost_scaling_factor", 0.0),
+     rclcpp::Parameter("inflation_layer.inflate_unknown", true),
+     rclcpp::Parameter("inflation_layer.inflate_around_unknown", true),
+     rclcpp::Parameter("inflation_layer.enabled", false)});
 
-  rclcpp::spin_until_future_complete(
-    costmap->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(costmap->get_node_base_interface(), results);
 
   EXPECT_EQ(costmap->get_parameter("inflation_layer.inflation_radius").as_double(), 0.0);
   EXPECT_EQ(costmap->get_parameter("inflation_layer.cost_scaling_factor").as_double(), 0.0);

@@ -18,18 +18,15 @@
 #include <string>
 #include <vector>
 
-#include "gtest/gtest.h"
-#include "nav2_util/lifecycle_node.hpp"
 #include "nav2_planner/planner_server.hpp"
+#include "nav2_util/lifecycle_node.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 class PlannerShim : public nav2_planner::PlannerServer
 {
 public:
-  PlannerShim()
-  : nav2_planner::PlannerServer(rclcpp::NodeOptions())
-  {
-  }
+  PlannerShim() : nav2_planner::PlannerServer(rclcpp::NodeOptions()) {}
 
   // Since we cannot call configure/activate due to costmaps
   // requiring TF
@@ -41,8 +38,8 @@ public:
       std::bind(&PlannerShim::dynamicParamsShim, this, std::placeholders::_1));
   }
 
-  rcl_interfaces::msg::SetParametersResult
-  dynamicParamsShim(std::vector<rclcpp::Parameter> parameters)
+  rcl_interfaces::msg::SetParametersResult dynamicParamsShim(
+    std::vector<rclcpp::Parameter> parameters)
   {
     rcl_interfaces::msg::SetParametersResult result;
     result.successful = true;
@@ -54,8 +51,8 @@ public:
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -66,25 +63,20 @@ TEST(WPTest, test_dynamic_parameters)
 
   auto rec_param = std::make_shared<rclcpp::AsyncParametersClient>(
     planner->get_node_base_interface(), planner->get_node_topics_interface(),
-    planner->get_node_graph_interface(),
-    planner->get_node_services_interface());
+    planner->get_node_graph_interface(), planner->get_node_services_interface());
 
-  auto results = rec_param->set_parameters_atomically(
-    {rclcpp::Parameter("expected_planner_frequency", 100.0)});
+  auto results =
+    rec_param->set_parameters_atomically({rclcpp::Parameter("expected_planner_frequency", 100.0)});
 
-  rclcpp::spin_until_future_complete(
-    planner->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(planner->get_node_base_interface(), results);
 
   EXPECT_EQ(planner->get_parameter("expected_planner_frequency").as_double(), 100.0);
 
   // test edge case for = 0
-  results = rec_param->set_parameters_atomically(
-    {rclcpp::Parameter("expected_planner_frequency", -1.0)});
+  results =
+    rec_param->set_parameters_atomically({rclcpp::Parameter("expected_planner_frequency", -1.0)});
 
-  rclcpp::spin_until_future_complete(
-    planner->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(planner->get_node_base_interface(), results);
 
   EXPECT_EQ(planner->get_parameter("expected_planner_frequency").as_double(), -1.0);
 }

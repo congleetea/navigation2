@@ -18,18 +18,15 @@
 #include <string>
 #include <vector>
 
-#include "gtest/gtest.h"
 #include "nav2_util/lifecycle_node.hpp"
 #include "nav2_waypoint_follower/waypoint_follower.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 class WPShim : public nav2_waypoint_follower::WaypointFollower
 {
 public:
-  WPShim()
-  : nav2_waypoint_follower::WaypointFollower(rclcpp::NodeOptions())
-  {
-  }
+  WPShim() : nav2_waypoint_follower::WaypointFollower(rclcpp::NodeOptions()) {}
 
   void configure()
   {
@@ -47,8 +44,8 @@ public:
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -60,16 +57,12 @@ TEST(WPTest, test_dynamic_parameters)
 
   auto rec_param = std::make_shared<rclcpp::AsyncParametersClient>(
     follower->get_node_base_interface(), follower->get_node_topics_interface(),
-    follower->get_node_graph_interface(),
-    follower->get_node_services_interface());
+    follower->get_node_graph_interface(), follower->get_node_services_interface());
 
   auto results = rec_param->set_parameters_atomically(
-    {rclcpp::Parameter("loop_rate", 100),
-      rclcpp::Parameter("stop_on_failure", false)});
+    {rclcpp::Parameter("loop_rate", 100), rclcpp::Parameter("stop_on_failure", false)});
 
-  rclcpp::spin_until_future_complete(
-    follower->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(follower->get_node_base_interface(), results);
 
   EXPECT_EQ(follower->get_parameter("loop_rate").as_int(), 100);
   EXPECT_EQ(follower->get_parameter("stop_on_failure").as_bool(), false);

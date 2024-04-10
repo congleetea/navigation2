@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "nav2_behavior_tree/plugins/action/clear_costmap_service.hpp"
 
@@ -21,20 +21,15 @@ namespace nav2_behavior_tree
 {
 
 ClearEntireCostmapService::ClearEntireCostmapService(
-  const std::string & service_node_name,
-  const BT::NodeConfiguration & conf)
+  const std::string & service_node_name, const BT::NodeConfiguration & conf)
 : BtServiceNode<nav2_msgs::srv::ClearEntireCostmap>(service_node_name, conf)
 {
 }
 
-void ClearEntireCostmapService::on_tick()
-{
-  increment_recovery_count();
-}
+void ClearEntireCostmapService::on_tick() { increment_recovery_count(); }
 
 ClearCostmapExceptRegionService::ClearCostmapExceptRegionService(
-  const std::string & service_node_name,
-  const BT::NodeConfiguration & conf)
+  const std::string & service_node_name, const BT::NodeConfiguration & conf)
 : BtServiceNode<nav2_msgs::srv::ClearCostmapExceptRegion>(service_node_name, conf)
 {
 }
@@ -46,8 +41,7 @@ void ClearCostmapExceptRegionService::on_tick()
 }
 
 ClearCostmapAroundRobotService::ClearCostmapAroundRobotService(
-  const std::string & service_node_name,
-  const BT::NodeConfiguration & conf)
+  const std::string & service_node_name, const BT::NodeConfiguration & conf)
 : BtServiceNode<nav2_msgs::srv::ClearCostmapAroundRobot>(service_node_name, conf)
 {
 }

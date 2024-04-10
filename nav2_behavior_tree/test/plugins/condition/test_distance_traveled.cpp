@@ -31,17 +31,14 @@ public:
       "distance_traveled", *config_);
   }
 
-  void TearDown()
-  {
-    bt_node_.reset();
-  }
+  void TearDown() { bt_node_.reset(); }
 
 protected:
   static std::shared_ptr<nav2_behavior_tree::DistanceTraveledCondition> bt_node_;
 };
 
 std::shared_ptr<nav2_behavior_tree::DistanceTraveledCondition>
-DistanceTraveledConditionTestFixture::bt_node_ = nullptr;
+  DistanceTraveledConditionTestFixture::bt_node_ = nullptr;
 
 TEST_F(DistanceTraveledConditionTestFixture, test_behavior)
 {

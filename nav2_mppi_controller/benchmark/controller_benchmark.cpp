@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,32 +20,32 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/path.hpp>
 
+#include <nav2_core/goal_checker.hpp>
 #include <nav2_costmap_2d/cost_values.hpp>
 #include <nav2_costmap_2d/costmap_2d.hpp>
 #include <nav2_costmap_2d/costmap_2d_ros.hpp>
-#include <nav2_core/goal_checker.hpp>
 
 #include <xtensor/xarray.hpp>
 #include <xtensor/xio.hpp>
 #include <xtensor/xview.hpp>
 
-#include "nav2_mppi_controller/motion_models.hpp"
 #include "nav2_mppi_controller/controller.hpp"
+#include "nav2_mppi_controller/motion_models.hpp"
 
 #include "utils.hpp"
 
 class RosLockGuard
 {
 public:
-  RosLockGuard() {rclcpp::init(0, nullptr);}
-  ~RosLockGuard() {rclcpp::shutdown();}
+  RosLockGuard() { rclcpp::init(0, nullptr); }
+  ~RosLockGuard() { rclcpp::shutdown(); }
 };
 
 RosLockGuard g_rclcpp;
 
 void prepareAndRunBenchmark(
-  bool consider_footprint, std::string motion_model,
-  std::vector<std::string> critics, benchmark::State & state)
+  bool consider_footprint, std::string motion_model, std::vector<std::string> critics,
+  benchmark::State & state)
 {
   bool visualize = false;
 
@@ -62,8 +63,8 @@ void prepareAndRunBenchmark(
   double path_step = costmap_settings.resolution;
 
   TestPathSettings path_settings{start_pose, path_points, path_step, path_step};
-  TestOptimizerSettings optimizer_settings{batch_size, time_steps, iteration_count,
-    lookahead_distance, motion_model, consider_footprint};
+  TestOptimizerSettings optimizer_settings{batch_size,         time_steps,   iteration_count,
+                                           lookahead_distance, motion_model, consider_footprint};
 
   unsigned int offset = 4;
   unsigned int obstacle_size = offset * 2;
@@ -88,17 +89,14 @@ void prepareAndRunBenchmark(
   auto tf_buffer = std::make_shared<tf2_ros::Buffer>(node->get_clock());
   tf_buffer->setUsingDedicatedThread(true);  // One-thread broadcasting-listening model
 
-  auto broadcaster =
-    std::make_shared<tf2_ros::TransformBroadcaster>(node);
+  auto broadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(node);
   auto tf_listener = std::make_shared<tf2_ros::TransformListener>(*tf_buffer);
 
-  auto map_odom_broadcaster = std::async(
-    std::launch::async, sendTf, "map", "odom", broadcaster, node,
-    20);
+  auto map_odom_broadcaster =
+    std::async(std::launch::async, sendTf, "map", "odom", broadcaster, node, 20);
 
-  auto odom_base_link_broadcaster = std::async(
-    std::launch::async, sendTf, "odom", "base_link", broadcaster, node,
-    20);
+  auto odom_base_link_broadcaster =
+    std::async(std::launch::async, sendTf, "odom", "base_link", broadcaster, node, 20);
 
   auto controller = getDummyController(node, tf_buffer, costmap_ros);
 
@@ -122,8 +120,9 @@ static void BM_DiffDrivePointFootprint(benchmark::State & state)
 {
   bool consider_footprint = true;
   std::string motion_model = "DiffDrive";
-  std::vector<std::string> critics = {{"GoalCritic"}, {"GoalAngleCritic"}, {"ObstaclesCritic"},
-    {"PathAngleCritic"}, {"PathFollowCritic"}, {"PreferForwardCritic"}};
+  std::vector<std::string> critics = {{"GoalCritic"},       {"GoalAngleCritic"},
+                                      {"ObstaclesCritic"},  {"PathAngleCritic"},
+                                      {"PathFollowCritic"}, {"PreferForwardCritic"}};
 
   prepareAndRunBenchmark(consider_footprint, motion_model, critics, state);
 }
@@ -132,19 +131,20 @@ static void BM_DiffDrive(benchmark::State & state)
 {
   bool consider_footprint = true;
   std::string motion_model = "DiffDrive";
-  std::vector<std::string> critics = {{"GoalCritic"}, {"GoalAngleCritic"}, {"ObstaclesCritic"},
-    {"PathAngleCritic"}, {"PathFollowCritic"}, {"PreferForwardCritic"}};
+  std::vector<std::string> critics = {{"GoalCritic"},       {"GoalAngleCritic"},
+                                      {"ObstaclesCritic"},  {"PathAngleCritic"},
+                                      {"PathFollowCritic"}, {"PreferForwardCritic"}};
 
   prepareAndRunBenchmark(consider_footprint, motion_model, critics, state);
 }
-
 
 static void BM_Omni(benchmark::State & state)
 {
   bool consider_footprint = true;
   std::string motion_model = "Omni";
-  std::vector<std::string> critics = {{"GoalCritic"}, {"GoalAngleCritic"}, {"ObstaclesCritic"},
-    {"TwirlingCritic"}, {"PathFollowCritic"}, {"PreferForwardCritic"}};
+  std::vector<std::string> critics = {{"GoalCritic"},       {"GoalAngleCritic"},
+                                      {"ObstaclesCritic"},  {"TwirlingCritic"},
+                                      {"PathFollowCritic"}, {"PreferForwardCritic"}};
 
   prepareAndRunBenchmark(consider_footprint, motion_model, critics, state);
 }
@@ -153,8 +153,9 @@ static void BM_Ackermann(benchmark::State & state)
 {
   bool consider_footprint = true;
   std::string motion_model = "Ackermann";
-  std::vector<std::string> critics = {{"GoalCritic"}, {"GoalAngleCritic"}, {"ObstaclesCritic"},
-    {"PathAngleCritic"}, {"PathFollowCritic"}, {"PreferForwardCritic"}};
+  std::vector<std::string> critics = {{"GoalCritic"},       {"GoalAngleCritic"},
+                                      {"ObstaclesCritic"},  {"PathAngleCritic"},
+                                      {"PathFollowCritic"}, {"PreferForwardCritic"}};
 
   prepareAndRunBenchmark(consider_footprint, motion_model, critics, state);
 }

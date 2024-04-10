@@ -20,24 +20,21 @@ namespace nav2_behavior_tree
 {
 
 IsBatteryChargingCondition::IsBatteryChargingCondition(
-  const std::string & condition_name,
-  const BT::NodeConfiguration & conf)
+  const std::string & condition_name, const BT::NodeConfiguration & conf)
 : BT::ConditionNode(condition_name, conf),
   battery_topic_("/battery_status"),
   is_battery_charging_(false)
 {
   getInput("battery_topic", battery_topic_);
   auto node = config().blackboard->get<rclcpp::Node::SharedPtr>("node");
-  callback_group_ = node->create_callback_group(
-    rclcpp::CallbackGroupType::MutuallyExclusive,
-    false);
+  callback_group_ =
+    node->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false);
   callback_group_executor_.add_callback_group(callback_group_, node->get_node_base_interface());
 
   rclcpp::SubscriptionOptions sub_option;
   sub_option.callback_group = callback_group_;
   battery_sub_ = node->create_subscription<sensor_msgs::msg::BatteryState>(
-    battery_topic_,
-    rclcpp::SystemDefaultsQoS(),
+    battery_topic_, rclcpp::SystemDefaultsQoS(),
     std::bind(&IsBatteryChargingCondition::batteryCallback, this, std::placeholders::_1),
     sub_option);
 }

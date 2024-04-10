@@ -21,13 +21,12 @@
 namespace path_utils
 {
 
-void append_transform_to_path(
-  nav_msgs::msg::Path & path,
-  tf2::Transform & relative_transform)
+void append_transform_to_path(nav_msgs::msg::Path & path, tf2::Transform & relative_transform)
 {
   // Add a new empty pose
   path.poses.emplace_back();
-  // Get the previous, last pose (after the emplace_back so the reference isn't invalidated)
+  // Get the previous, last pose (after the emplace_back so the reference isn't
+  // invalidated)
   auto & previous_pose = *(path.poses.end() - 2);
   auto & new_pose = path.poses.back();
 
@@ -52,10 +51,7 @@ void Straight::append(nav_msgs::msg::Path & path, double spacing) const
   }
 }
 
-double chord_length(double radius, double radians)
-{
-  return 2 * radius * sin(radians / 2);
-}
+double chord_length(double radius, double radians) { return 2 * radius * sin(radians / 2); }
 
 void Arc::append(nav_msgs::msg::Path & path, double spacing) const
 {
@@ -72,8 +68,7 @@ void Arc::append(nav_msgs::msg::Path & path, double spacing) const
 }
 
 nav_msgs::msg::Path generate_path(
-  geometry_msgs::msg::PoseStamped start,
-  double spacing,
+  geometry_msgs::msg::PoseStamped start, double spacing,
   std::initializer_list<std::unique_ptr<PathSegment>> segments)
 {
   nav_msgs::msg::Path path;

@@ -34,8 +34,8 @@
 
 #include "nav_2d_utils/conversions.hpp"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose2_d.hpp"
@@ -71,7 +71,8 @@ nav_2d_msgs::msg::Twist2D twist3Dto2D(const geometry_msgs::msg::Twist & cmd_vel)
   return cmd_vel_2d;
 }
 
-// nav_2d_msgs::msg::Pose2DStamped stampedPoseToPose2D(const tf2::Stamped<tf2::Pose>& pose)
+// nav_2d_msgs::msg::Pose2DStamped stampedPoseToPose2D(const
+// tf2::Stamped<tf2::Pose>& pose)
 // {
 //   nav_2d_msgs::msg::Pose2DStamped pose2d;
 //   pose2d.header.stamp = pose.stamp_;
@@ -110,8 +111,7 @@ geometry_msgs::msg::Pose pose2DToPose(const geometry_msgs::msg::Pose2D & pose2d)
   return pose;
 }
 
-geometry_msgs::msg::PoseStamped pose2DToPoseStamped(
-  const nav_2d_msgs::msg::Pose2DStamped & pose2d)
+geometry_msgs::msg::PoseStamped pose2DToPoseStamped(const nav_2d_msgs::msg::Pose2DStamped & pose2d)
 {
   geometry_msgs::msg::PoseStamped pose;
   pose.header = pose2d.header;
@@ -120,8 +120,7 @@ geometry_msgs::msg::PoseStamped pose2DToPoseStamped(
 }
 
 geometry_msgs::msg::PoseStamped pose2DToPoseStamped(
-  const geometry_msgs::msg::Pose2D & pose2d,
-  const std::string & frame, const rclcpp::Time & stamp)
+  const geometry_msgs::msg::Pose2D & pose2d, const std::string & frame, const rclcpp::Time & stamp)
 {
   geometry_msgs::msg::PoseStamped pose;
   pose.header.frame_id = frame;
@@ -157,10 +156,9 @@ nav_2d_msgs::msg::Path2D pathToPath2D(const nav_msgs::msg::Path & path)
   return path2d;
 }
 
-
 nav_msgs::msg::Path poses2DToPath(
-  const std::vector<geometry_msgs::msg::Pose2D> & poses,
-  const std::string & frame, const rclcpp::Time & stamp)
+  const std::vector<geometry_msgs::msg::Pose2D> & poses, const std::string & frame,
+  const rclcpp::Time & stamp)
 {
   nav_msgs::msg::Path path;
   path.poses.resize(poses.size());

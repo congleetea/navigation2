@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,8 +18,7 @@
 namespace mppi
 {
 
-ParametersHandler::ParametersHandler(
-  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent)
+ParametersHandler::ParametersHandler(const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent)
 {
   node_ = parent;
   auto node = node_.lock();
@@ -30,16 +30,13 @@ void ParametersHandler::start()
 {
   auto node = node_.lock();
   on_set_param_handler_ = node->add_on_set_parameters_callback(
-    std::bind(
-      &ParametersHandler::dynamicParamsCallback, this,
-      std::placeholders::_1));
+    std::bind(&ParametersHandler::dynamicParamsCallback, this, std::placeholders::_1));
 
   auto get_param = getParamGetter(node_name_);
   get_param(verbose_, "verbose", false);
 }
 
-rcl_interfaces::msg::SetParametersResult
-ParametersHandler::dynamicParamsCallback(
+rcl_interfaces::msg::SetParametersResult ParametersHandler::dynamicParamsCallback(
   std::vector<rclcpp::Parameter> parameters)
 {
   rcl_interfaces::msg::SetParametersResult result;
@@ -53,8 +50,7 @@ ParametersHandler::dynamicParamsCallback(
     const std::string & param_name = param.get_name();
 
     if (auto callback = get_param_callbacks_.find(param_name);
-      callback != get_param_callbacks_.end())
-    {
+        callback != get_param_callbacks_.end()) {
       callback->second(param);
     } else {
       RCLCPP_WARN(logger_, "Parameter %s not found", param_name.c_str());

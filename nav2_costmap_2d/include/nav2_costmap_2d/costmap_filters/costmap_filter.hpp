@@ -41,20 +41,21 @@
 #ifndef NAV2_COSTMAP_2D__COSTMAP_FILTERS__COSTMAP_FILTER_HPP_
 #define NAV2_COSTMAP_2D__COSTMAP_FILTERS__COSTMAP_FILTER_HPP_
 
-#include <string>
 #include <mutex>
+#include <string>
 
 #include "geometry_msgs/msg/pose2_d.hpp"
-#include "std_srvs/srv/set_bool.hpp"
 #include "nav2_costmap_2d/layer.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
+#include "std_srvs/srv/set_bool.hpp"
 
 namespace nav2_costmap_2d
 {
 
 /**
- * @brief: CostmapFilter basic class. It is inherited from Layer in order to avoid
- * hidden problems when the shared handling of costmap_ resource (PR #1936)
+ * @brief: CostmapFilter basic class. It is inherited from Layer in order to
+ * avoid hidden problems when the shared handling of costmap_ resource (PR
+ * #1936)
  */
 class CostmapFilter : public Layer
 {
@@ -75,10 +76,7 @@ public:
   /**
    * @brief: returns pointer to a mutex
    */
-  mutex_t * getMutex()
-  {
-    return access_;
-  }
+  mutex_t * getMutex() { return access_; }
 
   /**
    * @brief Initialization process of layer on startup
@@ -86,7 +84,8 @@ public:
   void onInitialize() final;
 
   /**
-   * @brief Update the bounds of the master costmap by this layer's update dimensions
+   * @brief Update the bounds of the master costmap by this layer's update
+   * dimensions
    * @param robot_x X pose of robot
    * @param robot_y Y pose of robot
    * @param robot_yaw Robot orientation
@@ -96,8 +95,8 @@ public:
    * @param max_y Y max map coord of the window to update
    */
   void updateBounds(
-    double robot_x, double robot_y, double robot_yaw,
-    double * min_x, double * min_y, double * max_x, double * max_y) final;
+    double robot_x, double robot_y, double robot_yaw, double * min_x, double * min_y,
+    double * max_x, double * max_y) final;
 
   /**
    * @brief Update the costs in the master costmap in the window
@@ -108,8 +107,7 @@ public:
    * @param max_y Y max map coord of the window to update
    */
   void updateCosts(
-    nav2_costmap_2d::Costmap2D & master_grid,
-    int min_i, int min_j, int max_i, int max_j) final;
+    nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i, int max_j) final;
 
   /**
    * @brief Activate the layer
@@ -127,19 +125,19 @@ public:
   /**
    * @brief If clearing operations should be processed on this layer or not
    */
-  bool isClearable() {return false;}
+  bool isClearable() { return false; }
 
   /** CostmapFilter API **/
   /**
-   * @brief: Initializes costmap filter. Creates subscriptions to filter-related topics
+   * @brief: Initializes costmap filter. Creates subscriptions to filter-related
+   * topics
    * @param: Name of costmap filter info topic
    */
-  virtual void initializeFilter(
-    const std::string & filter_info_topic) = 0;
+  virtual void initializeFilter(const std::string & filter_info_topic) = 0;
 
   /**
-   * @brief: An algorithm for how to use that map's information. Fills the Costmap2D with
-   *         calculated data and makes an action based on processed data
+   * @brief: An algorithm for how to use that map's information. Fills the
+   * Costmap2D with calculated data and makes an action based on processed data
    * @param: Reference to a master costmap2d
    * @param: Low window map boundary OX
    * @param: Low window map boundary OY
@@ -148,8 +146,7 @@ public:
    * @param: Robot 2D-pose
    */
   virtual void process(
-    nav2_costmap_2d::Costmap2D & master_grid,
-    int min_i, int min_j, int max_i, int max_j,
+    nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i, int max_j,
     const geometry_msgs::msg::Pose2D & pose) = 0;
 
   /**
@@ -178,24 +175,24 @@ protected:
    * @return: True if the transformation was successful, false otherwise
    */
   bool transformPose(
-    const std::string global_frame,
-    const geometry_msgs::msg::Pose2D & global_pose,
-    const std::string mask_frame,
-    geometry_msgs::msg::Pose2D & mask_pose) const;
+    const std::string global_frame, const geometry_msgs::msg::Pose2D & global_pose,
+    const std::string mask_frame, geometry_msgs::msg::Pose2D & mask_pose) const;
 
   /**
    * @brief: Convert from world coordinates to mask coordinates.
-     Similar to Costmap2D::worldToMap() method but works directly with OccupancyGrid-s.
+     Similar to Costmap2D::worldToMap() method but works directly with
+   OccupancyGrid-s.
    * @param  filter_mask Filter mask on which to convert
    * @param  wx The x world coordinate
    * @param  wy The y world coordinate
    * @param  mx Will be set to the associated mask x coordinate
    * @param  my Will be set to the associated mask y coordinate
-   * @return True if the conversion was successful (legal bounds) false otherwise
+   * @return True if the conversion was successful (legal bounds) false
+   otherwise
    */
   bool worldToMask(
-    nav_msgs::msg::OccupancyGrid::ConstSharedPtr filter_mask,
-    double wx, double wy, unsigned int & mx, unsigned int & my) const;
+    nav_msgs::msg::OccupancyGrid::ConstSharedPtr filter_mask, double wx, double wy,
+    unsigned int & mx, unsigned int & my) const;
 
   /**
    * @brief  Get the data of a cell in the filter mask
@@ -205,8 +202,8 @@ protected:
    * @return The data of the selected cell
    */
   inline int8_t getMaskData(
-    nav_msgs::msg::OccupancyGrid::ConstSharedPtr filter_mask,
-    const unsigned int mx, const unsigned int my) const
+    nav_msgs::msg::OccupancyGrid::ConstSharedPtr filter_mask, const unsigned int mx,
+    const unsigned int my) const
   {
     return filter_mask->data[my * filter_mask->info.width + mx];
   }

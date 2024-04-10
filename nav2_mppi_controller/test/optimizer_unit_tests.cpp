@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,30 +16,29 @@
 #include <chrono>
 #include <thread>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_mppi_controller/optimizer.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 // Tests main optimizer functions
 
 class RosLockGuard
 {
 public:
-  RosLockGuard() {rclcpp::init(0, nullptr);}
-  ~RosLockGuard() {rclcpp::shutdown();}
+  RosLockGuard() { rclcpp::init(0, nullptr); }
+  ~RosLockGuard() { rclcpp::shutdown(); }
 };
 RosLockGuard g_rclcpp;
 
-using namespace mppi;  // NOLINT
+using namespace mppi;           // NOLINT
 using namespace mppi::critics;  // NOLINT
-using namespace mppi::utils;  // NOLINT
+using namespace mppi::utils;    // NOLINT
 using xt::evaluation_strategy::immediate;
 
 class OptimizerTester : public Optimizer
 {
 public:
-  OptimizerTester()
-  : Optimizer() {}
+  OptimizerTester() : Optimizer() {}
 
   void testSetDiffModel()
   {
@@ -79,20 +79,11 @@ public:
     EXPECT_EQ(motion_model_.get(), nullptr);
   }
 
-  void resetMotionModel()
-  {
-    motion_model_.reset();
-  }
+  void resetMotionModel() { motion_model_.reset(); }
 
-  void setOffsetWrapper(const double freq)
-  {
-    return setOffset(freq);
-  }
+  void setOffsetWrapper(const double freq) { return setOffset(freq); }
 
-  bool getShiftControlSequence()
-  {
-    return settings_.shift_control_sequence;
-  }
+  bool getShiftControlSequence() { return settings_.shift_control_sequence; }
 
   void fillOptimizerWithGarbage()
   {
@@ -115,33 +106,27 @@ public:
     EXPECT_EQ(generated_trajectories_.x, xt::zeros<float>({1000, 50}));
   }
 
-  bool fallbackWrapper(bool fail)
-  {
-    return fallback(fail);
-  }
+  bool fallbackWrapper(bool fail) { return fallback(fail); }
 
   void testPrepare(
     const geometry_msgs::msg::PoseStamped & robot_pose,
-    const geometry_msgs::msg::Twist & robot_speed,
-    const nav_msgs::msg::Path & plan, nav2_core::GoalChecker * goal_checker)
+    const geometry_msgs::msg::Twist & robot_speed, const nav_msgs::msg::Path & plan,
+    nav2_core::GoalChecker * goal_checker)
   {
     prepare(robot_pose, robot_speed, plan, goal_checker);
 
     EXPECT_EQ(critics_data_.goal_checker, nullptr);
-    EXPECT_NEAR(xt::sum(costs_, immediate)(), 0, 1e-6);  // should be reset
-    EXPECT_FALSE(critics_data_.fail_flag);  // should be reset
+    EXPECT_NEAR(xt::sum(costs_, immediate)(), 0, 1e-6);       // should be reset
+    EXPECT_FALSE(critics_data_.fail_flag);                    // should be reset
     EXPECT_FALSE(critics_data_.motion_model->isHolonomic());  // object is valid + diff drive
     EXPECT_FALSE(critics_data_.furthest_reached_path_point.has_value());  // val is not set
-    EXPECT_FALSE(critics_data_.path_pts_valid.has_value());  // val is not set
+    EXPECT_FALSE(critics_data_.path_pts_valid.has_value());               // val is not set
     EXPECT_EQ(state_.pose.pose.position.x, 999);
     EXPECT_EQ(state_.speed.linear.y, 4.0);
     EXPECT_EQ(path_.x.shape(0), 17u);
   }
 
-  void shiftControlSequenceWrapper()
-  {
-    return shiftControlSequence();
-  }
+  void shiftControlSequenceWrapper() { return shiftControlSequence(); }
 
   std::pair<double, double> getVelLimits()
   {
@@ -149,15 +134,9 @@ public:
     return {s.constraints.vx_min, s.constraints.vx_max};
   }
 
-  void applyControlSequenceConstraintsWrapper()
-  {
-    return applyControlSequenceConstraints();
-  }
+  void applyControlSequenceConstraintsWrapper() { return applyControlSequenceConstraints(); }
 
-  models::ControlSequence & grabControlSequence()
-  {
-    return control_sequence_;
-  }
+  models::ControlSequence & grabControlSequence() { return control_sequence_; }
 
   void testupdateStateVels()
   {
@@ -207,9 +186,7 @@ public:
     return getControlFromSequenceAsTwist(stamp);
   }
 
-  void integrateStateVelocitiesWrapper(
-    models::Trajectories & traj,
-    const models::State & state)
+  void integrateStateVelocitiesWrapper(models::Trajectories & traj, const models::State & state)
   {
     return integrateStateVelocities(traj, state);
   }
@@ -222,8 +199,8 @@ TEST(OptimizerTests, BasicInitializedFunctions)
   node->declare_parameter("mppic.batch_size", rclcpp::ParameterValue(1000));
   node->declare_parameter("mppic.time_steps", rclcpp::ParameterValue(50));
   node->declare_parameter("controller_frequency", rclcpp::ParameterValue(30.0));
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State lstate;
   costmap_ros->on_configure(lstate);
@@ -254,8 +231,8 @@ TEST(OptimizerTests, TestOptimizerMotionModels)
   auto node = std::make_shared<rclcpp_lifecycle::LifecycleNode>("my_node");
   OptimizerTester optimizer_tester;
   node->declare_parameter("controller_frequency", rclcpp::ParameterValue(30.0));
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State lstate;
   costmap_ros->on_configure(lstate);
@@ -286,15 +263,15 @@ TEST(OptimizerTests, setOffsetTests)
   node->declare_parameter("controller_frequency", rclcpp::ParameterValue(30.0));
   node->declare_parameter("mppic.batch_size", rclcpp::ParameterValue(1000));
   node->declare_parameter("mppic.time_steps", rclcpp::ParameterValue(50));
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State lstate;
   costmap_ros->on_configure(lstate);
   optimizer_tester.initialize(node, "mppic", costmap_ros, &param_handler);
 
-  // Test offsets are properly set based on relationship of model_dt and controller frequency
-  // Also tests getting set model_dt parameter.
+  // Test offsets are properly set based on relationship of model_dt and
+  // controller frequency Also tests getting set model_dt parameter.
   EXPECT_THROW(optimizer_tester.setOffsetWrapper(1.0), std::runtime_error);
   EXPECT_NO_THROW(optimizer_tester.setOffsetWrapper(30.0));
   EXPECT_FALSE(optimizer_tester.getShiftControlSequence());
@@ -309,14 +286,15 @@ TEST(OptimizerTests, resetTests)
   node->declare_parameter("controller_frequency", rclcpp::ParameterValue(30.0));
   node->declare_parameter("mppic.batch_size", rclcpp::ParameterValue(1000));
   node->declare_parameter("mppic.time_steps", rclcpp::ParameterValue(50));
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State lstate;
   costmap_ros->on_configure(lstate);
   optimizer_tester.initialize(node, "mppic", costmap_ros, &param_handler);
 
-  // Tests resetting the full state of all the functions after filling with garbage
+  // Tests resetting the full state of all the functions after filling with
+  // garbage
   optimizer_tester.fillOptimizerWithGarbage();
   optimizer_tester.testReset();
 }
@@ -329,16 +307,16 @@ TEST(OptimizerTests, FallbackTests)
   node->declare_parameter("mppic.batch_size", rclcpp::ParameterValue(1000));
   node->declare_parameter("mppic.time_steps", rclcpp::ParameterValue(50));
   node->declare_parameter("mppic.retry_attempt_limit", rclcpp::ParameterValue(2));
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State lstate;
   costmap_ros->on_configure(lstate);
   optimizer_tester.initialize(node, "mppic", costmap_ros, &param_handler);
 
   // Test fallback logic, also tests getting set param retry_attempt_limit
-  // Because retry set to 2, it should attempt soft resets 2x before throwing exception
-  // for hard reset
+  // Because retry set to 2, it should attempt soft resets 2x before throwing
+  // exception for hard reset
   EXPECT_FALSE(optimizer_tester.fallbackWrapper(false));
   EXPECT_TRUE(optimizer_tester.fallbackWrapper(true));
   EXPECT_TRUE(optimizer_tester.fallbackWrapper(true));
@@ -353,8 +331,8 @@ TEST(OptimizerTests, PrepareTests)
   node->declare_parameter("mppic.batch_size", rclcpp::ParameterValue(1000));
   node->declare_parameter("mppic.time_steps", rclcpp::ParameterValue(50));
   node->declare_parameter("mppic.retry_attempt_limit", rclcpp::ParameterValue(2));
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State lstate;
   costmap_ros->on_configure(lstate);
@@ -380,14 +358,15 @@ TEST(OptimizerTests, shiftControlSequenceTests)
   node->declare_parameter("mppic.batch_size", rclcpp::ParameterValue(1000));
   node->declare_parameter("mppic.time_steps", rclcpp::ParameterValue(50));
   node->declare_parameter("mppic.retry_attempt_limit", rclcpp::ParameterValue(2));
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State lstate;
   costmap_ros->on_configure(lstate);
   optimizer_tester.initialize(node, "mppic", costmap_ros, &param_handler);
 
-  // Test shiftControlSequence by setting the 2nd value to something unique to neighbors
+  // Test shiftControlSequence by setting the 2nd value to something unique to
+  // neighbors
   auto & sequence = optimizer_tester.grabControlSequence();
   sequence.reset({100});
   sequence.vx(0) = 9999;
@@ -423,8 +402,8 @@ TEST(OptimizerTests, SpeedLimitTests)
   node->declare_parameter("mppic.batch_size", rclcpp::ParameterValue(1000));
   node->declare_parameter("mppic.time_steps", rclcpp::ParameterValue(50));
   node->declare_parameter("mppic.retry_attempt_limit", rclcpp::ParameterValue(2));
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State lstate;
   costmap_ros->on_configure(lstate);
@@ -463,8 +442,8 @@ TEST(OptimizerTests, applyControlSequenceConstraintsTests)
   node->declare_parameter("mppic.vx_min", rclcpp::ParameterValue(-1.0));
   node->declare_parameter("mppic.vy_max", rclcpp::ParameterValue(0.75));
   node->declare_parameter("mppic.wz_max", rclcpp::ParameterValue(2.0));
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State lstate;
   costmap_ros->on_configure(lstate);
@@ -519,8 +498,8 @@ TEST(OptimizerTests, updateStateVelocitiesTests)
   node->declare_parameter("mppic.vx_min", rclcpp::ParameterValue(-1.0));
   node->declare_parameter("mppic.vy_max", rclcpp::ParameterValue(0.60));
   node->declare_parameter("mppic.wz_max", rclcpp::ParameterValue(2.0));
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State lstate;
   costmap_ros->on_configure(lstate);
@@ -544,8 +523,8 @@ TEST(OptimizerTests, getControlFromSequenceAsTwistTests)
   node->declare_parameter("mppic.vx_min", rclcpp::ParameterValue(-1.0));
   node->declare_parameter("mppic.vy_max", rclcpp::ParameterValue(0.60));
   node->declare_parameter("mppic.wz_max", rclcpp::ParameterValue(2.0));
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State lstate;
   costmap_ros->on_configure(lstate);
@@ -579,8 +558,8 @@ TEST(OptimizerTests, integrateStateVelocitiesTests)
   node->declare_parameter("mppic.batch_size", rclcpp::ParameterValue(1000));
   node->declare_parameter("mppic.model_dt", rclcpp::ParameterValue(0.1));
   node->declare_parameter("mppic.time_steps", rclcpp::ParameterValue(50));
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State lstate;
   costmap_ros->on_configure(lstate);

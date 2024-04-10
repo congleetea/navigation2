@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,19 +16,19 @@
 #include <chrono>
 #include <thread>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_mppi_controller/motion_models.hpp"
-#include "nav2_mppi_controller/models/state.hpp"
 #include "nav2_mppi_controller/models/control_sequence.hpp"
+#include "nav2_mppi_controller/models/state.hpp"
+#include "nav2_mppi_controller/motion_models.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 // Tests motion models
 
 class RosLockGuard
 {
 public:
-  RosLockGuard() {rclcpp::init(0, nullptr);}
-  ~RosLockGuard() {rclcpp::shutdown();}
+  RosLockGuard() { rclcpp::init(0, nullptr); }
+  ~RosLockGuard() { rclcpp::shutdown(); }
 };
 RosLockGuard g_rclcpp;
 
@@ -40,16 +41,17 @@ TEST(MotionModelTests, DiffDriveTest)
   int batches = 1000;
   int timesteps = 50;
   control_sequence.reset(timesteps);  // populates with zeros
-  state.reset(batches, timesteps);  // populates with zeros
-  std::unique_ptr<DiffDriveMotionModel> model =
-    std::make_unique<DiffDriveMotionModel>();
+  state.reset(batches, timesteps);    // populates with zeros
+  std::unique_ptr<DiffDriveMotionModel> model = std::make_unique<DiffDriveMotionModel>();
 
-  // Check that predict properly populates the trajectory velocities with the control velocities
+  // Check that predict properly populates the trajectory velocities with the
+  // control velocities
   state.cvx = 10 * xt::ones<float>({batches, timesteps});
   state.cvy = 5 * xt::ones<float>({batches, timesteps});
   state.cwz = 1 * xt::ones<float>({batches, timesteps});
 
-  // Manually set state index 0 from initial conditions which would be the speed of the robot
+  // Manually set state index 0 from initial conditions which would be the speed
+  // of the robot
   xt::view(state.vx, xt::all(), 0) = 10;
   xt::view(state.wz, xt::all(), 0) = 1;
 
@@ -85,16 +87,17 @@ TEST(MotionModelTests, OmniTest)
   int batches = 1000;
   int timesteps = 50;
   control_sequence.reset(timesteps);  // populates with zeros
-  state.reset(batches, timesteps);  // populates with zeros
-  std::unique_ptr<OmniMotionModel> model =
-    std::make_unique<OmniMotionModel>();
+  state.reset(batches, timesteps);    // populates with zeros
+  std::unique_ptr<OmniMotionModel> model = std::make_unique<OmniMotionModel>();
 
-  // Check that predict properly populates the trajectory velocities with the control velocities
+  // Check that predict properly populates the trajectory velocities with the
+  // control velocities
   state.cvx = 10 * xt::ones<float>({batches, timesteps});
   state.cvy = 5 * xt::ones<float>({batches, timesteps});
   state.cwz = 1 * xt::ones<float>({batches, timesteps});
 
-  // Manually set state index 0 from initial conditions which would be the speed of the robot
+  // Manually set state index 0 from initial conditions which would be the speed
+  // of the robot
   xt::view(state.vx, xt::all(), 0) = 10;
   xt::view(state.vy, xt::all(), 0) = 5;
   xt::view(state.wz, xt::all(), 0) = 1;
@@ -132,18 +135,20 @@ TEST(MotionModelTests, AckermannTest)
   int batches = 1000;
   int timesteps = 50;
   control_sequence.reset(timesteps);  // populates with zeros
-  state.reset(batches, timesteps);  // populates with zeros
+  state.reset(batches, timesteps);    // populates with zeros
   auto node = std::make_shared<rclcpp_lifecycle::LifecycleNode>("my_node");
   ParametersHandler param_handler(node);
   std::unique_ptr<AckermannMotionModel> model =
     std::make_unique<AckermannMotionModel>(&param_handler);
 
-  // Check that predict properly populates the trajectory velocities with the control velocities
+  // Check that predict properly populates the trajectory velocities with the
+  // control velocities
   state.cvx = 10 * xt::ones<float>({batches, timesteps});
   state.cvy = 5 * xt::ones<float>({batches, timesteps});
   state.cwz = 1 * xt::ones<float>({batches, timesteps});
 
-  // Manually set state index 0 from initial conditions which would be the speed of the robot
+  // Manually set state index 0 from initial conditions which would be the speed
+  // of the robot
   xt::view(state.vx, xt::all(), 0) = 10;
   xt::view(state.wz, xt::all(), 0) = 1;
 
@@ -161,7 +166,8 @@ TEST(MotionModelTests, AckermannTest)
 
   models::ControlSequence initial_control_sequence = control_sequence;
   model->applyConstraints(control_sequence);
-  // VX equal since this doesn't change, the WZ is reduced if breaking the constraint
+  // VX equal since this doesn't change, the WZ is reduced if breaking the
+  // constraint
   EXPECT_EQ(initial_control_sequence.vx, control_sequence.vx);
   EXPECT_NE(initial_control_sequence.wz, control_sequence.wz);
 

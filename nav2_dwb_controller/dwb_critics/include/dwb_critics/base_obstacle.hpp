@@ -36,8 +36,8 @@
 #define DWB_CRITICS__BASE_OBSTACLE_HPP_
 
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "dwb_core/trajectory_critic.hpp"
 
@@ -45,14 +45,17 @@ namespace dwb_critics
 {
 /**
  * @class BaseObstacleCritic
- * @brief Uses costmap 2d to assign negative costs if a circular robot would collide at any point of the trajectory.
+ * @brief Uses costmap 2d to assign negative costs if a circular robot would
+ * collide at any point of the trajectory.
  *
- * This class can only be used to figure out if a circular robot is in collision. If the cell corresponding
- * with any of the poses in the Trajectory is an obstacle, inscribed obstacle or unknown, it will return a
- * negative cost. Otherwise it will return either the final pose's cost, or the sum of all poses, depending
- * on the sum_scores parameter.
+ * This class can only be used to figure out if a circular robot is in
+ * collision. If the cell corresponding with any of the poses in the Trajectory
+ * is an obstacle, inscribed obstacle or unknown, it will return a negative
+ * cost. Otherwise it will return either the final pose's cost, or the sum of
+ * all poses, depending on the sum_scores parameter.
  *
- * Other classes (like ObstacleFootprintCritic) can do more advanced checking for collisions.
+ * Other classes (like ObstacleFootprintCritic) can do more advanced checking
+ * for collisions.
  */
 class BaseObstacleCritic : public dwb_core::TrajectoryCritic
 {

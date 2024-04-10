@@ -69,12 +69,13 @@ inline double projectVelocity(double v0, double accel, double decel, double dt, 
  * @class OneDVelocityIterator
  * @brief An iterator for generating a number of samples in a range
  *
- * In its simplest usage, this gives us N (num_samples) different velocities that are reachable
- * given our current velocity. However, there is some fancy logic around zero velocities and
- * the min/max velocities
+ * In its simplest usage, this gives us N (num_samples) different velocities
+ * that are reachable given our current velocity. However, there is some fancy
+ * logic around zero velocities and the min/max velocities
  *
- * If the current velocity is 2 m/s, and the acceleration limit is 1 m/ss and the acc_time is 1 s,
- * this class would provide velocities between 1 m/s and 3 m/s.
+ * If the current velocity is 2 m/s, and the acceleration limit is 1 m/ss and
+ * the acc_time is 1 s, this class would provide velocities between 1 m/s and 3
+ * m/s.
  *
  *
  *
@@ -120,7 +121,9 @@ public:
    */
   double getVelocity() const
   {
-    if (return_zero_now_) {return 0.0;}
+    if (return_zero_now_) {
+      return 0.0;
+    }
     return current_;
   }
 
@@ -129,9 +132,9 @@ public:
    */
   OneDVelocityIterator & operator++()
   {
-    if (return_zero_ && current_ < 0.0 && current_ + increment_ > 0.0 &&
-      current_ + increment_ <= max_vel_ + EPSILON)
-    {
+    if (
+      return_zero_ && current_ < 0.0 && current_ + increment_ > 0.0 &&
+      current_ + increment_ <= max_vel_ + EPSILON) {
       return_zero_now_ = true;
       return_zero_ = false;
     } else {
@@ -154,10 +157,7 @@ public:
   /**
    * If we have returned all the velocities for this iteration
    */
-  bool isFinished() const
-  {
-    return current_ > max_vel_ + EPSILON;
-  }
+  bool isFinished() const { return current_ > max_vel_ + EPSILON; }
 
 private:
   bool return_zero_, return_zero_now_;

@@ -23,8 +23,8 @@
 #include "behaviortree_cpp_v3/bt_factory.h"
 #include "rclcpp/rclcpp.hpp"
 
-#include "test_transform_handler.hpp"
 #include "test_dummy_tree_node.hpp"
+#include "test_transform_handler.hpp"
 
 namespace nav2_behavior_tree
 {
@@ -43,18 +43,13 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
     config_->blackboard->set<std::shared_ptr<tf2_ros::Buffer>>(
-      "tf_buffer",
-      transform_handler_->getBuffer());
+      "tf_buffer", transform_handler_->getBuffer());
     config_->blackboard->set<std::chrono::milliseconds>(
-      "server_timeout",
-      std::chrono::milliseconds(20));
+      "server_timeout", std::chrono::milliseconds(20));
     config_->blackboard->set<std::chrono::milliseconds>(
-      "bt_loop_duration",
-      std::chrono::milliseconds(10));
+      "bt_loop_duration", std::chrono::milliseconds(10));
     config_->blackboard->set<bool>("initial_pose_received", false);
 
     transform_handler_->activate();
@@ -83,11 +78,11 @@ protected:
 rclcpp::Node::SharedPtr nav2_behavior_tree::BehaviorTreeTestFixture::node_ = nullptr;
 
 std::shared_ptr<nav2_behavior_tree::TransformHandler>
-nav2_behavior_tree::BehaviorTreeTestFixture::transform_handler_ = nullptr;
+  nav2_behavior_tree::BehaviorTreeTestFixture::transform_handler_ = nullptr;
 
 BT::NodeConfiguration * nav2_behavior_tree::BehaviorTreeTestFixture::config_ = nullptr;
 
-std::shared_ptr<BT::BehaviorTreeFactory>
-nav2_behavior_tree::BehaviorTreeTestFixture::factory_ = nullptr;
+std::shared_ptr<BT::BehaviorTreeFactory> nav2_behavior_tree::BehaviorTreeTestFixture::factory_ =
+  nullptr;
 
 #endif  // TEST_BEHAVIOR_TREE_FIXTURE_HPP_

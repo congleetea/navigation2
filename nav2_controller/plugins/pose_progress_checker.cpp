@@ -13,16 +13,16 @@
 // limitations under the License.
 
 #include "nav2_controller/plugins/pose_progress_checker.hpp"
-#include <cmath>
-#include <string>
-#include <memory>
-#include <vector>
 #include "angles/angles.h"
-#include "nav_2d_utils/conversions.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/pose2_d.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_util/node_utils.hpp"
+#include "nav_2d_utils/conversions.hpp"
 #include "pluginlib/class_list_macros.hpp"
+#include <cmath>
+#include <memory>
+#include <string>
+#include <vector>
 
 using rcl_interfaces::msg::ParameterType;
 using std::placeholders::_1;
@@ -31,8 +31,7 @@ namespace nav2_controller
 {
 
 void PoseProgressChecker::initialize(
-  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-  const std::string & plugin_name)
+  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, const std::string & plugin_name)
 {
   plugin_name_ = plugin_name;
   SimpleProgressChecker::initialize(parent, plugin_name);
@@ -68,14 +67,13 @@ bool PoseProgressChecker::isRobotMovedEnough(const geometry_msgs::msg::Pose2D & 
 }
 
 double PoseProgressChecker::poseAngleDistance(
-  const geometry_msgs::msg::Pose2D & pose1,
-  const geometry_msgs::msg::Pose2D & pose2)
+  const geometry_msgs::msg::Pose2D & pose1, const geometry_msgs::msg::Pose2D & pose2)
 {
   return abs(angles::shortest_angular_distance(pose1.theta, pose2.theta));
 }
 
-rcl_interfaces::msg::SetParametersResult
-PoseProgressChecker::dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters)
+rcl_interfaces::msg::SetParametersResult PoseProgressChecker::dynamicParametersCallback(
+  std::vector<rclcpp::Parameter> parameters)
 {
   rcl_interfaces::msg::SetParametersResult result;
   for (auto parameter : parameters) {

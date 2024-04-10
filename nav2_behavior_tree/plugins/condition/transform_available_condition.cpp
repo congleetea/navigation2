@@ -12,22 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
 #include <chrono>
 #include <memory>
+#include <string>
 
 #include "nav2_behavior_tree/plugins/condition/transform_available_condition.hpp"
 
-using namespace std::chrono_literals; // NOLINT
+using namespace std::chrono_literals;  // NOLINT
 
 namespace nav2_behavior_tree
 {
 
 TransformAvailableCondition::TransformAvailableCondition(
-  const std::string & condition_name,
-  const BT::NodeConfiguration & conf)
-: BT::ConditionNode(condition_name, conf),
-  was_found_(false)
+  const std::string & condition_name, const BT::NodeConfiguration & conf)
+: BT::ConditionNode(condition_name, conf), was_found_(false)
 {
   node_ = config().blackboard->get<rclcpp::Node::SharedPtr>("node");
   tf_ = config().blackboard->get<std::shared_ptr<tf2_ros::Buffer>>("tf_buffer");
@@ -57,8 +55,7 @@ BT::NodeStatus TransformAvailableCondition::tick()
   }
 
   std::string tf_error;
-  bool found = tf_->canTransform(
-    child_frame_, parent_frame_, tf2::TimePointZero, &tf_error);
+  bool found = tf_->canTransform(child_frame_, parent_frame_, tf2::TimePointZero, &tf_error);
 
   if (found) {
     was_found_ = true;

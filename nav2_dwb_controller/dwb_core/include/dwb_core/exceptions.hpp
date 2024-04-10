@@ -34,9 +34,9 @@
 #ifndef DWB_CORE__EXCEPTIONS_HPP_
 #define DWB_CORE__EXCEPTIONS_HPP_
 
+#include <memory>
 #include <stdexcept>
 #include <string>
-#include <memory>
 
 #include "nav2_core/exceptions.hpp"
 
@@ -51,7 +51,9 @@ class PlannerTFException : public nav2_core::PlannerException
 {
 public:
   explicit PlannerTFException(const std::string description)
-  : nav2_core::PlannerException(description) {}
+  : nav2_core::PlannerException(description)
+  {
+  }
 };
 
 /**
@@ -62,8 +64,10 @@ class IllegalTrajectoryException : public nav2_core::PlannerException
 {
 public:
   IllegalTrajectoryException(const std::string critic_name, const std::string description)
-  : nav2_core::PlannerException(description), critic_name_(critic_name) {}
-  std::string getCriticName() const {return critic_name_;}
+  : nav2_core::PlannerException(description), critic_name_(critic_name)
+  {
+  }
+  std::string getCriticName() const { return critic_name_; }
 
 protected:
   std::string critic_name_;

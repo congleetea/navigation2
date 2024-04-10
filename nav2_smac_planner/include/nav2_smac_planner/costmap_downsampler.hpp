@@ -16,8 +16,8 @@
 #define NAV2_SMAC_PLANNER__COSTMAP_DOWNSAMPLER_HPP_
 
 #include <algorithm>
-#include <string>
 #include <memory>
+#include <string>
 
 #include "nav2_costmap_2d/costmap_2d_ros.hpp"
 #include "nav2_smac_planner/constants.hpp"
@@ -49,15 +49,13 @@ public:
    * @param topic_name The name of the topic to publish the downsampled costmap
    * @param costmap The costmap we want to downsample
    * @param downsampling_factor Multiplier for the costmap resolution
-   * @param use_min_cost_neighbor If true, min function is used instead of max for downsampling
+   * @param use_min_cost_neighbor If true, min function is used instead of max
+   * for downsampling
    */
   void on_configure(
-    const nav2_util::LifecycleNode::WeakPtr & node,
-    const std::string & global_frame,
-    const std::string & topic_name,
-    nav2_costmap_2d::Costmap2D * const costmap,
-    const unsigned int & downsampling_factor,
-    const bool & use_min_cost_neighbor = false);
+    const nav2_util::LifecycleNode::WeakPtr & node, const std::string & global_frame,
+    const std::string & topic_name, nav2_costmap_2d::Costmap2D * const costmap,
+    const unsigned int & downsampling_factor, const bool & use_min_cost_neighbor = false);
 
   /**
    * @brief Activate the publisher of the downsampled costmap
@@ -75,14 +73,16 @@ public:
   void on_cleanup();
 
   /**
-   * @brief Downsample the given costmap by the downsampling factor, and publish the downsampled costmap
+   * @brief Downsample the given costmap by the downsampling factor, and publish
+   * the downsampled costmap
    * @param downsampling_factor Multiplier for the costmap resolution
    * @return A ptr to the downsampled costmap
    */
   nav2_costmap_2d::Costmap2D * downsample(const unsigned int & downsampling_factor);
 
   /**
-   * @brief Resize the downsampled costmap. Used in case the costmap changes and we need to update the downsampled version
+   * @brief Resize the downsampled costmap. Used in case the costmap changes and
+   * we need to update the downsampled version
    */
   void resizeCostmap();
 
@@ -93,13 +93,12 @@ protected:
   void updateCostmapSize();
 
   /**
-   * @brief Explore all subcells of the original costmap and assign the max cost to the new (downsampled) cell
+   * @brief Explore all subcells of the original costmap and assign the max cost
+   * to the new (downsampled) cell
    * @param new_mx The X-coordinate of the cell in the new costmap
    * @param new_my The Y-coordinate of the cell in the new costmap
    */
-  void setCostOfCell(
-    const unsigned int & new_mx,
-    const unsigned int & new_my);
+  void setCostOfCell(const unsigned int & new_mx, const unsigned int & new_my);
 
   unsigned int _size_x;
   unsigned int _size_y;

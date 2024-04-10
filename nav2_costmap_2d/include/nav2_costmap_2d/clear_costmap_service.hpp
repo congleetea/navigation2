@@ -15,16 +15,16 @@
 #ifndef NAV2_COSTMAP_2D__CLEAR_COSTMAP_SERVICE_HPP_
 #define NAV2_COSTMAP_2D__CLEAR_COSTMAP_SERVICE_HPP_
 
-#include <vector>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_msgs/srv/clear_costmap_except_region.hpp"
-#include "nav2_msgs/srv/clear_costmap_around_robot.hpp"
-#include "nav2_msgs/srv/clear_entire_costmap.hpp"
 #include "nav2_costmap_2d/costmap_layer.hpp"
+#include "nav2_msgs/srv/clear_costmap_around_robot.hpp"
+#include "nav2_msgs/srv/clear_costmap_except_region.hpp"
+#include "nav2_msgs/srv/clear_entire_costmap.hpp"
 #include "nav2_util/lifecycle_node.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_costmap_2d
 {
@@ -33,7 +33,8 @@ class Costmap2DROS;
 
 /**
  * @class ClearCostmapService
- * @brief Exposes services to clear costmap objects in inclusive/exclusive regions or completely
+ * @brief Exposes services to clear costmap objects in inclusive/exclusive
+ * regions or completely
  */
 class ClearCostmapService
 {
@@ -49,7 +50,8 @@ public:
   ClearCostmapService() = delete;
 
   /**
-   * @brief Clears the region outside of a user-specified area reverting to the static map
+   * @brief Clears the region outside of a user-specified area reverting to the
+   * static map
    */
   void clearRegion(double reset_distance, bool invert);
 

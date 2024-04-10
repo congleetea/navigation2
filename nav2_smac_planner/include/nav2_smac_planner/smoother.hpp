@@ -16,21 +16,21 @@
 #define NAV2_SMAC_PLANNER__SMOOTHER_HPP_
 
 #include <cmath>
-#include <vector>
 #include <iostream>
 #include <memory>
 #include <queue>
 #include <utility>
+#include <vector>
 
+#include "angles/angles.h"
 #include "nav2_costmap_2d/costmap_2d.hpp"
-#include "nav2_smac_planner/types.hpp"
 #include "nav2_smac_planner/constants.hpp"
+#include "nav2_smac_planner/types.hpp"
 #include "nav2_util/geometry_utils.hpp"
 #include "nav_msgs/msg/path.hpp"
-#include "angles/angles.h"
-#include "tf2/utils.h"
 #include "ompl/base/StateSpace.h"
 #include "ompl/base/spaces/DubinsStateSpace.h"
+#include "tf2/utils.h"
 
 namespace nav2_smac_planner
 {
@@ -56,7 +56,8 @@ struct BoundaryPoints
    */
   BoundaryPoints(double & x_in, double & y_in, double & theta_in)
   : x(x_in), y(y_in), theta(theta_in)
-  {}
+  {
+  }
 
   double x;
   double y;
@@ -102,8 +103,7 @@ public:
    * @param min_turning_radius Minimum turning radius (m)
    * @param motion_model Motion model type
    */
-  void initialize(
-    const double & min_turning_radius);
+  void initialize(const double & min_turning_radius);
 
   /**
    * @brief Smoother API method
@@ -113,8 +113,7 @@ public:
    * @return If smoothing was successful
    */
   bool smooth(
-    nav_msgs::msg::Path & path,
-    const nav2_costmap_2d::Costmap2D * costmap,
+    nav_msgs::msg::Path & path, const nav2_costmap_2d::Costmap2D * costmap,
     const double & max_time);
 
 protected:
@@ -127,10 +126,8 @@ protected:
    * @return If smoothing was successful
    */
   bool smoothImpl(
-    nav_msgs::msg::Path & path,
-    bool & reversing_segment,
-    const nav2_costmap_2d::Costmap2D * costmap,
-    const double & max_time);
+    nav_msgs::msg::Path & path, bool & reversing_segment,
+    const nav2_costmap_2d::Costmap2D * costmap, const double & max_time);
 
   /**
    * @brief Get the field value for a given dimension
@@ -139,8 +136,7 @@ protected:
    * @return dim value
    */
   inline double getFieldByDim(
-    const geometry_msgs::msg::PoseStamped & msg,
-    const unsigned int & dim);
+    const geometry_msgs::msg::PoseStamped & msg, const unsigned int & dim);
 
   /**
    * @brief Set the field value for a given dimension
@@ -149,14 +145,14 @@ protected:
    * @param value to set the dimention to for the pose
    */
   inline void setFieldByDim(
-    geometry_msgs::msg::PoseStamped & msg, const unsigned int dim,
-    const double & value);
+    geometry_msgs::msg::PoseStamped & msg, const unsigned int dim, const double & value);
 
   /**
    * @brief Finds the starting and end indices of path segments where
    * the robot is traveling in the same direction (e.g. forward vs reverse)
    * @param path Path in which to look for cusps
-   * @return Set of index pairs for each segment of the path in a given direction
+   * @return Set of index pairs for each segment of the path in a given
+   * direction
    */
   std::vector<PathSegment> findDirectionalPathSegments(const nav_msgs::msg::Path & path);
 
@@ -169,10 +165,8 @@ protected:
    * @param reversing_segment Whether this path segment is in reverse
    */
   void enforceStartBoundaryConditions(
-    const geometry_msgs::msg::Pose & start_pose,
-    nav_msgs::msg::Path & path,
-    const nav2_costmap_2d::Costmap2D * costmap,
-    const bool & reversing_segment);
+    const geometry_msgs::msg::Pose & start_pose, nav_msgs::msg::Path & path,
+    const nav2_costmap_2d::Costmap2D * costmap, const bool & reversing_segment);
 
   /**
    * @brief Enforced minimum curvature boundary conditions on plan output
@@ -183,10 +177,8 @@ protected:
    * @param reversing_segment Whether this path segment is in reverse
    */
   void enforceEndBoundaryConditions(
-    const geometry_msgs::msg::Pose & end_pose,
-    nav_msgs::msg::Path & path,
-    const nav2_costmap_2d::Costmap2D * costmap,
-    const bool & reversing_segment);
+    const geometry_msgs::msg::Pose & end_pose, nav_msgs::msg::Path & path,
+    const nav2_costmap_2d::Costmap2D * costmap, const bool & reversing_segment);
 
   /**
    * @brief Given a set of boundary expansion, find the one which is shortest
@@ -207,10 +199,8 @@ protected:
    * @param reversing_segment Whether this path segment is in reverse
    */
   void findBoundaryExpansion(
-    const geometry_msgs::msg::Pose & start,
-    const geometry_msgs::msg::Pose & end,
-    BoundaryExpansion & expansion,
-    const nav2_costmap_2d::Costmap2D * costmap);
+    const geometry_msgs::msg::Pose & start, const geometry_msgs::msg::Pose & end,
+    BoundaryExpansion & expansion, const nav2_costmap_2d::Costmap2D * costmap);
 
   /**
    * @brief Generates boundary expansions with end idx at least strategic
@@ -219,17 +209,17 @@ protected:
    * @param end iterator to end search for
    * @return Boundary expansions with end idxs populated
    */
-  template<typename IteratorT>
+  template <typename IteratorT>
   BoundaryExpansions generateBoundaryExpansionPoints(IteratorT start, IteratorT end);
 
   /**
-   * @brief For a given path, update the path point orientations based on smoothing
+   * @brief For a given path, update the path point orientations based on
+   * smoothing
    * @param path Path to approximate the path orientation in
    * @param reversing_segment Return if this is a reversing segment
    */
   inline void updateApproximatePathOrientations(
-    nav_msgs::msg::Path & path,
-    bool & reversing_segment);
+    nav_msgs::msg::Path & path, bool & reversing_segment);
 
   double min_turning_rad_, tolerance_, data_w_, smooth_w_;
   int max_its_, refinement_ctr_;

@@ -22,8 +22,7 @@ namespace nav2_behavior_tree
 {
 
 ComputePathThroughPosesAction::ComputePathThroughPosesAction(
-  const std::string & xml_tag_name,
-  const std::string & action_name,
+  const std::string & xml_tag_name, const std::string & action_name,
   const BT::NodeConfiguration & conf)
 : BtActionNode<nav2_msgs::action::ComputePathThroughPoses>(xml_tag_name, action_name, conf)
 {
@@ -63,12 +62,10 @@ BT::NodeStatus ComputePathThroughPosesAction::on_cancelled()
 #include "behaviortree_cpp_v3/bt_factory.h"
 BT_REGISTER_NODES(factory)
 {
-  BT::NodeBuilder builder =
-    [](const std::string & name, const BT::NodeConfiguration & config)
-    {
-      return std::make_unique<nav2_behavior_tree::ComputePathThroughPosesAction>(
-        name, "compute_path_through_poses", config);
-    };
+  BT::NodeBuilder builder = [](const std::string & name, const BT::NodeConfiguration & config) {
+    return std::make_unique<nav2_behavior_tree::ComputePathThroughPosesAction>(
+      name, "compute_path_through_poses", config);
+  };
 
   factory.registerBuilder<nav2_behavior_tree::ComputePathThroughPosesAction>(
     "ComputePathThroughPoses", builder);

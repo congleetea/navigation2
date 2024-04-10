@@ -14,17 +14,17 @@
 
 #include <gtest/gtest.h>
 
-#include <string>
 #include <memory>
+#include <string>
 
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_costmap_2d/layer.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -33,7 +33,7 @@ class LayerWrapper : public nav2_costmap_2d::Layer
   void reset() {}
   void updateBounds(double, double, double, double *, double *, double *, double *) {}
   void updateCosts(nav2_costmap_2d::Costmap2D &, int, int, int, int) {}
-  bool isClearable() {return false;}
+  bool isClearable() { return false; }
 };
 
 TEST(DeclareParameter, useValidParameter)

@@ -13,15 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <chrono>
+#include <gtest/gtest.h>
 #include <memory>
 #include <set>
 
 #include "../../test_behavior_tree_fixture.hpp"
 #include "nav2_behavior_tree/plugins/decorator/single_trigger_node.hpp"
 
-using namespace std::chrono;  // NOLINT
+using namespace std::chrono;           // NOLINT
 using namespace std::chrono_literals;  // NOLINT
 
 class SingleTriggerTestFixture : public nav2_behavior_tree::BehaviorTreeTestFixture
@@ -29,8 +29,7 @@ class SingleTriggerTestFixture : public nav2_behavior_tree::BehaviorTreeTestFixt
 public:
   void SetUp()
   {
-    bt_node_ = std::make_shared<nav2_behavior_tree::SingleTrigger>(
-      "single_trigger", *config_);
+    bt_node_ = std::make_shared<nav2_behavior_tree::SingleTrigger>("single_trigger", *config_);
     dummy_node_ = std::make_shared<nav2_behavior_tree::DummyNode>();
     bt_node_->setChild(dummy_node_.get());
   }
@@ -46,10 +45,8 @@ protected:
   static std::shared_ptr<nav2_behavior_tree::DummyNode> dummy_node_;
 };
 
-std::shared_ptr<nav2_behavior_tree::SingleTrigger>
-SingleTriggerTestFixture::bt_node_ = nullptr;
-std::shared_ptr<nav2_behavior_tree::DummyNode>
-SingleTriggerTestFixture::dummy_node_ = nullptr;
+std::shared_ptr<nav2_behavior_tree::SingleTrigger> SingleTriggerTestFixture::bt_node_ = nullptr;
+std::shared_ptr<nav2_behavior_tree::DummyNode> SingleTriggerTestFixture::dummy_node_ = nullptr;
 
 TEST_F(SingleTriggerTestFixture, test_behavior)
 {

@@ -15,14 +15,14 @@
 #ifndef NAV2_CORE__GLOBAL_PLANNER_HPP_
 #define NAV2_CORE__GLOBAL_PLANNER_HPP_
 
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav2_costmap_2d/costmap_2d_ros.hpp"
+#include "nav2_util/lifecycle_node.hpp"
+#include "nav_msgs/msg/path.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "tf2_ros/buffer.h"
 #include <memory>
 #include <string>
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_costmap_2d/costmap_2d_ros.hpp"
-#include "tf2_ros/buffer.h"
-#include "nav_msgs/msg/path.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "nav2_util/lifecycle_node.hpp"
 
 namespace nav2_core
 {
@@ -48,8 +48,8 @@ public:
    * @param  costmap_ros A pointer to the costmap
    */
   virtual void configure(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-    std::string name, std::shared_ptr<tf2_ros::Buffer> tf,
+    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, std::string name,
+    std::shared_ptr<tf2_ros::Buffer> tf,
     std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros) = 0;
 
   /**

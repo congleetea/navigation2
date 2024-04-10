@@ -22,10 +22,7 @@ using namespace std::chrono_literals;
 namespace nav2_costmap_2d
 {
 
-OrderLayer::OrderLayer()
-: activated_(false)
-{
-}
+OrderLayer::OrderLayer() : activated_(false) {}
 
 void OrderLayer::activate()
 {
@@ -33,21 +30,16 @@ void OrderLayer::activate()
   activated_ = true;
 }
 
-void OrderLayer::deactivate()
-{
-  activated_ = false;
-}
+void OrderLayer::deactivate() { activated_ = false; }
 
-void OrderLayer::updateBounds(
-  double, double, double, double *, double *, double *, double *)
+void OrderLayer::updateBounds(double, double, double, double *, double *, double *, double *)
 {
   if (!activated_) {
     throw std::runtime_error("update before activated");
   }
 }
 
-void OrderLayer::updateCosts(
-  nav2_costmap_2d::Costmap2D &, int, int, int, int)
+void OrderLayer::updateCosts(nav2_costmap_2d::Costmap2D &, int, int, int, int)
 {
   if (!activated_) {
     throw std::runtime_error("update before activated");

@@ -15,22 +15,22 @@
 #ifndef NAV2_ROTATION_SHIM_CONTROLLER__NAV2_ROTATION_SHIM_CONTROLLER_HPP_
 #define NAV2_ROTATION_SHIM_CONTROLLER__NAV2_ROTATION_SHIM_CONTROLLER_HPP_
 
+#include <algorithm>
+#include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
-#include <memory>
-#include <algorithm>
-#include <mutex>
 
-#include "rclcpp/rclcpp.hpp"
-#include "pluginlib/class_loader.hpp"
-#include "pluginlib/class_list_macros.hpp"
-#include "nav2_util/geometry_utils.hpp"
-#include "nav2_util/robot_utils.hpp"
+#include "angles/angles.h"
 #include "nav2_core/controller.hpp"
 #include "nav2_core/exceptions.hpp"
-#include "nav2_util/node_utils.hpp"
 #include "nav2_costmap_2d/footprint_collision_checker.hpp"
-#include "angles/angles.h"
+#include "nav2_util/geometry_utils.hpp"
+#include "nav2_util/node_utils.hpp"
+#include "nav2_util/robot_utils.hpp"
+#include "pluginlib/class_list_macros.hpp"
+#include "pluginlib/class_loader.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_rotation_shim_controller
 {
@@ -43,12 +43,14 @@ class RotationShimController : public nav2_core::Controller
 {
 public:
   /**
-   * @brief Constructor for nav2_rotation_shim_controller::RotationShimController
+   * @brief Constructor for
+   * nav2_rotation_shim_controller::RotationShimController
    */
   RotationShimController();
 
   /**
-   * @brief Destrructor for nav2_rotation_shim_controller::RotationShimController
+   * @brief Destrructor for
+   * nav2_rotation_shim_controller::RotationShimController
    */
   ~RotationShimController() override = default;
 
@@ -60,8 +62,8 @@ public:
    * @param costmap_ros Costmap2DROS object of environment
    */
   void configure(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-    std::string name, std::shared_ptr<tf2_ros::Buffer> tf,
+    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, std::string name,
+    std::shared_ptr<tf2_ros::Buffer> tf,
     std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros) override;
 
   /**
@@ -83,12 +85,12 @@ public:
    * @brief Compute the best command given the current pose and velocity
    * @param pose      Current robot pose
    * @param velocity  Current robot velocity
-   * @param goal_checker Ptr to the goal checker for this task in case useful in computing commands
+   * @param goal_checker Ptr to the goal checker for this task in case useful in
+   * computing commands
    * @return          Best command
    */
   geometry_msgs::msg::TwistStamped computeVelocityCommands(
-    const geometry_msgs::msg::PoseStamped & pose,
-    const geometry_msgs::msg::Twist & velocity,
+    const geometry_msgs::msg::PoseStamped & pose, const geometry_msgs::msg::Twist & velocity,
     nav2_core::GoalChecker * /*goal_checker*/) override;
 
   /**
@@ -130,8 +132,7 @@ protected:
    * @return Twist command for rotation to rough heading
    */
   geometry_msgs::msg::TwistStamped computeRotateToHeadingCommand(
-    const double & angular_distance,
-    const geometry_msgs::msg::PoseStamped & pose,
+    const double & angular_distance, const geometry_msgs::msg::PoseStamped & pose,
     const geometry_msgs::msg::Twist & velocity);
 
   /**
@@ -141,25 +142,24 @@ protected:
    * @param pose Starting pose of robot
    */
   void isCollisionFree(
-    const geometry_msgs::msg::TwistStamped & cmd_vel,
-    const double & angular_distance_to_heading,
+    const geometry_msgs::msg::TwistStamped & cmd_vel, const double & angular_distance_to_heading,
     const geometry_msgs::msg::PoseStamped & pose);
 
   /**
    * @brief Callback executed when a parameter change is detected
    * @param event ParameterEvent message
    */
-  rcl_interfaces::msg::SetParametersResult
-  dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters);
+  rcl_interfaces::msg::SetParametersResult dynamicParametersCallback(
+    std::vector<rclcpp::Parameter> parameters);
 
   rclcpp_lifecycle::LifecycleNode::WeakPtr node_;
   std::shared_ptr<tf2_ros::Buffer> tf_;
   std::string plugin_name_;
-  rclcpp::Logger logger_ {rclcpp::get_logger("RotationShimController")};
+  rclcpp::Logger logger_{rclcpp::get_logger("RotationShimController")};
   rclcpp::Clock::SharedPtr clock_;
   std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros_;
   std::unique_ptr<nav2_costmap_2d::FootprintCollisionChecker<nav2_costmap_2d::Costmap2D *>>
-  collision_checker_;
+    collision_checker_;
 
   pluginlib::ClassLoader<nav2_core::Controller> lp_loader_;
   nav2_core::Controller::Ptr primary_controller_;

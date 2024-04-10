@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
-#include <nav2_costmap_2d/costmap_2d_ros.hpp>
 #include <gtest/gtest.h>
+#include <nav2_costmap_2d/costmap_2d_ros.hpp>
 
 TEST(CostmapPluginsTester, checkPluginAPIOrder)
 {
@@ -31,8 +31,7 @@ TEST(CostmapPluginsTester, checkPluginAPIOrder)
   plugins_str.push_back("order_layer");
   costmap_ros->set_parameter(rclcpp::Parameter("plugins", plugins_str));
   costmap_ros->declare_parameter(
-    "order_layer.plugin",
-    rclcpp::ParameterValue(std::string("nav2_costmap_2d::OrderLayer")));
+    "order_layer.plugin", rclcpp::ParameterValue(std::string("nav2_costmap_2d::OrderLayer")));
 
   // Do actual test: ensure that plugin->updateBounds()/updateCosts()
   // will be called after plugin->activate()

@@ -26,31 +26,20 @@ class TestNode : public BT::SyncActionNode
 public:
   TestNode(const std::string & name, const BT::NodeConfiguration & config)
   : SyncActionNode(name, config)
-  {}
-
-  BT::NodeStatus tick()
   {
-    return BT::NodeStatus::SUCCESS;
   }
 
-  static BT::PortsList providedPorts()
-  {
-    return {};
-  }
+  BT::NodeStatus tick() { return BT::NodeStatus::SUCCESS; }
+
+  static BT::PortsList providedPorts() { return {}; }
 };
 
 class InitialPoseReceivedConditionTestFixture : public nav2_behavior_tree::BehaviorTreeTestFixture
 {
 public:
-  void SetUp()
-  {
-    test_node_ = std::make_shared<TestNode>("TestNode", *config_);
-  }
+  void SetUp() { test_node_ = std::make_shared<TestNode>("TestNode", *config_); }
 
-  void TearDown()
-  {
-    test_node_.reset();
-  }
+  void TearDown() { test_node_.reset(); }
 
 protected:
   static std::shared_ptr<TestNode> test_node_;

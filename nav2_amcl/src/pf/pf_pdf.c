@@ -39,7 +39,6 @@
 // Random number generator seed value
 static unsigned int pf_pdf_seed;
 
-
 /**************************************************************************
  * Gaussian
  *************************************************************************/
@@ -71,14 +70,12 @@ pf_pdf_gaussian_t * pf_pdf_gaussian_alloc(pf_vector_t x, pf_matrix_t cx)
   return pdf;
 }
 
-
 // Destroy the pdf
 void pf_pdf_gaussian_free(pf_pdf_gaussian_t * pdf)
 {
   // gsl_rng_free(pdf->rng);
   free(pdf);
 }
-
 
 /*
 // Compute the value of the pdf at some point [x].
@@ -100,7 +97,6 @@ double pf_pdf_gaussian_value(pf_pdf_gaussian_t *pdf, pf_vector_t x)
   return p;
 }
 */
-
 
 // Generate a sample from the pdf.
 pf_vector_t pf_pdf_gaussian_sample(pf_pdf_gaussian_t * pdf)

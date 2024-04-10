@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "behaviortree_cpp_v3/condition_node.h"
 
@@ -23,11 +23,8 @@ namespace nav2_behavior_tree
 {
 
 PathExpiringTimerCondition::PathExpiringTimerCondition(
-  const std::string & condition_name,
-  const BT::NodeConfiguration & conf)
-: BT::ConditionNode(condition_name, conf),
-  period_(1.0),
-  first_time_(true)
+  const std::string & condition_name, const BT::NodeConfiguration & conf)
+: BT::ConditionNode(condition_name, conf), period_(1.0), first_time_(true)
 {
   getInput("seconds", period_);
   node_ = config().blackboard->get<rclcpp::Node::SharedPtr>("node");

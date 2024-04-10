@@ -17,9 +17,9 @@
 #include <vector>
 
 #include "nav2_msgs/srv/is_path_valid.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "planner_tester.hpp"
 #include "nav2_util/lifecycle_utils.hpp"
+#include "planner_tester.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 using nav2_system_tests::PlannerTester;
 using nav2_util::TestCostmap;

@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
-#include <memory>
-#include <chrono>
-#include <string>
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_util/lifecycle_node.hpp"
-#include "nav2_util/node_thread.hpp"
 #include "nav2_lifecycle_manager/lifecycle_manager.hpp"
 #include "nav2_lifecycle_manager/lifecycle_manager_client.hpp"
+#include "nav2_util/lifecycle_node.hpp"
+#include "nav2_util/node_thread.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include <chrono>
+#include <gtest/gtest.h>
+#include <memory>
+#include <string>
 
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
@@ -28,8 +28,7 @@ using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface
 class TestLifecycleNode : public nav2_util::LifecycleNode
 {
 public:
-  TestLifecycleNode(bool bond, std::string name)
-  : nav2_util::LifecycleNode(name)
+  TestLifecycleNode(bool bond, std::string name) : nav2_util::LifecycleNode(name)
   {
     state = "";
     enable_bond = bond;
@@ -83,30 +82,15 @@ public:
     return CallbackReturn::SUCCESS;
   }
 
-  bool bondAllocated()
-  {
-    return bond_ ? true : false;
-  }
+  bool bondAllocated() { return bond_ ? true : false; }
 
-  void breakBond()
-  {
-    bond_->breakBond();
-  }
+  void breakBond() { bond_->breakBond(); }
 
-  std::string getState()
-  {
-    return state;
-  }
+  std::string getState() { return state; }
 
-  bool isBondEnabled()
-  {
-    return enable_bond;
-  }
+  bool isBondEnabled() { return enable_bond; }
 
-  bool isBondConnected()
-  {
-    return bondAllocated() ? !bond_->isBroken() : false;
-  }
+  bool isBondConnected() { return bondAllocated() ? !bond_->isBroken() : false; }
 
   std::string state;
   bool enable_bond;
@@ -146,7 +130,8 @@ TEST(LifecycleBondTest, POSITIVE)
 
   bond_tester->breakBond();
 
-  // bond should be disconnected now and lifecycle manager should know and react to reset
+  // bond should be disconnected now and lifecycle manager should know and react
+  // to reset
   rclcpp::Rate(5).sleep();
   EXPECT_EQ(
     nav2_lifecycle_manager::SystemStatus::INACTIVE,
@@ -173,7 +158,8 @@ TEST(LifecycleBondTest, NEGATIVE)
   auto node = std::make_shared<rclcpp::Node>("lifecycle_manager_test_service_client");
   nav2_lifecycle_manager::LifecycleManagerClient client("lifecycle_manager_test", node);
 
-  // create node, now without bond setup to connect to. Should fail because no bond
+  // create node, now without bond setup to connect to. Should fail because no
+  // bond
   auto fixture = TestFixture(false, "bond_tester");
   auto bond_tester = fixture.lf_node_;
   EXPECT_FALSE(client.startup());

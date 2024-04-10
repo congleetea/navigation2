@@ -23,12 +23,12 @@
  * Author: Andrew Howard
  * Date: 18 Jan 2003
  * CVS: $Id: map_range.c 1347 2003-05-05 06:24:33Z inspectorg $
-**************************************************************************/
+ **************************************************************************/
 
 #include <assert.h>
 #include <math.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "nav2_amcl/map/map.hpp"
 

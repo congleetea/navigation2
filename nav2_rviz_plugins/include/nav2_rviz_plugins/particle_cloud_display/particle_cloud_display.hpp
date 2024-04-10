@@ -51,8 +51,8 @@
 
 #include "nav2_msgs/msg/particle_cloud.hpp"
 
-#include "rviz_rendering/objects/shape.hpp"
 #include "rviz_common/message_filter_display.hpp"
+#include "rviz_rendering/objects/shape.hpp"
 
 namespace Ogre
 {
@@ -85,17 +85,16 @@ struct OgrePoseWithWeight
   float weight;
 };
 
-/** @brief Displays a nav2_msgs/ParticleCloud message as a bunch of line-drawn weighted arrows. */
+/** @brief Displays a nav2_msgs/ParticleCloud message as a bunch of line-drawn
+ * weighted arrows. */
 class ParticleCloudDisplay : public rviz_common::MessageFilterDisplay<nav2_msgs::msg::ParticleCloud>
 {
   Q_OBJECT
 
 public:
-  // TODO(botteroa-si): Constructor for testing, remove once ros_nodes can be mocked and call
-  // initialize instead
-  ParticleCloudDisplay(
-    rviz_common::DisplayContext * display_context,
-    Ogre::SceneNode * scene_node);
+  // TODO(botteroa-si): Constructor for testing, remove once ros_nodes can be
+  // mocked and call initialize instead
+  ParticleCloudDisplay(rviz_common::DisplayContext * display_context, Ogre::SceneNode * scene_node);
   ParticleCloudDisplay();
   ~ParticleCloudDisplay() override;
 

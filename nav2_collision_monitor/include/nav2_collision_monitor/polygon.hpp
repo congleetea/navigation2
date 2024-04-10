@@ -19,15 +19,15 @@
 #include <string>
 #include <vector>
 
-#include "rclcpp/rclcpp.hpp"
-#include "geometry_msgs/msg/polygon_stamped.hpp"
 #include "geometry_msgs/msg/polygon.hpp"
+#include "geometry_msgs/msg/polygon_stamped.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "tf2/time.h"
 #include "tf2_ros/buffer.h"
 
-#include "nav2_util/lifecycle_node.hpp"
 #include "nav2_costmap_2d/footprint_subscriber.hpp"
+#include "nav2_util/lifecycle_node.hpp"
 
 #include "nav2_collision_monitor/types.hpp"
 
@@ -51,10 +51,8 @@ public:
    * @param transform_tolerance Transform tolerance
    */
   Polygon(
-    const nav2_util::LifecycleNode::WeakPtr & node,
-    const std::string & polygon_name,
-    const std::shared_ptr<tf2_ros::Buffer> tf_buffer,
-    const std::string & base_frame_id,
+    const nav2_util::LifecycleNode::WeakPtr & node, const std::string & polygon_name,
+    const std::shared_ptr<tf2_ros::Buffer> tf_buffer, const std::string & base_frame_id,
     const tf2::Duration & transform_tolerance);
   /**
    * @brief Polygon destructor
@@ -62,9 +60,10 @@ public:
   virtual ~Polygon();
 
   /**
-   * @brief Shape configuration routine. Obtains ROS-parameters related to shape object
-   * and creates polygon lifecycle publisher.
-   * @return True in case of everything is configured correctly, or false otherwise
+   * @brief Shape configuration routine. Obtains ROS-parameters related to shape
+   * object and creates polygon lifecycle publisher.
+   * @return True in case of everything is configured correctly, or false
+   * otherwise
    */
   bool configure();
   /**
@@ -87,7 +86,8 @@ public:
    */
   ActionType getActionType() const;
   /**
-   * @brief Obtains polygon maximum points to enter inside polygon causing no action
+   * @brief Obtains polygon maximum points to enter inside polygon causing no
+   * action
    * @return Maximum points to enter to current polygon and take no action
    */
   int getMaxPoints() const;
@@ -132,8 +132,7 @@ public:
    * return value will be negative.
    */
   double getCollisionTime(
-    const std::vector<Point> & collision_points,
-    const Velocity & velocity) const;
+    const std::vector<Point> & collision_points, const Velocity & velocity) const;
 
   /**
    * @brief Publishes polygon message into a its own topic
@@ -151,7 +150,8 @@ protected:
   /**
    * @brief Supporting routine obtaining polygon-specific ROS-parameters
    * @param polygon_pub_topic Output name of polygon publishing topic
-   * @param footprint_topic Output name of footprint topic. Empty, if no footprint subscription
+   * @param footprint_topic Output name of footprint topic. Empty, if no
+   * footprint subscription
    * @return True if all parameters were obtained or false in failure case
    */
   virtual bool getParameters(std::string & polygon_pub_topic, std::string & footprint_topic);
@@ -175,7 +175,8 @@ protected:
   std::string polygon_name_;
   /// @brief Action type for the polygon
   ActionType action_type_;
-  /// @brief Maximum number of data readings within a zone to not trigger the action
+  /// @brief Maximum number of data readings within a zone to not trigger the
+  /// action
   int max_points_;
   /// @brief Robot slowdown (share of its actual speed)
   double slowdown_ratio_;

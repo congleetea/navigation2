@@ -15,18 +15,18 @@
 #ifndef NAV2_BT_NAVIGATOR__NAVIGATORS__NAVIGATE_TO_POSE_HPP_
 #define NAV2_BT_NAVIGATOR__NAVIGATORS__NAVIGATE_TO_POSE_HPP_
 
-#include <string>
-#include <vector>
-#include <memory>
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_bt_navigator/navigator.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "nav2_util/geometry_utils.hpp"
+#include "nav2_util/odometry_utils.hpp"
 #include "nav2_util/robot_utils.hpp"
 #include "nav_msgs/msg/path.hpp"
-#include "nav2_util/odometry_utils.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace nav2_bt_navigator
 {
@@ -36,7 +36,7 @@ namespace nav2_bt_navigator
  * @brief A navigator for navigating to a specified pose
  */
 class NavigateToPoseNavigator
-  : public nav2_bt_navigator::Navigator<nav2_msgs::action::NavigateToPose>
+: public nav2_bt_navigator::Navigator<nav2_msgs::action::NavigateToPose>
 {
 public:
   using ActionT = nav2_msgs::action::NavigateToPose;
@@ -44,8 +44,7 @@ public:
   /**
    * @brief A constructor for NavigateToPoseNavigator
    */
-  NavigateToPoseNavigator()
-  : Navigator() {}
+  NavigateToPoseNavigator() : Navigator() {}
 
   /**
    * @brief A configure state transition to configure navigator's state
@@ -72,7 +71,7 @@ public:
    * @brief Get action name for this navigator
    * @return string Name of action server
    */
-  std::string getName() {return std::string("navigate_to_pose");}
+  std::string getName() { return std::string("navigate_to_pose"); }
 
   /**
    * @brief Get navigator's default BT
@@ -83,17 +82,17 @@ public:
 
 protected:
   /**
-   * @brief A callback to be called when a new goal is received by the BT action server
-   * Can be used to check if goal is valid and put values on
-   * the blackboard which depend on the received goal
+   * @brief A callback to be called when a new goal is received by the BT action
+   * server Can be used to check if goal is valid and put values on the
+   * blackboard which depend on the received goal
    * @param goal Action template's goal message
    * @return bool if goal was received successfully to be processed
    */
   bool goalReceived(ActionT::Goal::ConstSharedPtr goal) override;
 
   /**
-   * @brief A callback that defines execution that happens on one iteration through the BT
-   * Can be used to publish action feedback
+   * @brief A callback that defines execution that happens on one iteration
+   * through the BT Can be used to publish action feedback
    */
   void onLoop() override;
 
@@ -103,11 +102,11 @@ protected:
   void onPreempt(ActionT::Goal::ConstSharedPtr goal) override;
 
   /**
-   * @brief A callback that is called when a the action is completed, can fill in
-   * action result message or indicate that this action is done.
+   * @brief A callback that is called when a the action is completed, can fill
+   * in action result message or indicate that this action is done.
    * @param result Action template result message to populate
-   * @param final_bt_status Resulting status of the behavior tree execution that may be
-   * referenced while populating the result.
+   * @param final_bt_status Resulting status of the behavior tree execution that
+   * may be referenced while populating the result.
    */
   void goalCompleted(
     typename ActionT::Result::SharedPtr result,

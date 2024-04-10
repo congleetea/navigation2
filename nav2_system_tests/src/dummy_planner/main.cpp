@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <memory>
-#include "rclcpp/rclcpp.hpp"
 #include "dummy_planner.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include <memory>
 
 int main(int argc, char ** argv)
 {

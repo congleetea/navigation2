@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,17 +16,17 @@
 #include <chrono>
 #include <thread>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_mppi_controller/tools/parameters_handler.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 // Tests parameter handler object
 
 class RosLockGuard
 {
 public:
-  RosLockGuard() {rclcpp::init(0, nullptr);}
-  ~RosLockGuard() {rclcpp::shutdown();}
+  RosLockGuard() { rclcpp::init(0, nullptr); }
+  ~RosLockGuard() { rclcpp::shutdown(); }
 };
 
 RosLockGuard g_rclcpp;
@@ -37,11 +38,12 @@ class ParametersHandlerWrapper : public ParametersHandler
 public:
   ParametersHandlerWrapper() = default;
 
-  explicit ParametersHandlerWrapper(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent)
-  : ParametersHandler(parent) {}
+  explicit ParametersHandlerWrapper(const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent)
+  : ParametersHandler(parent)
+  {
+  }
 
-  template<typename T>
+  template <typename T>
   auto asWrapped(rclcpp::Parameter parameter)
   {
     return ParametersHandler::as<T>(parameter);
@@ -80,22 +82,20 @@ TEST(ParameterHandlerTest, PrePostDynamicCallbackTest)
 {
   bool pre_triggered = false, post_triggered = false, dynamic_triggered = false;
   auto preCb = [&]() {
-      if (post_triggered) {
-        throw std::runtime_error("Post-callback triggered before pre-callback!");
-      }
-      pre_triggered = true;
-    };
+    if (post_triggered) {
+      throw std::runtime_error("Post-callback triggered before pre-callback!");
+    }
+    pre_triggered = true;
+  };
 
   auto postCb = [&]() {
-      if (!pre_triggered) {
-        throw std::runtime_error("Pre-callback was not triggered before post-callback!");
-      }
-      post_triggered = true;
-    };
+    if (!pre_triggered) {
+      throw std::runtime_error("Pre-callback was not triggered before post-callback!");
+    }
+    post_triggered = true;
+  };
 
-  auto dynamicCb = [&](const rclcpp::Parameter & /*param*/) {
-      dynamic_triggered = true;
-    };
+  auto dynamicCb = [&](const rclcpp::Parameter & /*param*/) { dynamic_triggered = true; };
 
   rclcpp::Parameter random_param("blah_blah", rclcpp::ParameterValue(true));
   rclcpp::Parameter random_param2("use_sim_time", rclcpp::ParameterValue(true));
@@ -107,7 +107,8 @@ TEST(ParameterHandlerTest, PrePostDynamicCallbackTest)
   a.addDynamicParamCallback("use_sim_time", dynamicCb);
   a.setDynamicParamCallback(val, "blah_blah");
 
-  // Dynamic callback should not trigger, wrong parameter, but val should be updated
+  // Dynamic callback should not trigger, wrong parameter, but val should be
+  // updated
   a.dynamicParamsCallback(std::vector<rclcpp::Parameter>{random_param});
   EXPECT_FALSE(dynamic_triggered);
   EXPECT_TRUE(pre_triggered);
@@ -164,16 +165,12 @@ TEST(ParameterHandlerTest, DynamicAndStaticParametersTest)
   // Now change them both via dynamic parameters
   auto rec_param = std::make_shared<rclcpp::AsyncParametersClient>(
     node->get_node_base_interface(), node->get_node_topics_interface(),
-    node->get_node_graph_interface(),
-    node->get_node_services_interface());
+    node->get_node_graph_interface(), node->get_node_services_interface());
 
   auto results = rec_param->set_parameters_atomically(
-    {rclcpp::Parameter("dynamic_int", 10),
-      rclcpp::Parameter("static_int", 10)});
+    {rclcpp::Parameter("dynamic_int", 10), rclcpp::Parameter("static_int", 10)});
 
-  rclcpp::spin_until_future_complete(
-    node->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(node->get_node_base_interface(), results);
 
   // Now, only param1 should change, param 2 should be the same
   EXPECT_EQ(p1, 10);

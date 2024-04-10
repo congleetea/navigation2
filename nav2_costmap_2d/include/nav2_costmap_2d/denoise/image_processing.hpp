@@ -17,10 +17,10 @@
 
 #include "image.hpp"
 #include <algorithm>
-#include <vector>
 #include <array>
-#include <memory>
 #include <limits>
+#include <memory>
+#include <vector>
 
 namespace nav2_costmap_2d
 {
@@ -30,8 +30,7 @@ namespace nav2_costmap_2d
  * @brief Describes the type of pixel connectivity (is the way in which
  * pixels in image relate to their neighbors)
  */
-enum class ConnectivityType : int
-{
+enum class ConnectivityType : int {
   /// neighbors pixels are connected horizontally and vertically
   Way4 = 4,
   /// neighbors pixels are connected horizontally, vertically and diagonally
@@ -45,16 +44,17 @@ class MemoryBuffer
 {
 public:
   /// @brief Free memory allocated for the buffer
-  inline ~MemoryBuffer() {reset();}
+  inline ~MemoryBuffer() { reset(); }
   /**
    * @brief Return a pointer to an uninitialized array of count elements
-   * Delete the old block of memory and allocates a new one if the size of the old is too small.
-   * The returned pointer is valid until the next call to get() or destructor.
+   * Delete the old block of memory and allocates a new one if the size of the
+   * old is too small. The returned pointer is valid until the next call to
+   * get() or destructor.
    * @tparam T type of element
    * @param count number of elements
    * @throw std::bad_alloc or any other exception thrown by allocator
    */
-  template<class T>
+  template <class T>
   T * get(std::size_t count);
 
 private:
@@ -69,31 +69,32 @@ private:
 // forward declarations
 namespace imgproc_impl
 {
-template<class Label>
+template <class Label>
 class EquivalenceLabelTrees;
 
-template<class AggregateFn>
+template <class AggregateFn>
 void morphologyOperation(
-  const Image<uint8_t> & input, Image<uint8_t> & output,
-  const Image<uint8_t> & shape, AggregateFn aggregate);
+  const Image<uint8_t> & input, Image<uint8_t> & output, const Image<uint8_t> & shape,
+  AggregateFn aggregate);
 
 using ShapeBuffer3x3 = std::array<uint8_t, 9>;
 inline Image<uint8_t> createShape(ShapeBuffer3x3 & buffer, ConnectivityType connectivity);
-} // namespace imgproc_impl
+}  // namespace imgproc_impl
 
 /**
  * @brief Perform morphological dilation
  * @tparam Max function object
  * @param input input image
  * @param output output image
- * @param connectivity selector for selecting structuring element (Way4-> cross, Way8-> rect)
- * @param max_function takes as input std::initializer_list<uint8_t> with three elements.
- * Returns the greatest value in list
+ * @param connectivity selector for selecting structuring element (Way4-> cross,
+ * Way8-> rect)
+ * @param max_function takes as input std::initializer_list<uint8_t> with three
+ * elements. Returns the greatest value in list
  */
-template<class Max>
+template <class Max>
 inline void dilate(
-  const Image<uint8_t> & input, Image<uint8_t> & output,
-  ConnectivityType connectivity, Max && max_function)
+  const Image<uint8_t> & input, Image<uint8_t> & output, ConnectivityType connectivity,
+  Max && max_function)
 {
   using namespace imgproc_impl;
   ShapeBuffer3x3 shape_buffer;
@@ -102,41 +103,40 @@ inline void dilate(
 }
 
 /**
-* @brief Compute the connected components labeled image of binary image
-* Implements the SAUF algorithm
-* (Two Strategies to Speed up Connected Component Labeling Algorithms
-* Kesheng Wu, Ekow Otoo, Kenji Suzuki).
-* @tparam connectivity pixels connectivity type
-* @tparam Label integer type of label
-* @tparam IsBg functor with signature bool (uint8_t)
-* @param image input image
-* @param buffer memory block that will be used to store the result (labeled image)
-* and the internal buffer for labels trees
-* @param label_trees union-find data structure
-* @param is_background returns true if the passed pixel value is background
-* @throw LabelOverflow if all possible values of the Label type are used and
-* it is impossible to create a new unique
-* @return pair(labeled image, total number of labels)
-* Labeled image has the same size as image. Label 0 represents the background label,
-* labels [1, <return value> - 1] - separate components.
-* Total number of labels == 0 for empty image.
-* In other cases, label 0 is always counted,
-* even if there is no background in the image.
-* For example, for an image of one background pixel, the total number of labels == 2.
-* Two labels (0, 1) have been counted, although label 0 is not used)
-*/
-template<ConnectivityType connectivity, class Label, class IsBg>
+ * @brief Compute the connected components labeled image of binary image
+ * Implements the SAUF algorithm
+ * (Two Strategies to Speed up Connected Component Labeling Algorithms
+ * Kesheng Wu, Ekow Otoo, Kenji Suzuki).
+ * @tparam connectivity pixels connectivity type
+ * @tparam Label integer type of label
+ * @tparam IsBg functor with signature bool (uint8_t)
+ * @param image input image
+ * @param buffer memory block that will be used to store the result (labeled
+ * image) and the internal buffer for labels trees
+ * @param label_trees union-find data structure
+ * @param is_background returns true if the passed pixel value is background
+ * @throw LabelOverflow if all possible values of the Label type are used and
+ * it is impossible to create a new unique
+ * @return pair(labeled image, total number of labels)
+ * Labeled image has the same size as image. Label 0 represents the background
+ * label, labels [1, <return value> - 1] - separate components. Total number of
+ * labels == 0 for empty image. In other cases, label 0 is always counted, even
+ * if there is no background in the image. For example, for an image of one
+ * background pixel, the total number of labels == 2. Two labels (0, 1) have
+ * been counted, although label 0 is not used)
+ */
+template <ConnectivityType connectivity, class Label, class IsBg>
 std::pair<Image<Label>, Label> connectedComponents(
   const Image<uint8_t> & image, MemoryBuffer & buffer,
-  imgproc_impl::EquivalenceLabelTrees<Label> & label_trees,
-  IsBg && is_background);
+  imgproc_impl::EquivalenceLabelTrees<Label> & label_trees, IsBg && is_background);
 
 // Implementation
 
-template<class T>
+template <class T>
 T * MemoryBuffer::get(std::size_t count)
 {
-  // Check the memory allocated by ::operator new can be used to store the type T
+  // Check the memory allocated by ::operator new can be used to store the type
+  // T
   static_assert(
     alignof(std::max_align_t) >= alignof(T),
     "T alignment is more than the fundamental alignment of the platform");
@@ -169,12 +169,13 @@ namespace imgproc_impl
  * @brief Calculate truncated histogram of image.
  *
  * Creates a histogram of image_max bins.
- * Bin with index i keep min of (<count of the number of pixels with value i>, bin_max).
- * This truncation avoids overflow and is acceptable in the problem being solved.
- * For example, the image with pixel type uint16_t may have 100'000 pixels equal to 0
- * (100'000 > std::numeric_limits<uint16_t>). In this case, an overflow will occur when
- * calculating a traditional histogram with bins of the uint16_t type. But in this function,
- * the bin value will increase to the bin_max value, then stop. Overflow will not happen.
+ * Bin with index i keep min of (<count of the number of pixels with value i>,
+ * bin_max). This truncation avoids overflow and is acceptable in the problem
+ * being solved. For example, the image with pixel type uint16_t may have
+ * 100'000 pixels equal to 0 (100'000 > std::numeric_limits<uint16_t>). In this
+ * case, an overflow will occur when calculating a traditional histogram with
+ * bins of the uint16_t type. But in this function, the bin value will increase
+ * to the bin_max value, then stop. Overflow will not happen.
  * @tparam T image pixel type
  * @param image source image
  * @param image_max max image pixel value
@@ -182,10 +183,9 @@ namespace imgproc_impl
  * @return vector of histogram bins
  * @warning If source contains a pixel with a value, large then image_max,
  * the behavior is undefined
-*/
-template<class T, class Bin>
-std::vector<Bin>
-histogram(const Image<T> & image, T image_max, Bin bin_max)
+ */
+template <class T, class Bin>
+std::vector<Bin> histogram(const Image<T> & image, T image_max, Bin bin_max)
 {
   if (image.empty()) {
     return {};
@@ -194,9 +194,9 @@ histogram(const Image<T> & image, T image_max, Bin bin_max)
 
   // Increases the bin value corresponding to the pixel by one
   auto add_pixel_value = [&histogram, bin_max](T pixel) {
-      auto & h = histogram[pixel];
-      h = std::min(Bin(h + 1), bin_max);
-    };
+    auto & h = histogram[pixel];
+    h = std::min(Bin(h + 1), bin_max);
+  };
 
   image.forEach(add_pixel_value);
   return histogram;
@@ -211,35 +211,42 @@ namespace out_of_bounds_policy
  * @tparam T image pixel type
  * @sa ReplaceToZero
  */
-template<class T>
+template <class T>
 struct DoNothing
 {
-  T & up(T * v) const {return *v;}
-  T & down(T * v) const {return *v;}
+  T & up(T * v) const { return *v; }
+  T & down(T * v) const { return *v; }
 };
 
 /**
  * @brief Boundary case object. Used as parameter of class Window.
- * Dereferences a pointer to a existing pixel. If the pixel is out of bounds, it returns a ref to 0.
+ * Dereferences a pointer to a existing pixel. If the pixel is out of bounds, it
+ * returns a ref to 0.
  * @tparam T image pixel type
  * @sa DoNothing
  */
-template<class T>
+template <class T>
 class ReplaceToZero
 {
 public:
   /**
-   * @brief Create an object that will replace pointers outside the specified range
+   * @brief Create an object that will replace pointers outside the specified
+   * range
    * @param up_row_start pointer to the first pixel of up row. Can be nullptr.
    * @param down_row_start pointer to the first pixel of down row
    * @param columns number of pixels in both rows
    */
   ReplaceToZero(const T * up_row_start, const T * down_row_start, size_t columns)
-  : up_row_start_{up_row_start}, up_row_end_{up_row_start + columns},
-    down_row_start_{down_row_start}, down_row_end_{down_row_start + columns} {}
+  : up_row_start_{up_row_start},
+    up_row_end_{up_row_start + columns},
+    down_row_start_{down_row_start},
+    down_row_end_{down_row_start + columns}
+  {
+  }
 
   /**
-   * @brief Return ref to pixel or to zero value if up_row_start_ is nullptr or the pointer is out of bounds
+   * @brief Return ref to pixel or to zero value if up_row_start_ is nullptr or
+   * the pointer is out of bounds
    * @param v pointer to pixel
    */
   T & up(T * v)
@@ -254,15 +261,13 @@ public:
    * @brief Return ref to pixel or to zero value if the pointer is out of bounds
    * @param v pointer to pixel
    */
-  T & down(T * v)
-  {
-    return replaceOutOfBounds(v, down_row_start_, down_row_end_);
-  }
+  T & down(T * v) { return replaceOutOfBounds(v, down_row_start_, down_row_end_); }
 
 private:
   /**
    * @brief Replaces an out-of-bounds pointer with a pointer to 0
-   * @return a dereferenced pointer or a reference to 0 if the pointer is out of range
+   * @return a dereferenced pointer or a reference to 0 if the pointer is out of
+   * range
    */
   T & replaceOutOfBounds(T * v, const T * begin, const T * end)
   {
@@ -284,15 +289,15 @@ private:
 /**
  * @brief Forward scan mask sliding window
  * Provides an interface for access to neighborhood of the current pixel
- * (includes three neighbors of the top row, the pixel to the left and the current one).
- * In the illustration below, the current pixel is e.
- * |a|b|c|
+ * (includes three neighbors of the top row, the pixel to the left and the
+ * current one). In the illustration below, the current pixel is e. |a|b|c|
  * |d|e| |
  * | | | |
  * @tparam T image pixel type
- * @tparam Border optional check of access to pixels outside the image boundary (DoNothing or ReplaceToZero)
+ * @tparam Border optional check of access to pixels outside the image boundary
+ * (DoNothing or ReplaceToZero)
  */
-template<class T, template<class> class Border>
+template <class T, template <class> class Border>
 class Window
 {
 public:
@@ -303,14 +308,16 @@ public:
    * @param border boundary case object
    */
   inline Window(T * up_row, T * down_row, Border<T> border = {})
-  : up_row_{up_row}, down_row_{down_row}, border_{border} {}
+  : up_row_{up_row}, down_row_{down_row}, border_{border}
+  {
+  }
 
-  inline T & a() {return border_.up(up_row_ - 1);}
-  inline T & b() {return border_.up(up_row_);}
-  inline T & c() {return border_.up(up_row_ + 1);}
-  inline T & d() {return border_.down(down_row_ - 1);}
-  inline T & e() {return *down_row_;}
-  inline const T * anchor() const {return down_row_;}
+  inline T & a() { return border_.up(up_row_ - 1); }
+  inline T & b() { return border_.up(up_row_); }
+  inline T & c() { return border_.up(up_row_ + 1); }
+  inline T & d() { return border_.down(down_row_ - 1); }
+  inline T & e() { return *down_row_; }
+  inline const T * anchor() const { return down_row_; }
 
   /// @brief Shifts the window to the right
   inline void next()
@@ -326,7 +333,7 @@ private:
 };
 
 /// @brief Discards const
-template<class T>
+template <class T>
 T * dropConst(const T * ptr)
 {
   return const_cast<T *>(ptr);
@@ -341,18 +348,17 @@ T * dropConst(const T * ptr)
  * @param offset offset from rows start to current window pixel
  * @return forward scan mask sliding window
  * @warning Breaks the constant guarantees.
- * Always returns a non-constant window, using which you can potentially change data in up_row, down_row.
- * This could have been avoided by creating a ConstWindow similar to Window.
- * But probably code bloat is the bigger evil
+ * Always returns a non-constant window, using which you can potentially change
+ * data in up_row, down_row. This could have been avoided by creating a
+ * ConstWindow similar to Window. But probably code bloat is the bigger evil
  */
-template<class T>
+template <class T>
 Window<T, out_of_bounds_policy::ReplaceToZero> makeSafeWindow(
   const T * up_row, const T * down_row, size_t columns, size_t offset = 0)
 {
   return {
     dropConst(up_row) + offset, dropConst(down_row) + offset,
-    out_of_bounds_policy::ReplaceToZero<T>{up_row, down_row, columns}
-  };
+    out_of_bounds_policy::ReplaceToZero<T>{up_row, down_row, columns}};
 }
 
 /**
@@ -363,7 +369,7 @@ Window<T, out_of_bounds_policy::ReplaceToZero> makeSafeWindow(
  * @return forward scan mask sliding window
  * @warning Breaks the constant guarantees. See warning in makeSafeWindow
  */
-template<class T>
+template <class T>
 Window<T, out_of_bounds_policy::DoNothing> makeUnsafeWindow(const T * up_row, const T * down_row)
 {
   return {dropConst(up_row), dropConst(down_row)};
@@ -376,18 +382,17 @@ struct EquivalenceLabelTreesBase
 
 struct LabelOverflow : public std::runtime_error
 {
-  LabelOverflow(const std::string & message)
-  : std::runtime_error(message) {}
+  LabelOverflow(const std::string & message) : std::runtime_error(message) {}
 };
 
 /**
  * @brief Union-find data structure
  * Implementation of union-find data structure, described in reference article.
- * Store rooted trees, where each node of a tree is a provisional label and each edge represents an
- * equivalence between two labels
+ * Store rooted trees, where each node of a tree is a provisional label and each
+ * edge represents an equivalence between two labels
  * @tparam Label integer type of label
  */
-template<class Label>
+template <class Label>
 class EquivalenceLabelTrees : public EquivalenceLabelTreesBase
 {
 public:
@@ -402,9 +407,8 @@ public:
     // Trying to reserve memory with a margin
     const size_t max_labels_count = maxLabels(rows, columns, connectivity);
     // Number of labels cannot exceed std::numeric_limits<Label>::max()
-    labels_size_ = static_cast<Label>(
-      std::min(max_labels_count, size_t(std::numeric_limits<Label>::max()))
-    );
+    labels_size_ =
+      static_cast<Label>(std::min(max_labels_count, size_t(std::numeric_limits<Label>::max())));
 
     try {
       labels_.reserve(labels_size_);
@@ -464,7 +468,6 @@ public:
   {
     Label k = 1;
     for (Label i = 1; i < next_free_; ++i) {
-
       if (labels_[i] < i) {
         labels_[i] = labels_[labels_[i]];
       } else {
@@ -489,12 +492,12 @@ private:
     size_t max_labels{};
 
     if (connectivity == ConnectivityType::Way4) {
-      /* The maximum of individual components will be reached in the chessboard image,
-       * where the white cells correspond to obstacle pixels */
+      /* The maximum of individual components will be reached in the chessboard
+       * image, where the white cells correspond to obstacle pixels */
       max_labels = (rows * columns) / 2 + 1;
     } else {
-      /* The maximum of individual components will be reached in image like this:
-       * x.x.x.x~
+      /* The maximum of individual components will be reached in image like
+       * this: x.x.x.x~
        * .......~
        * x.x.x.x~
        * .......~
@@ -504,7 +507,7 @@ private:
        * '~' - row continuation in the same style */
       max_labels = (rows * columns) / 3 + 1;
     }
-    ++max_labels; // add zero label
+    ++max_labels;  // add zero label
     max_labels = std::min(max_labels, size_t(std::numeric_limits<Label>::max()));
     return max_labels;
   }
@@ -513,7 +516,8 @@ private:
   Label findRoot(Label i)
   {
     Label root = i;
-    for (; labels_[root] < root; root = labels_[root]) { /*do nothing*/}
+    for (; labels_[root] < root; root = labels_[root]) { /*do nothing*/
+    }
     return root;
   }
 
@@ -530,45 +534,48 @@ private:
 
 private:
   /**
-   * Linear trees container. If we have two trees: (2 -> 1) and (4 -> 3), (5 -> 3)
-   * and one single node 0, the content of the vector will be:
-   * index: 0|1|2|3|4|5
-   * value: 0|1|1|3|3|3
-   * After unionTrees(1, 3) we have one tree (2 -> 1), (3 -> 1), (4 -> 3), (5 -> 3) and one single node 0:
-   * index: 0|1|2|3|4|5
-   * value: 0|1|1|1|3|3
+   * Linear trees container. If we have two trees: (2 -> 1) and (4 -> 3), (5 ->
+   * 3) and one single node 0, the content of the vector will be: index:
+   * 0|1|2|3|4|5 value: 0|1|1|3|3|3 After unionTrees(1, 3) we have one tree (2
+   * -> 1), (3 -> 1), (4 -> 3), (5 -> 3) and one single node 0: index:
+   * 0|1|2|3|4|5 value: 0|1|1|1|3|3
    */
   std::vector<Label> labels_;
   Label labels_size_{};
   Label next_free_{};
 };
 
-/// @brief The specializations of this class provide the definition of the pixel label
-template<ConnectivityType connectivity>
+/// @brief The specializations of this class provide the definition of the pixel
+/// label
+template <ConnectivityType connectivity>
 struct ProcessPixel;
 
 /// @brief Define the label of a pixel in an 8-linked image
-template<>
+template <>
 struct ProcessPixel<ConnectivityType::Way8>
 {
   /**
-   * @brief Set the label of the current pixel image.e() based on labels in its neighborhood
-   * @tparam ImageWindow Window parameterized by class DoNothing or ReplaceToZero
-   * @tparam LabelsWindow Window parameterized by class DoNothing or ReplaceToZero
+   * @brief Set the label of the current pixel image.e() based on labels in its
+   * neighborhood
+   * @tparam ImageWindow Window parameterized by class DoNothing or
+   * ReplaceToZero
+   * @tparam LabelsWindow Window parameterized by class DoNothing or
+   * ReplaceToZero
    * @tparam Label integer type of label
-   * @param image input image window. Image data will not be changed. De facto, image is a const ref
+   * @param image input image window. Image data will not be changed. De facto,
+   * image is a const ref
    * @param label output label window
    * @param eq_trees union-find structure
    * @throw LabelOverflow if all possible labels already used
    */
-  template<class ImageWindow, class LabelsWindow, class Label, class IsBg>
+  template <class ImageWindow, class LabelsWindow, class Label, class IsBg>
   static void pass(
     ImageWindow & image, LabelsWindow & label, EquivalenceLabelTrees<Label> & eq_trees,
     IsBg && is_bg)
   {
     Label & current = label.e();
 
-    //The decision tree traversal. See reference article for details
+    // The decision tree traversal. See reference article for details
     if (!is_bg(image.e())) {
       if (label.b()) {
         current = label.b();
@@ -602,20 +609,24 @@ struct ProcessPixel<ConnectivityType::Way8>
 };
 
 /// @brief Define the label of a pixel in an 4-linked image
-template<>
+template <>
 struct ProcessPixel<ConnectivityType::Way4>
 {
   /**
-   * @brief Set the label of the current pixel image.e() based on labels in its neighborhood
-   * @tparam ImageWindow Window parameterized by class DoNothing or ReplaceToZero
-   * @tparam LabelsWindow Window parameterized by class DoNothing or ReplaceToZero
+   * @brief Set the label of the current pixel image.e() based on labels in its
+   * neighborhood
+   * @tparam ImageWindow Window parameterized by class DoNothing or
+   * ReplaceToZero
+   * @tparam LabelsWindow Window parameterized by class DoNothing or
+   * ReplaceToZero
    * @tparam Label integer type of label
-   * @param image input image window. Image data will not be changed. De facto, image is a const ref
+   * @param image input image window. Image data will not be changed. De facto,
+   * image is a const ref
    * @param label output label window
    * @param eq_trees union-find structure
    * @throw LabelOverflow if all possible labels already used
    */
-  template<class ImageWindow, class LabelsWindow, class Label, class IsBg>
+  template <class ImageWindow, class LabelsWindow, class Label, class IsBg>
   static void pass(
     ImageWindow & image, LabelsWindow & label, EquivalenceLabelTrees<Label> & eq_trees,
     IsBg && is_bg)
@@ -644,40 +655,44 @@ struct ProcessPixel<ConnectivityType::Way4>
 };
 
 /**
- * @brief Applies a 1d shape to the neighborhood of each pixel of the input image.
- * Applies a 1d shape (row by row) to the neighborhood of each pixel and passes the result of the overlay to touch_fn.
- * Special case: When processing the first and last pixel of each row, interpreting the missing neighbor as 0.
+ * @brief Applies a 1d shape to the neighborhood of each pixel of the input
+ * image. Applies a 1d shape (row by row) to the neighborhood of each pixel and
+ * passes the result of the overlay to touch_fn. Special case: When processing
+ * the first and last pixel of each row, interpreting the missing neighbor as 0.
  * @tparam TouchFn function object.
  * Signature should be equivalent to the following:
  * void fn(uint8_t& out, std::initializer_list<uint8_t> in),
- * where out - pixel of the output image, in - result of overlaying the shape on the neighborhood of source pixel
+ * where out - pixel of the output image, in - result of overlaying the shape on
+ * the neighborhood of source pixel
  * @param input input image
  * @param first_input_row row from which to start processing on the input image
  * @param output output image
- * @param first_output_row row from which to start processing on the output image
- * @param shape structuring element row (size 3, i.e. shape[0], shape[1], shape[2])
- * Should only contain values 0 (ignore neighborhood pixel) or 255 (use pixel).
- * @param touch_fn binary operation that updates a pixel in the output image with an overlay
+ * @param first_output_row row from which to start processing on the output
+ * image
+ * @param shape structuring element row (size 3, i.e. shape[0], shape[1],
+ * shape[2]) Should only contain values 0 (ignore neighborhood pixel) or 255
+ * (use pixel).
+ * @param touch_fn binary operation that updates a pixel in the output image
+ * with an overlay
  */
-template<class Apply>
+template <class Apply>
 void probeRows(
-  const Image<uint8_t> & input, size_t first_input_row,
-  Image<uint8_t> & output, size_t first_output_row,
-  const uint8_t * shape, Apply touch_fn)
+  const Image<uint8_t> & input, size_t first_input_row, Image<uint8_t> & output,
+  size_t first_output_row, const uint8_t * shape, Apply touch_fn)
 {
   const size_t rows = input.rows() - std::max(first_input_row, first_output_row);
   const size_t columns = input.columns();
 
   auto apply_shape = [&shape](uint8_t value, uint8_t index) -> uint8_t {
-      return value & shape[index];
-    };
+    return value & shape[index];
+  };
 
   auto get_input_row = [&input, first_input_row](size_t row) {
-      return input.row(row + first_input_row);
-    };
+    return input.row(row + first_input_row);
+  };
   auto get_output_row = [&output, first_output_row](size_t row) {
-      return output.row(row + first_output_row);
-    };
+    return output.row(row + first_output_row);
+  };
 
   if (columns == 1) {
     for (size_t i = 0; i < rows; ++i) {
@@ -702,10 +717,7 @@ void probeRows(
       // process next columns up to last
       for (; in != last_column_pixel; ++in, ++out) {
         auto overlay = {
-          apply_shape(*(in - 1), 0),
-          apply_shape(*(in), 1),
-          apply_shape(*(in + 1), 2)
-        };
+          apply_shape(*(in - 1), 0), apply_shape(*(in), 1), apply_shape(*(in + 1), 2)};
         touch_fn(*out, overlay);
       }
 
@@ -731,17 +743,18 @@ void probeRows(
  * @param shape structuring element image with size 3x3.
  * Should only contain values 0 (ignore neighborhood pixel) or 255 (use pixel).
  * @param aggregate neighborhood pixels aggregator
- * @throw std::logic_error if the sizes of the input and output images are different or
- * shape size is not equal to 3x3
+ * @throw std::logic_error if the sizes of the input and output images are
+ * different or shape size is not equal to 3x3
  */
-template<class AggregateFn>
+template <class AggregateFn>
 void morphologyOperation(
-  const Image<uint8_t> & input, Image<uint8_t> & output,
-  const Image<uint8_t> & shape, AggregateFn aggregate)
+  const Image<uint8_t> & input, Image<uint8_t> & output, const Image<uint8_t> & shape,
+  AggregateFn aggregate)
 {
   if (input.rows() != output.rows() || input.columns() != output.columns()) {
     throw std::logic_error(
-            "morphologyOperation: the sizes of the input and output images are different");
+      "morphologyOperation: the sizes of the input and "
+      "output images are different");
   }
 
   if (shape.rows() != 3 || shape.columns() != 3) {
@@ -753,24 +766,27 @@ void morphologyOperation(
   }
 
   // Simple write the pixel of the output image (first pass only)
-  auto set = [&](uint8_t & res, std::initializer_list<uint8_t> lst) {res = aggregate(lst);};
+  auto set = [&](uint8_t & res, std::initializer_list<uint8_t> lst) { res = aggregate(lst); };
   // Update the pixel of the output image
   auto update = [&](uint8_t & res, std::initializer_list<uint8_t> lst) {
-      res = aggregate({res, aggregate(lst), 0});
-    };
+    res = aggregate({res, aggregate(lst), 0});
+  };
 
   // Apply the central shape row.
-  // This operation is applicable to all rows of the image, because at any position of the sliding window,
-  // its central row is located on the image. So we start from the zero line of input and output
+  // This operation is applicable to all rows of the image, because at any
+  // position of the sliding window, its central row is located on the image. So
+  // we start from the zero line of input and output
   probeRows(input, 0, output, 0, shape.row(1), set);
 
   if (input.rows() > 1) {
     // Apply the top shape row.
-    // In the uppermost position of the sliding window, its first row is outside the image border.
-    // Therefore, we start filling the output image starting from the line 1 and will process input.rows() - 1 lines in total
+    // In the uppermost position of the sliding window, its first row is outside
+    // the image border. Therefore, we start filling the output image starting
+    // from the line 1 and will process input.rows() - 1 lines in total
     probeRows(input, 0, output, 1, shape.row(0), update);
     // Apply the bottom shape row.
-    // Similarly, the input image starting from the line 1 and will process input.rows() - 1 lines in total
+    // Similarly, the input image starting from the line 1 and will process
+    // input.rows() - 1 lines in total
     probeRows(input, 1, output, 0, shape.row(2), update);
   }
 }
@@ -782,23 +798,17 @@ void morphologyOperation(
 Image<uint8_t> createShape(ShapeBuffer3x3 & buffer, ConnectivityType connectivity)
 {
   /**
-   * Shape - a binary matrix that is used as a mask. Each element of which is one of two values:
-   * code u - the corresponding pixel of the image will be used
-   * code i - the corresponding pixel of the image will be ignored
+   * Shape - a binary matrix that is used as a mask. Each element of which is
+   * one of two values: code u - the corresponding pixel of the image will be
+   * used code i - the corresponding pixel of the image will be ignored
    */
   static constexpr uint8_t u = 255;
   static constexpr uint8_t i = 0;
 
   if (connectivity == ConnectivityType::Way8) {
-    buffer = {
-      u, u, u,
-      u, i, u,
-      u, u, u};
+    buffer = {u, u, u, u, i, u, u, u, u};
   } else {
-    buffer = {
-      i, u, i,
-      u, i, u,
-      i, u, i};
+    buffer = {i, u, i, u, i, u, i, u, i};
   }
   return Image<uint8_t>(3, 3, buffer.data(), 3);
 }
@@ -807,7 +817,7 @@ Image<uint8_t> createShape(ShapeBuffer3x3 & buffer, ConnectivityType connectivit
  * @brief Implementation details for connectedComponents
  * @sa connectedComponents
  */
-template<ConnectivityType connectivity, class Label, class IsBg>
+template <ConnectivityType connectivity, class Label, class IsBg>
 Label connectedComponentsImpl(
   const Image<uint8_t> & image, Image<Label> & labels,
   imgproc_impl::EquivalenceLabelTrees<Label> & label_trees, const IsBg & is_background)
@@ -855,9 +865,8 @@ Label connectedComponentsImpl(
     // scan last column
     if (image.columns() > 1) {
       auto last_img = makeSafeWindow(up, current, image.columns(), image.columns() - 1);
-      auto last_label = makeSafeWindow(
-        labels.row(row), labels.row(row + 1),
-        image.columns(), image.columns() - 1);
+      auto last_label =
+        makeSafeWindow(labels.row(row), labels.row(row + 1), image.columns(), image.columns() - 1);
       PixelPass::pass(last_img, last_label, label_trees, is_background);
     }
   }
@@ -866,10 +875,7 @@ Label connectedComponentsImpl(
   const std::vector<Label> & labels_map = label_trees.getLabels();
 
   // labeling phase
-  labels.forEach(
-    [&](Label & l) {
-      l = labels_map[l];
-    });
+  labels.forEach([&](Label & l) { l = labels_map[l]; });
   return labels_map.size();
 }
 
@@ -892,41 +898,39 @@ public:
    * template parameter based on the runtime value of group_connectivity_type
    * @tparam IsBg functor with signature bool (uint8_t)
    * @param[in,out] image image to be denoised
-   * @param buffer dynamic memory block that will be used to store the temp labeled image
+   * @param buffer dynamic memory block that will be used to store the temp
+   * labeled image
    * @param group_connectivity_type pixels connectivity type
-   * @param minimal_group_size the border value of group size. Groups of this and larger
-   * size will be kept
+   * @param minimal_group_size the border value of group size. Groups of this
+   * and larger size will be kept
    * @param is_background returns true if the passed pixel value is background
    */
-  template<class IsBg>
+  template <class IsBg>
   void removeGroups(
-    Image<uint8_t> & image, MemoryBuffer & buffer,
-    ConnectivityType group_connectivity_type, size_t minimal_group_size,
-    const IsBg & is_background) const
+    Image<uint8_t> & image, MemoryBuffer & buffer, ConnectivityType group_connectivity_type,
+    size_t minimal_group_size, const IsBg & is_background) const
   {
     if (group_connectivity_type == ConnectivityType::Way4) {
       removeGroupsPickLabelType<ConnectivityType::Way4>(
-        image, buffer, minimal_group_size,
-        is_background);
+        image, buffer, minimal_group_size, is_background);
     } else {
       removeGroupsPickLabelType<ConnectivityType::Way8>(
-        image, buffer, minimal_group_size,
-        is_background);
+        image, buffer, minimal_group_size, is_background);
     }
   }
 
 private:
   /**
-   * @brief Calls tryRemoveGroupsWithLabelType with the label tree stored in this object.
-   * If the stored tree labels are 16 bits and the call fails,
+   * @brief Calls tryRemoveGroupsWithLabelType with the label tree stored in
+   * this object. If the stored tree labels are 16 bits and the call fails,
    * change the stored tree type to 32 bit and retry the call.
    * @throw imgproc_impl::LabelOverflow if 32 bit label tree is not enough
    * to complete the operation
    */
-  template<ConnectivityType connectivity, class IsBg>
+  template <ConnectivityType connectivity, class IsBg>
   void removeGroupsPickLabelType(
-    Image<uint8_t> & image, MemoryBuffer & buffer,
-    size_t minimal_group_size, const IsBg & is_background) const
+    Image<uint8_t> & image, MemoryBuffer & buffer, size_t minimal_group_size,
+    const IsBg & is_background) const
   {
     bool success{};
     auto label_trees16 =
@@ -934,8 +938,7 @@ private:
 
     if (label_trees16) {
       success = tryRemoveGroupsWithLabelType<connectivity>(
-        image, buffer, minimal_group_size,
-        *label_trees16, is_background, false);
+        image, buffer, minimal_group_size, *label_trees16, is_background, false);
     }
 
     if (!success) {
@@ -948,23 +951,23 @@ private:
           dynamic_cast<imgproc_impl::EquivalenceLabelTrees<uint32_t> *>(label_trees_.get());
       }
       tryRemoveGroupsWithLabelType<connectivity>(
-        image, buffer, minimal_group_size, *label_trees32,
-        is_background, true);
+        image, buffer, minimal_group_size, *label_trees32, is_background, true);
     }
   }
   /**
-   * @brief Calls removeGroupsImpl catching its exceptions if throw_on_label_overflow is true
-   * @param throw_on_label_overflow defines the policy for handling exceptions thrown
-   * from removeGroupsImpl. If throw_on_label_overflow is true, exceptions are simply
-   * rethrown. Otherwise, this function will return false on exception.
+   * @brief Calls removeGroupsImpl catching its exceptions if
+   * throw_on_label_overflow is true
+   * @param throw_on_label_overflow defines the policy for handling exceptions
+   * thrown from removeGroupsImpl. If throw_on_label_overflow is true,
+   * exceptions are simply rethrown. Otherwise, this function will return false
+   * on exception.
    * @return true if removeGroupsImpl throw and throw_on_label_overflow false.
    * False in other case
    */
-  template<ConnectivityType connectivity, class Label, class IsBg>
+  template <ConnectivityType connectivity, class Label, class IsBg>
   bool tryRemoveGroupsWithLabelType(
     Image<uint8_t> & image, MemoryBuffer & buffer, size_t minimal_group_size,
-    imgproc_impl::EquivalenceLabelTrees<Label> & label_trees,
-    const IsBg & is_background,
+    imgproc_impl::EquivalenceLabelTrees<Label> & label_trees, const IsBg & is_background,
     bool throw_on_label_overflow) const
   {
     bool success{};
@@ -979,13 +982,14 @@ private:
     return success;
   }
   /// @brief Eliminate group noise in the image
-  template<ConnectivityType connectivity, class Label, class IsBg>
+  template <ConnectivityType connectivity, class Label, class IsBg>
   void removeGroupsImpl(
     Image<uint8_t> & image, MemoryBuffer & buffer,
     imgproc_impl::EquivalenceLabelTrees<Label> & label_trees, size_t minimal_group_size,
     const IsBg & is_background) const
   {
-    // Creates an image labels in which each obstacles group is labeled with a unique code
+    // Creates an image labels in which each obstacles group is labeled with a
+    // unique code
     auto components = connectedComponents<connectivity>(image, buffer, label_trees, is_background);
     const Label groups_count = components.second;
     const Image<Label> & labels = components.first;
@@ -993,30 +997,29 @@ private:
     // Calculates the size of each group.
     // Group size is equal to the number of pixels with the same label
     const Label max_label_value = groups_count - 1;  // It's safe. groups_count always non-zero
-    std::vector<size_t> groups_sizes = histogram(
-      labels, max_label_value, size_t(minimal_group_size + 1));
+    std::vector<size_t> groups_sizes =
+      histogram(labels, max_label_value, size_t(minimal_group_size + 1));
 
     // The group of pixels labeled 0 corresponds to empty map cells.
     // Zero bin of the histogram is equal to the number of pixels in this group.
-    // Because the values of empty map cells should not be changed, we will reset this bin
+    // Because the values of empty map cells should not be changed, we will
+    // reset this bin
     groups_sizes.front() = 0;  // don't change image background value
 
     // noise_labels_table[i] = true if group with label i is noise
     std::vector<bool> noise_labels_table(groups_sizes.size());
     auto transform_fn = [&minimal_group_size](size_t bin_value) {
-        return bin_value < minimal_group_size;
-      };
+      return bin_value < minimal_group_size;
+    };
     std::transform(
-      groups_sizes.begin(), groups_sizes.end(), noise_labels_table.begin(),
-      transform_fn);
+      groups_sizes.begin(), groups_sizes.end(), noise_labels_table.begin(), transform_fn);
 
     // Replace the pixel values from the small groups to background code
-    labels.convert(
-      image, [&](Label src, uint8_t & trg) {
-        if (!is_background(trg) && noise_labels_table[src]) {
-          trg = 0;
-        }
-      });
+    labels.convert(image, [&](Label src, uint8_t & trg) {
+      if (!is_background(trg) && noise_labels_table[src]) {
+        trg = 0;
+      }
+    });
   }
 
 private:
@@ -1025,7 +1028,7 @@ private:
 
 }  // namespace imgproc_impl
 
-template<ConnectivityType connectivity, class Label, class IsBg>
+template <ConnectivityType connectivity, class Label, class IsBg>
 std::pair<Image<Label>, Label> connectedComponents(
   const Image<uint8_t> & image, MemoryBuffer & buffer,
   imgproc_impl::EquivalenceLabelTrees<Label> & label_trees, const IsBg & is_background)
@@ -1040,9 +1043,8 @@ std::pair<Image<Label>, Label> connectedComponents(
   Label * image_buffer = buffer.get<Label>(pixels);
   Image<Label> labels(image.rows(), image.columns(), image_buffer, image.columns());
   label_trees.reset(image.rows(), image.columns(), connectivity);
-  const Label total_labels = connectedComponentsImpl<connectivity>(
-    image, labels, label_trees,
-    is_background);
+  const Label total_labels =
+    connectedComponentsImpl<connectivity>(image, labels, label_trees, is_background);
   return std::make_pair(labels, total_labels);
 }
 

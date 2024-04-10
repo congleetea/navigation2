@@ -14,11 +14,11 @@
 //
 // Modified by: Shivang Patel (shivaan14@gmail.com)
 
+#include <algorithm>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <iostream>
 
 #include "nav2_costmap_2d/costmap_topic_collision_checker.hpp"
 
@@ -33,18 +33,13 @@ namespace nav2_costmap_2d
 {
 
 CostmapTopicCollisionChecker::CostmapTopicCollisionChecker(
-  CostmapSubscriber & costmap_sub,
-  FootprintSubscriber & footprint_sub,
-  std::string name)
-: name_(name),
-  costmap_sub_(costmap_sub),
-  footprint_sub_(footprint_sub),
-  collision_checker_(nullptr)
-{}
+  CostmapSubscriber & costmap_sub, FootprintSubscriber & footprint_sub, std::string name)
+: name_(name), costmap_sub_(costmap_sub), footprint_sub_(footprint_sub), collision_checker_(nullptr)
+{
+}
 
 bool CostmapTopicCollisionChecker::isCollisionFree(
-  const geometry_msgs::msg::Pose2D & pose,
-  bool fetch_costmap_and_footprint)
+  const geometry_msgs::msg::Pose2D & pose, bool fetch_costmap_and_footprint)
 {
   try {
     if (scorePose(pose, fetch_costmap_and_footprint) >= LETHAL_OBSTACLE) {
@@ -64,8 +59,7 @@ bool CostmapTopicCollisionChecker::isCollisionFree(
 }
 
 double CostmapTopicCollisionChecker::scorePose(
-  const geometry_msgs::msg::Pose2D & pose,
-  bool fetch_costmap_and_footprint)
+  const geometry_msgs::msg::Pose2D & pose, bool fetch_costmap_and_footprint)
 {
   if (fetch_costmap_and_footprint) {
     try {
@@ -85,8 +79,7 @@ double CostmapTopicCollisionChecker::scorePose(
 }
 
 Footprint CostmapTopicCollisionChecker::getFootprint(
-  const geometry_msgs::msg::Pose2D & pose,
-  bool fetch_latest_footprint)
+  const geometry_msgs::msg::Pose2D & pose, bool fetch_latest_footprint)
 {
   if (fetch_latest_footprint) {
     std_msgs::msg::Header header;

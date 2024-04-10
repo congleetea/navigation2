@@ -14,11 +14,11 @@
 
 #include <gtest/gtest.h>
 
-#include <string>
 #include <memory>
+#include <string>
 
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_util/lifecycle_node.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "nav2_costmap_2d/costmap_filters/costmap_filter.hpp"
 #include "std_srvs/srv/set_bool.hpp"
@@ -29,31 +29,20 @@ class CostmapFilterWrapper : public nav2_costmap_2d::CostmapFilter
 {
 public:
   // Dummy implementations of virtual methods
-  void initializeFilter(
-    const std::string &) {}
+  void initializeFilter(const std::string &) {}
 
-  void process(
-    nav2_costmap_2d::Costmap2D &,
-    int, int, int, int,
-    const geometry_msgs::msg::Pose2D &) {}
+  void process(nav2_costmap_2d::Costmap2D &, int, int, int, int, const geometry_msgs::msg::Pose2D &)
+  {
+  }
 
   void resetFilter() {}
 
   // Actual testing methods
-  void setName(const std::string & name)
-  {
-    name_ = name;
-  }
+  void setName(const std::string & name) { name_ = name; }
 
-  void setNode(const nav2_util::LifecycleNode::WeakPtr & node)
-  {
-    node_ = node;
-  }
+  void setNode(const nav2_util::LifecycleNode::WeakPtr & node) { node_ = node; }
 
-  bool getEnabled()
-  {
-    return enabled_;
-  }
+  bool getEnabled() { return enabled_; }
 };
 
 class TestNode : public ::testing::Test
@@ -82,10 +71,9 @@ public:
     node_.reset();
   }
 
-  template<class T>
+  template <class T>
   typename T::Response::SharedPtr send_request(
-    nav2_util::LifecycleNode::SharedPtr node,
-    typename rclcpp::Client<T>::SharedPtr client,
+    nav2_util::LifecycleNode::SharedPtr node, typename rclcpp::Client<T>::SharedPtr client,
     typename T::Request::SharedPtr request)
   {
     auto result = client->async_send_request(request);
@@ -109,8 +97,8 @@ TEST_F(TestNode, testEnableService)
 
   RCLCPP_INFO(node_->get_logger(), "Testing enabling service");
   auto req = std::make_shared<std_srvs::srv::SetBool::Request>();
-  auto client = node_->create_client<std_srvs::srv::SetBool>(
-    std::string(FILTER_NAME) + "/toggle_filter");
+  auto client =
+    node_->create_client<std_srvs::srv::SetBool>(std::string(FILTER_NAME) + "/toggle_filter");
 
   RCLCPP_INFO(node_->get_logger(), "Waiting for enabling service");
   ASSERT_TRUE(client->wait_for_service());

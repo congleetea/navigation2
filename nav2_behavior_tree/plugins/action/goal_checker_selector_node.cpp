@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "std_msgs/msg/string.hpp"
 
@@ -28,8 +28,7 @@ namespace nav2_behavior_tree
 using std::placeholders::_1;
 
 GoalCheckerSelector::GoalCheckerSelector(
-  const std::string & name,
-  const BT::NodeConfiguration & conf)
+  const std::string & name, const BT::NodeConfiguration & conf)
 : BT::SyncActionNode(name, conf)
 {
   node_ = config().blackboard->get<rclcpp::Node::SharedPtr>("node");
@@ -47,11 +46,11 @@ BT::NodeStatus GoalCheckerSelector::tick()
 {
   rclcpp::spin_some(node_);
 
-  // This behavior always use the last selected goal checker received from the topic input.
-  // When no input is specified it uses the default goal checker.
-  // If the default goal checker is not specified then we work in "required goal checker mode":
-  // In this mode, the behavior returns failure if the goal checker selection is not received from
-  // the topic input.
+  // This behavior always use the last selected goal checker received from the
+  // topic input. When no input is specified it uses the default goal checker.
+  // If the default goal checker is not specified then we work in "required goal
+  // checker mode": In this mode, the behavior returns failure if the goal
+  // checker selection is not received from the topic input.
   if (last_selected_goal_checker_.empty()) {
     std::string default_goal_checker;
     getInput("default_goal_checker", default_goal_checker);
@@ -67,8 +66,7 @@ BT::NodeStatus GoalCheckerSelector::tick()
   return BT::NodeStatus::SUCCESS;
 }
 
-void
-GoalCheckerSelector::callbackGoalCheckerSelect(const std_msgs::msg::String::SharedPtr msg)
+void GoalCheckerSelector::callbackGoalCheckerSelect(const std_msgs::msg::String::SharedPtr msg)
 {
   last_selected_goal_checker_ = msg->data;
 }

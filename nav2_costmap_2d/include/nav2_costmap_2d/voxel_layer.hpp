@@ -38,28 +38,29 @@
 #ifndef NAV2_COSTMAP_2D__VOXEL_LAYER_HPP_
 #define NAV2_COSTMAP_2D__VOXEL_LAYER_HPP_
 
-#include <vector>
 #include "message_filters/subscriber.h"
+#include <vector>
 
-#include <rclcpp/rclcpp.hpp>
+#include <laser_geometry/laser_geometry.hpp>
 #include <nav2_costmap_2d/layer.hpp>
 #include <nav2_costmap_2d/layered_costmap.hpp>
 #include <nav2_costmap_2d/observation_buffer.hpp>
-#include <nav_msgs/msg/occupancy_grid.hpp>
+#include <nav2_costmap_2d/obstacle_layer.hpp>
 #include <nav2_msgs/msg/voxel_grid.hpp>
+#include <nav2_voxel_grid/voxel_grid.hpp>
+#include <nav_msgs/msg/occupancy_grid.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
-#include <laser_geometry/laser_geometry.hpp>
 #include <sensor_msgs/msg/point_cloud.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
-#include <nav2_costmap_2d/obstacle_layer.hpp>
-#include <nav2_voxel_grid/voxel_grid.hpp>
 
 namespace nav2_costmap_2d
 {
 
 /**
  * @class VoxelLayer
- * @brief Takes laser and pointcloud data to populate a 3D voxel representation of the environment
+ * @brief Takes laser and pointcloud data to populate a 3D voxel representation
+ * of the environment
  */
 class VoxelLayer : public ObstacleLayer
 {
@@ -67,10 +68,10 @@ public:
   /**
    * @brief Voxel Layer constructor
    */
-  VoxelLayer()
-  : voxel_grid_(0, 0, 0)
+  VoxelLayer() : voxel_grid_(0, 0, 0)
   {
-    costmap_ = NULL;  // this is the unsigned char* member of parent class's parent class Costmap2D
+    costmap_ = NULL;  // this is the unsigned char* member of parent class's
+                      // parent class Costmap2D
   }
 
   /**
@@ -84,7 +85,8 @@ public:
   virtual void onInitialize();
 
   /**
-   * @brief Update the bounds of the master costmap by this layer's update dimensions
+   * @brief Update the bounds of the master costmap by this layer's update
+   * dimensions
    * @param robot_x X pose of robot
    * @param robot_y Y pose of robot
    * @param robot_yaw Robot orientation
@@ -94,23 +96,19 @@ public:
    * @param max_y Y max map coord of the window to update
    */
   virtual void updateBounds(
-    double robot_x, double robot_y, double robot_yaw, double * min_x,
-    double * min_y,
-    double * max_x,
-    double * max_y);
+    double robot_x, double robot_y, double robot_yaw, double * min_x, double * min_y,
+    double * max_x, double * max_y);
 
   /**
-   * @brief Update the layer's origin to a new pose, often when in a rolling costmap
+   * @brief Update the layer's origin to a new pose, often when in a rolling
+   * costmap
    */
   void updateOrigin(double new_origin_x, double new_origin_y);
 
   /**
    * @brief If layer is discretely populated
    */
-  bool isDiscretized()
-  {
-    return true;
-  }
+  bool isDiscretized() { return true; }
 
   /**
    * @brief Match the size of the master costmap
@@ -125,7 +123,7 @@ public:
   /**
    * @brief If clearing operations should be processed on this layer or not
    */
-  virtual bool isClearable() {return true;}
+  virtual bool isClearable() { return true; }
 
 protected:
   /**
@@ -137,10 +135,8 @@ protected:
    * @brief Use raycasting between 2 points to clear freespace
    */
   virtual void raytraceFreespace(
-    const nav2_costmap_2d::Observation & clearing_observation,
-    double * min_x, double * min_y,
-    double * max_x,
-    double * max_y);
+    const nav2_costmap_2d::Observation & clearing_observation, double * min_x, double * min_y,
+    double * max_x, double * max_y);
 
   bool publish_voxel_;
   rclcpp_lifecycle::LifecyclePublisher<nav2_msgs::msg::VoxelGrid>::SharedPtr voxel_pub_;
@@ -154,8 +150,7 @@ protected:
    * @brief Covert world coordinates into map coordinates
    */
   inline bool worldToMap3DFloat(
-    double wx, double wy, double wz, double & mx, double & my,
-    double & mz)
+    double wx, double wy, double wz, double & mx, double & my, double & mz)
   {
     if (wx < origin_x_ || wy < origin_y_ || wz < origin_z_) {
       return false;
@@ -174,8 +169,7 @@ protected:
    * @brief Covert world coordinates into map coordinates
    */
   inline bool worldToMap3D(
-    double wx, double wy, double wz, unsigned int & mx, unsigned int & my,
-    unsigned int & mz)
+    double wx, double wy, double wz, unsigned int & mx, unsigned int & my, unsigned int & mz)
   {
     if (wx < origin_x_ || wy < origin_y_ || wz < origin_z_) {
       return false;
@@ -196,9 +190,7 @@ protected:
    * @brief Covert map coordinates into world coordinates
    */
   inline void mapToWorld3D(
-    unsigned int mx, unsigned int my, unsigned int mz, double & wx,
-    double & wy,
-    double & wz)
+    unsigned int mx, unsigned int my, unsigned int mz, double & wx, double & wy, double & wz)
   {
     // returns the center point of the cell
     wx = origin_x_ + (mx + 0.5) * resolution_;
@@ -217,17 +209,14 @@ protected:
   /**
    * @brief Get the height of the voxel sizes in meters
    */
-  double getSizeInMetersZ() const
-  {
-    return (size_z_ - 1 + 0.5) * z_resolution_;
-  }
+  double getSizeInMetersZ() const { return (size_z_ - 1 + 0.5) * z_resolution_; }
 
   /**
    * @brief Callback executed when a parameter change is detected
    * @param event ParameterEvent message
    */
-  rcl_interfaces::msg::SetParametersResult
-  dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters);
+  rcl_interfaces::msg::SetParametersResult dynamicParametersCallback(
+    std::vector<rclcpp::Parameter> parameters);
 
   // Dynamic parameters handler
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr dyn_params_handler_;

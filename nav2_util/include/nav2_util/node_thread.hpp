@@ -44,10 +44,10 @@ public:
    * @brief A background thread to process node callbacks constructor
    * @param node Node pointer to spin in thread
    */
-  template<typename NodeT>
-  explicit NodeThread(NodeT node)
-  : NodeThread(node->get_node_base_interface())
-  {}
+  template <typename NodeT>
+  explicit NodeThread(NodeT node) : NodeThread(node->get_node_base_interface())
+  {
+  }
 
   /**
    * @brief A destructor

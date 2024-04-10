@@ -13,10 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <cmath>
-#include <tuple>
-#include <string>
 #include <algorithm>
+#include <cmath>
+#include <string>
+#include <tuple>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -28,14 +28,13 @@ using nav2_system_tests::SpinBehaviorTester;
 
 std::string testNameGenerator(const testing::TestParamInfo<std::tuple<float, float>> & param)
 {
-  std::string name = std::to_string(std::abs(std::get<0>(param.param))) + "_" + std::to_string(
-    std::get<1>(param.param));
+  std::string name = std::to_string(std::abs(std::get<0>(param.param))) + "_" +
+                     std::to_string(std::get<1>(param.param));
   name.erase(std::remove(name.begin(), name.end(), '.'), name.end());
   return name;
 }
 
-class SpinBehaviorTestFixture
-  : public ::testing::TestWithParam<std::tuple<float, float>>
+class SpinBehaviorTestFixture : public ::testing::TestWithParam<std::tuple<float, float>>
 {
 public:
   static void SetUpTestCase()
@@ -81,15 +80,11 @@ TEST_P(SpinBehaviorTestFixture, testSpinRecovery)
 }
 
 INSTANTIATE_TEST_SUITE_P(
-  SpinRecoveryTests,
-  SpinBehaviorTestFixture,
+  SpinRecoveryTests, SpinBehaviorTestFixture,
   ::testing::Values(
-    std::make_tuple(-M_PIf32 / 6.0, 0.1),
-    std::make_tuple(M_PI_4f32, 0.1),
-    std::make_tuple(-M_PI_2f32, 0.1),
-    std::make_tuple(M_PIf32, 0.1),
-    std::make_tuple(3.0 * M_PIf32 / 2.0, 0.15),
-    std::make_tuple(-2.0 * M_PIf32, 0.1),
+    std::make_tuple(-M_PIf32 / 6.0, 0.1), std::make_tuple(M_PI_4f32, 0.1),
+    std::make_tuple(-M_PI_2f32, 0.1), std::make_tuple(M_PIf32, 0.1),
+    std::make_tuple(3.0 * M_PIf32 / 2.0, 0.15), std::make_tuple(-2.0 * M_PIf32, 0.1),
     std::make_tuple(4.0 * M_PIf32, 0.15)),
   testNameGenerator);
 

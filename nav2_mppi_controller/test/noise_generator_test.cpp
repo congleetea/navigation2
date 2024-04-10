@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,20 +16,20 @@
 #include <chrono>
 #include <thread>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_mppi_controller/tools/noise_generator.hpp"
+#include "nav2_mppi_controller/models/control_sequence.hpp"
 #include "nav2_mppi_controller/models/optimizer_settings.hpp"
 #include "nav2_mppi_controller/models/state.hpp"
-#include "nav2_mppi_controller/models/control_sequence.hpp"
+#include "nav2_mppi_controller/tools/noise_generator.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 // Tests noise generator object
 
 class RosLockGuard
 {
 public:
-  RosLockGuard() {rclcpp::init(0, nullptr);}
-  ~RosLockGuard() {rclcpp::shutdown();}
+  RosLockGuard() { rclcpp::init(0, nullptr); }
+  ~RosLockGuard() { rclcpp::shutdown(); }
 };
 RosLockGuard g_rclcpp;
 
@@ -77,7 +78,8 @@ TEST(NoiseGeneratorTest, NoiseGeneratorMain)
   mppi::models::State state;
   state.reset(settings.batch_size, settings.time_steps);
 
-  // Request an update with no noise yet generated, should result in identical outputs
+  // Request an update with no noise yet generated, should result in identical
+  // outputs
   generator.initialize(settings, false, "test_name", &handler);
   generator.reset(settings, false);  // sets initial sizing and zeros out noises
   generator.setNoisedControls(state, control_sequence);

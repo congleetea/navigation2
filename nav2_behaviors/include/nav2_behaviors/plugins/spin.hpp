@@ -16,12 +16,12 @@
 #define NAV2_BEHAVIORS__PLUGINS__SPIN_HPP_
 
 #include <chrono>
-#include <string>
 #include <memory>
+#include <string>
 
+#include "geometry_msgs/msg/quaternion.hpp"
 #include "nav2_behaviors/timed_behavior.hpp"
 #include "nav2_msgs/action/spin.hpp"
-#include "geometry_msgs/msg/quaternion.hpp"
 
 namespace nav2_behaviors
 {
@@ -67,8 +67,7 @@ protected:
    * @return is collision free or not
    */
   bool isCollisionFree(
-    const double & distance,
-    geometry_msgs::msg::Twist * cmd_vel,
+    const double & distance, geometry_msgs::msg::Twist * cmd_vel,
     geometry_msgs::msg::Pose2D & pose2d);
 
   SpinAction::Feedback::SharedPtr feedback_;

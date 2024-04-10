@@ -15,14 +15,14 @@
 #define NAV2_WAYPOINT_FOLLOWER__PLUGINS__INPUT_AT_WAYPOINT_HPP_
 #pragma once
 
-#include <string>
-#include <mutex>
 #include <memory>
+#include <mutex>
+#include <string>
 
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/empty.hpp"
-#include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "nav2_core/waypoint_task_executor.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
+#include "std_msgs/msg/empty.hpp"
 
 namespace nav2_waypoint_follower
 {
@@ -34,10 +34,10 @@ namespace nav2_waypoint_follower
 class InputAtWaypoint : public nav2_core::WaypointTaskExecutor
 {
 public:
-/**
- * @brief Construct a new Input At Waypoint Arrival object
- *
- */
+  /**
+   * @brief Construct a new Input At Waypoint Arrival object
+   *
+   */
   InputAtWaypoint();
 
   /**
@@ -52,8 +52,7 @@ public:
    * @param plugin_name name of plugin
    */
   void initialize(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-    const std::string & plugin_name);
+    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, const std::string & plugin_name);
 
   /**
    * @brief Processor

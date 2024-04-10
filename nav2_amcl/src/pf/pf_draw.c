@@ -32,16 +32,14 @@
 #include <math.h>
 #include <stdlib.h>
 
-
 #include <rtk.h>
 
 #include "nav2_amcl/pf/pf.hpp"
-#include "nav2_amcl/pf/pf_pdf.hpp"
 #include "nav2_amcl/pf/pf_kdtree.hpp"
+#include "nav2_amcl/pf/pf_pdf.hpp"
 
 // Draw the statistics
 void pf_draw_statistics(pf_t * pf, rtk_fig_t * fig);
-
 
 // Draw the sample set
 void pf_draw_samples(pf_t * pf, rtk_fig_t * fig, int max_samples)
@@ -69,7 +67,6 @@ void pf_draw_samples(pf_t * pf, rtk_fig_t * fig, int max_samples)
   }
 }
 
-
 // Draw the hitogram (kd tree)
 void pf_draw_hist(pf_t * pf, rtk_fig_t * fig)
 {
@@ -80,7 +77,6 @@ void pf_draw_hist(pf_t * pf, rtk_fig_t * fig)
   rtk_fig_color(fig, 0.0, 0.0, 1.0);
   pf_kdtree_draw(set->kdtree, fig);
 }
-
 
 // Draw the CEP statistics
 // void pf_draw_cep_stats(pf_t * pf, rtk_fig_t * fig)

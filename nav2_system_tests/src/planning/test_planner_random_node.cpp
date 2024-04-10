@@ -13,12 +13,12 @@
 // limitations under the License. Reserved.
 
 #include <gtest/gtest.h>
+#include <iostream>
 #include <memory>
 #include <vector>
-#include <iostream>
 
-#include "rclcpp/rclcpp.hpp"
 #include "planner_tester.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 using namespace std::chrono_literals;
 

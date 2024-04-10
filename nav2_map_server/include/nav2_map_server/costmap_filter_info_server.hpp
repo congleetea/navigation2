@@ -17,9 +17,9 @@
 
 #include <memory>
 
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_util/lifecycle_node.hpp"
 #include "nav2_msgs/msg/costmap_filter_info.hpp"
+#include "nav2_util/lifecycle_node.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_map_server
 {
@@ -40,7 +40,8 @@ public:
 
 protected:
   /**
-   * @brief Creates CostmapFilterInfo publisher and forms published message from ROS parameters
+   * @brief Creates CostmapFilterInfo publisher and forms published message from
+   * ROS parameters
    * @param state Lifecycle Node's state
    * @return Success or Failure
    */

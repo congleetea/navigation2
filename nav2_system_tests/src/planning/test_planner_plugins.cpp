@@ -14,13 +14,13 @@
 
 #include <gtest/gtest.h>
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
-#include "rclcpp/rclcpp.hpp"
-#include "planner_tester.hpp"
-#include "nav2_util/lifecycle_utils.hpp"
 #include "nav2_util/geometry_utils.hpp"
+#include "nav2_util/lifecycle_utils.hpp"
+#include "planner_tester.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 using namespace std::chrono_literals;
 
@@ -30,17 +30,14 @@ using nav2_util::TestCostmap;
 using ComputePathToPoseCommand = geometry_msgs::msg::PoseStamped;
 using ComputePathToPoseResult = nav_msgs::msg::Path;
 
-void callback(const nav_msgs::msg::Path::ConstSharedPtr /*grid*/)
-{
-}
+void callback(const nav_msgs::msg::Path::ConstSharedPtr /*grid*/) {}
 
 void testSmallPathValidityAndOrientation(std::string plugin, double length)
 {
   auto obj = std::make_shared<nav2_system_tests::NavFnPlannerTester>();
   rclcpp_lifecycle::State state;
   obj->set_parameter(rclcpp::Parameter("GridBased.plugin", plugin));
-  obj->declare_parameter(
-    "GridBased.use_final_approach_orientation", rclcpp::ParameterValue(false));
+  obj->declare_parameter("GridBased.use_final_approach_orientation", rclcpp::ParameterValue(false));
   obj->onConfigure(state);
 
   geometry_msgs::msg::PoseStamped start;
@@ -74,8 +71,7 @@ void testSmallPathValidityAndNoOrientation(std::string plugin, double length)
   // Test WITH use_final_approach_orientation
   // expecting end path pose orientation to be equal to approach orientation
   // which in the one pose corner case should be the start pose orientation
-  obj->declare_parameter(
-    "GridBased.use_final_approach_orientation", rclcpp::ParameterValue(true));
+  obj->declare_parameter("GridBased.use_final_approach_orientation", rclcpp::ParameterValue(true));
   obj->set_parameter(rclcpp::Parameter("GridBased.use_final_approach_orientation", true));
   obj->onConfigure(state);
 
@@ -98,16 +94,11 @@ void testSmallPathValidityAndNoOrientation(std::string plugin, double length)
   int path_size = path.poses.size();
   if (path_size == 1) {
     EXPECT_NEAR(
-      tf2::getYaw(path.poses.back().pose.orientation),
-      tf2::getYaw(start.pose.orientation),
-      0.01);
+      tf2::getYaw(path.poses.back().pose.orientation), tf2::getYaw(start.pose.orientation), 0.01);
   } else {
     double dx = path.poses.back().pose.position.x - path.poses.front().pose.position.x;
     double dy = path.poses.back().pose.position.y - path.poses.front().pose.position.y;
-    EXPECT_NEAR(
-      tf2::getYaw(path.poses.back().pose.orientation),
-      atan2(dy, dx),
-      0.01);
+    EXPECT_NEAR(tf2::getYaw(path.poses.back().pose.orientation), atan2(dy, dx), 0.01);
   }
   // obj->onCleanup(state);
   obj.reset();
@@ -119,8 +110,7 @@ TEST(testPluginMap, Failures)
   rclcpp_lifecycle::State state;
   obj->set_parameter(rclcpp::Parameter("expected_planner_frequency", 100000.0));
   obj->onConfigure(state);
-  obj->create_subscription<nav_msgs::msg::Path>(
-    "plan", rclcpp::SystemDefaultsQoS(), callback);
+  obj->create_subscription<nav_msgs::msg::Path>("plan", rclcpp::SystemDefaultsQoS(), callback);
 
   geometry_msgs::msg::PoseStamped start;
   geometry_msgs::msg::PoseStamped goal;

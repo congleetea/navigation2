@@ -17,19 +17,17 @@
 #include <ompl/base/spaces/ReedsSheppStateSpace.h>
 
 #include <algorithm>
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "nav2_smac_planner/analytic_expansion.hpp"
 
 namespace nav2_smac_planner
 {
 
-template<typename NodeT>
+template <typename NodeT>
 AnalyticExpansion<NodeT>::AnalyticExpansion(
-  const MotionModel & motion_model,
-  const SearchInfo & search_info,
-  const bool & traverse_unknown,
+  const MotionModel & motion_model, const SearchInfo & search_info, const bool & traverse_unknown,
   const unsigned int & dim_3_size)
 : _motion_model(motion_model),
   _search_info(search_info),
@@ -39,23 +37,21 @@ AnalyticExpansion<NodeT>::AnalyticExpansion(
 {
 }
 
-template<typename NodeT>
-void AnalyticExpansion<NodeT>::setCollisionChecker(
-  GridCollisionChecker * collision_checker)
+template <typename NodeT>
+void AnalyticExpansion<NodeT>::setCollisionChecker(GridCollisionChecker * collision_checker)
 {
   _collision_checker = collision_checker;
 }
 
-template<typename NodeT>
+template <typename NodeT>
 typename AnalyticExpansion<NodeT>::NodePtr AnalyticExpansion<NodeT>::tryAnalyticExpansion(
-  const NodePtr & current_node, const NodePtr & goal_node,
-  const NodeGetter & getter, int & analytic_iterations,
-  int & closest_distance)
+  const NodePtr & current_node, const NodePtr & goal_node, const NodeGetter & getter,
+  int & analytic_iterations, int & closest_distance)
 {
   // This must be a valid motion model for analytic expansion to be attempted
-  if (_motion_model == MotionModel::DUBIN || _motion_model == MotionModel::REEDS_SHEPP ||
-    _motion_model == MotionModel::STATE_LATTICE)
-  {
+  if (
+    _motion_model == MotionModel::DUBIN || _motion_model == MotionModel::REEDS_SHEPP ||
+    _motion_model == MotionModel::STATE_LATTICE) {
     // See if we are closer and should be expanding more often
     auto costmap = _collision_checker->getCostmap();
     const Coordinates node_coords =
@@ -65,15 +61,15 @@ typename AnalyticExpansion<NodeT>::NodePtr AnalyticExpansion<NodeT>::tryAnalytic
       static_cast<int>(NodeT::getHeuristicCost(node_coords, goal_node->pose, costmap)));
 
     // We want to expand at a rate of d/expansion_ratio,
-    // but check to see if we are so close that we would be expanding every iteration
-    // If so, limit it to the expansion ratio (rounded up)
+    // but check to see if we are so close that we would be expanding every
+    // iteration If so, limit it to the expansion ratio (rounded up)
     int desired_iterations = std::max(
       static_cast<int>(closest_distance / _search_info.analytic_expansion_ratio),
       static_cast<int>(std::ceil(_search_info.analytic_expansion_ratio)));
 
-    // If we are closer now, we should update the target number of iterations to go
-    analytic_iterations =
-      std::min(analytic_iterations, desired_iterations);
+    // If we are closer now, we should update the target number of iterations to
+    // go
+    analytic_iterations = std::min(analytic_iterations, desired_iterations);
 
     // Always run the expansion on the first run in case there is a
     // trivial path to be found
@@ -87,12 +83,13 @@ typename AnalyticExpansion<NodeT>::NodePtr AnalyticExpansion<NodeT>::tryAnalytic
         NodePtr test_node = current_node;
         AnalyticExpansionNodes refined_analytic_nodes;
         for (int i = 0; i < 8; i++) {
-          // Attempt to create better paths in 5 node increments, need to make sure
-          // they exist for each in order to do so (maximum of 40 points back).
-          if (test_node->parent && test_node->parent->parent && test_node->parent->parent->parent &&
+          // Attempt to create better paths in 5 node increments, need to make
+          // sure they exist for each in order to do so (maximum of 40 points
+          // back).
+          if (
+            test_node->parent && test_node->parent->parent && test_node->parent->parent->parent &&
             test_node->parent->parent->parent->parent &&
-            test_node->parent->parent->parent->parent->parent)
-          {
+            test_node->parent->parent->parent->parent->parent) {
             test_node = test_node->parent->parent->parent->parent->parent;
             refined_analytic_nodes = getAnalyticPath(test_node, goal_node, getter);
             if (refined_analytic_nodes.empty()) {
@@ -116,14 +113,12 @@ typename AnalyticExpansion<NodeT>::NodePtr AnalyticExpansion<NodeT>::tryAnalytic
   return NodePtr(nullptr);
 }
 
-template<typename NodeT>
+template <typename NodeT>
 typename AnalyticExpansion<NodeT>::AnalyticExpansionNodes AnalyticExpansion<NodeT>::getAnalyticPath(
-  const NodePtr & node,
-  const NodePtr & goal,
-  const NodeGetter & node_getter)
+  const NodePtr & node, const NodePtr & goal, const NodeGetter & node_getter)
 {
-  static ompl::base::ScopedState<> from(node->motion_table.state_space), to(
-    node->motion_table.state_space), s(node->motion_table.state_space);
+  static ompl::base::ScopedState<> from(node->motion_table.state_space),
+    to(node->motion_table.state_space), s(node->motion_table.state_space);
   from[0] = node->pose.x;
   from[1] = node->pose.y;
   from[2] = node->motion_table.getAngleFromBin(node->pose.theta);
@@ -134,9 +129,10 @@ typename AnalyticExpansion<NodeT>::AnalyticExpansionNodes AnalyticExpansion<Node
   float d = node->motion_table.state_space->distance(from(), to());
 
   // If the length is too far, exit. This prevents unsafe shortcutting of paths
-  // into higher cost areas far out from the goal itself, let search to the work of getting
-  // close before the analytic expansion brings it home. This should never be smaller than
-  // 4-5x the minimum turning radius being used, or planning times will begin to spike.
+  // into higher cost areas far out from the goal itself, let search to the work
+  // of getting close before the analytic expansion brings it home. This should
+  // never be smaller than 4-5x the minimum turning radius being used, or
+  // planning times will begin to spike.
   if (d > _search_info.analytic_expansion_max_length) {
     return AnalyticExpansionNodes();
   }
@@ -171,8 +167,7 @@ typename AnalyticExpansion<NodeT>::AnalyticExpansionNodes AnalyticExpansion<Node
 
     // Turn the pose into a node, and check if it is valid
     index = NodeT::getIndex(
-      static_cast<unsigned int>(reals[0]),
-      static_cast<unsigned int>(reals[1]),
+      static_cast<unsigned int>(reals[0]), static_cast<unsigned int>(reals[1]),
       static_cast<unsigned int>(angle));
     // Get the node from the graph
     if (node_getter(index, next)) {
@@ -209,11 +204,9 @@ typename AnalyticExpansion<NodeT>::AnalyticExpansionNodes AnalyticExpansion<Node
   return possible_nodes;
 }
 
-template<typename NodeT>
+template <typename NodeT>
 typename AnalyticExpansion<NodeT>::NodePtr AnalyticExpansion<NodeT>::setAnalyticPath(
-  const NodePtr & node,
-  const NodePtr & goal_node,
-  const AnalyticExpansionNodes & expanded_nodes)
+  const NodePtr & node, const NodePtr & goal_node, const AnalyticExpansionNodes & expanded_nodes)
 {
   _detached_nodes.clear();
   // Legitimate final path - set the parent relationships, states, and poses
@@ -240,41 +233,36 @@ typename AnalyticExpansion<NodeT>::NodePtr AnalyticExpansion<NodeT>::setAnalytic
   return goal_node;
 }
 
-template<>
+template <>
 void AnalyticExpansion<NodeLattice>::cleanNode(const NodePtr & node)
 {
   node->setMotionPrimitive(nullptr);
 }
 
-template<typename NodeT>
+template <typename NodeT>
 void AnalyticExpansion<NodeT>::cleanNode(const NodePtr & /*expanded_nodes*/)
 {
 }
 
-template<>
-typename AnalyticExpansion<Node2D>::AnalyticExpansionNodes AnalyticExpansion<Node2D>::
-getAnalyticPath(
-  const NodePtr & node,
-  const NodePtr & goal,
-  const NodeGetter & node_getter)
+template <>
+typename AnalyticExpansion<Node2D>::AnalyticExpansionNodes
+AnalyticExpansion<Node2D>::getAnalyticPath(
+  const NodePtr & node, const NodePtr & goal, const NodeGetter & node_getter)
 {
   return AnalyticExpansionNodes();
 }
 
-template<>
+template <>
 typename AnalyticExpansion<Node2D>::NodePtr AnalyticExpansion<Node2D>::setAnalyticPath(
-  const NodePtr & node,
-  const NodePtr & goal_node,
-  const AnalyticExpansionNodes & expanded_nodes)
+  const NodePtr & node, const NodePtr & goal_node, const AnalyticExpansionNodes & expanded_nodes)
 {
   return NodePtr(nullptr);
 }
 
-template<>
+template <>
 typename AnalyticExpansion<Node2D>::NodePtr AnalyticExpansion<Node2D>::tryAnalyticExpansion(
-  const NodePtr & current_node, const NodePtr & goal_node,
-  const NodeGetter & getter, int & analytic_iterations,
-  int & closest_distance)
+  const NodePtr & current_node, const NodePtr & goal_node, const NodeGetter & getter,
+  int & analytic_iterations, int & closest_distance)
 {
   return NodePtr(nullptr);
 }

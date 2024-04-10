@@ -12,51 +12,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
+#include <chrono>
+#include <limits>
 #include <math.h>
 #include <memory>
 #include <string>
 #include <vector>
-#include <chrono>
-#include <limits>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
+#include "ament_index_cpp/get_package_share_directory.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_costmap_2d/costmap_subscriber.hpp"
 #include "nav2_msgs/msg/costmap.hpp"
-#include "nav2_util/lifecycle_node.hpp"
 #include "nav2_smoother/simple_smoother.hpp"
-#include "ament_index_cpp/get_package_share_directory.hpp"
+#include "nav2_util/lifecycle_node.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
-using namespace smoother_utils;  // NOLINT
-using namespace nav2_smoother;  // NOLINT
+using namespace smoother_utils;        // NOLINT
+using namespace nav2_smoother;         // NOLINT
 using namespace std::chrono_literals;  // NOLINT
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
 class SmootherWrapper : public nav2_smoother::SimpleSmoother
 {
 public:
-  SmootherWrapper()
-  : nav2_smoother::SimpleSmoother()
-  {
-  }
+  SmootherWrapper() : nav2_smoother::SimpleSmoother() {}
 
   std::vector<PathSegment> findDirectionalPathSegmentsWrapper(nav_msgs::msg::Path path)
   {
     return findDirectionalPathSegments(path);
   }
 
-  void setMaxItsToInvalid()
-  {
-    max_its_ = 0;
-  }
+  void setMaxItsToInvalid() { max_its_ = 0; }
 };
 
 TEST(SmootherTest, test_simple_smoother)
@@ -120,7 +114,7 @@ TEST(SmootherTest, test_simple_smoother)
   straight_irregular_path.poses[10].pose.position.y = 2.5;
 
   rclcpp::Duration no_time = rclcpp::Duration::from_seconds(0.0);  // 0 seconds
-  rclcpp::Duration max_time = rclcpp::Duration::from_seconds(1);  // 1 second
+  rclcpp::Duration max_time = rclcpp::Duration::from_seconds(1);   // 1 second
   EXPECT_FALSE(smoother->smooth(straight_irregular_path, no_time));
   EXPECT_TRUE(smoother->smooth(straight_irregular_path, max_time));
   for (uint i = 0; i != straight_irregular_path.poses.size() - 1; i++) {
@@ -128,7 +122,8 @@ TEST(SmootherTest, test_simple_smoother)
     EXPECT_LT(
       fabs(
         straight_irregular_path.poses[i].pose.position.y -
-        straight_irregular_path.poses[i + 1].pose.position.y), 0.38);
+        straight_irregular_path.poses[i + 1].pose.position.y),
+      0.38);
   }
 
   // Test regular path, should see no effective change
@@ -164,7 +159,8 @@ TEST(SmootherTest, test_simple_smoother)
     EXPECT_NEAR(
       fabs(
         straight_regular_path.poses[i].pose.position.y -
-        straight_regular_path.poses[i + 1].pose.position.y), 0.1, 0.001);
+        straight_regular_path.poses[i + 1].pose.position.y),
+      0.1, 0.001);
   }
 
   // test shorter and curved if given a right angle

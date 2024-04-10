@@ -15,13 +15,13 @@
 #ifndef NAV2_BEHAVIOR_TREE__PLUGINS__CONDITION__IS_STUCK_CONDITION_HPP_
 #define NAV2_BEHAVIOR_TREE__PLUGINS__CONDITION__IS_STUCK_CONDITION_HPP_
 
-#include <string>
 #include <atomic>
 #include <deque>
+#include <string>
 
-#include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp_v3/condition_node.h"
 #include "nav_msgs/msg/odometry.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_behavior_tree
 {
@@ -38,9 +38,7 @@ public:
    * @param condition_name Name for the XML tag for this node
    * @param conf BT node configuration
    */
-  IsStuckCondition(
-    const std::string & condition_name,
-    const BT::NodeConfiguration & conf);
+  IsStuckCondition(const std::string & condition_name, const BT::NodeConfiguration & conf);
 
   IsStuckCondition() = delete;
 
@@ -72,7 +70,8 @@ public:
   void updateStates();
 
   /**
-   * @brief Detect if robot bumped into something by checking for abnormal deceleration
+   * @brief Detect if robot bumped into something by checking for abnormal
+   * deceleration
    * @return bool true if robot is stuck, false otherwise
    */
   bool isStuck();
@@ -81,7 +80,7 @@ public:
    * @brief Creates list of BT ports
    * @return BT::PortsList Containing node-specific ports
    */
-  static BT::PortsList providedPorts() {return {};}
+  static BT::PortsList providedPorts() { return {}; }
 
 private:
   // The node that will be used for any ROS operations

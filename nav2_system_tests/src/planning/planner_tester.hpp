@@ -15,27 +15,27 @@
 #ifndef PLANNING__PLANNER_TESTER_HPP_
 #define PLANNING__PLANNER_TESTER_HPP_
 
+#include <algorithm>
 #include <gtest/gtest.h>
 #include <memory>
 #include <string>
 #include <thread>
-#include <algorithm>
 
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/transform_stamped.hpp"
 #include "nav2_msgs/action/compute_path_to_pose.hpp"
-#include "nav_msgs/msg/occupancy_grid.hpp"
 #include "nav2_msgs/msg/costmap.hpp"
 #include "nav2_msgs/srv/get_costmap.hpp"
 #include "nav2_msgs/srv/is_path_valid.hpp"
-#include "visualization_msgs/msg/marker.hpp"
+#include "nav2_planner/planner_server.hpp"
 #include "nav2_util/costmap.hpp"
 #include "nav2_util/node_thread.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/transform_stamped.hpp"
+#include "nav_msgs/msg/occupancy_grid.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
 #include "tf2_msgs/msg/tf_message.hpp"
-#include "nav2_planner/planner_server.hpp"
 #include "tf2_ros/transform_broadcaster.h"
+#include "visualization_msgs/msg/marker.hpp"
 
 namespace nav2_system_tests
 {
@@ -43,10 +43,7 @@ namespace nav2_system_tests
 class NavFnPlannerTester : public nav2_planner::PlannerServer
 {
 public:
-  NavFnPlannerTester()
-  : PlannerServer()
-  {
-  }
+  NavFnPlannerTester() : PlannerServer() {}
 
   void printCostmap()
   {
@@ -66,18 +63,16 @@ public:
     nav2_msgs::msg::Costmap cm = costmap->get_costmap(prop);
     prop = cm.metadata;
     costmap_ros_->getCostmap()->resizeMap(
-      prop.size_x, prop.size_y,
-      prop.resolution, prop.origin.position.x, prop.origin.position.x);
-    // Volatile prevents compiler from treating costmap_ptr as unused or changing its address
+      prop.size_x, prop.size_y, prop.resolution, prop.origin.position.x, prop.origin.position.x);
+    // Volatile prevents compiler from treating costmap_ptr as unused or
+    // changing its address
     volatile unsigned char * costmap_ptr = costmap_ros_->getCostmap()->getCharMap();
     delete[] costmap_ptr;
     costmap_ptr = new unsigned char[prop.size_x * prop.size_y];
     std::copy(cm.data.begin(), cm.data.end(), costmap_ptr);
   }
 
-  bool createPath(
-    const geometry_msgs::msg::PoseStamped & goal,
-    nav_msgs::msg::Path & path)
+  bool createPath(const geometry_msgs::msg::PoseStamped & goal, nav_msgs::msg::Path & path)
   {
     geometry_msgs::msg::PoseStamped start;
     if (!nav2_util::getCurrentPose(start, *tf_, "map", "base_link", 0.1)) {
@@ -97,29 +92,16 @@ public:
     return true;
   }
 
-  void onCleanup(const rclcpp_lifecycle::State & state)
-  {
-    on_cleanup(state);
-  }
+  void onCleanup(const rclcpp_lifecycle::State & state) { on_cleanup(state); }
 
-  void onActivate(const rclcpp_lifecycle::State & state)
-  {
-    on_activate(state);
-  }
+  void onActivate(const rclcpp_lifecycle::State & state) { on_activate(state); }
 
-  void onDeactivate(const rclcpp_lifecycle::State & state)
-  {
-    on_deactivate(state);
-  }
+  void onDeactivate(const rclcpp_lifecycle::State & state) { on_deactivate(state); }
 
-  void onConfigure(const rclcpp_lifecycle::State & state)
-  {
-    on_configure(state);
-  }
+  void onConfigure(const rclcpp_lifecycle::State & state) { on_configure(state); }
 };
 
-enum class TaskStatus : int8_t
-{
+enum class TaskStatus : int8_t {
   SUCCEEDED = 1,
   FAILED = 2,
   RUNNING = 3,
@@ -147,25 +129,18 @@ public:
   // Runs a single test with default poses depending on the loaded map
   // Success criteria is a collision free path and a deviation to a
   // reference path smaller than a tolerance.
-  bool defaultPlannerTest(
-    ComputePathToPoseResult & path,
-    const double deviation_tolerance = 1.0);
-
+  bool defaultPlannerTest(ComputePathToPoseResult & path, const double deviation_tolerance = 1.0);
 
   // Runs multiple tests with random initial and goal poses
   bool defaultPlannerRandomTests(
-    const unsigned int number_tests,
-    const float acceptable_fail_ratio);
+    const unsigned int number_tests, const float acceptable_fail_ratio);
 
   bool isPathValid(nav_msgs::msg::Path & path);
 
 private:
   void setCostmap();
 
-  TaskStatus createPlan(
-    const ComputePathToPoseCommand & goal,
-    ComputePathToPoseResult & path
-  );
+  TaskStatus createPlan(const ComputePathToPoseCommand & goal, ComputePathToPoseResult & path);
 
   bool is_active_;
   bool map_set_;
@@ -212,22 +187,18 @@ private:
   // Success criteria is a collision free path.
   // TODO(orduno): #443 Assuming a robot the size of a costmap cell
   bool plannerTest(
-    const geometry_msgs::msg::Point & robot_position,
-    const ComputePathToPoseCommand & goal,
+    const geometry_msgs::msg::Point & robot_position, const ComputePathToPoseCommand & goal,
     ComputePathToPoseResult & path);
 
   bool isCollisionFree(const ComputePathToPoseResult & path);
 
   bool isWithinTolerance(
-    const geometry_msgs::msg::Point & robot_position,
-    const ComputePathToPoseCommand & goal,
+    const geometry_msgs::msg::Point & robot_position, const ComputePathToPoseCommand & goal,
     const ComputePathToPoseResult & path) const;
 
   bool isWithinTolerance(
-    const geometry_msgs::msg::Point & robot_position,
-    const ComputePathToPoseCommand & goal,
-    const ComputePathToPoseResult & path,
-    const double deviationTolerance,
+    const geometry_msgs::msg::Point & robot_position, const ComputePathToPoseCommand & goal,
+    const ComputePathToPoseResult & path, const double deviationTolerance,
     const ComputePathToPoseResult & reference_path) const;
 
   void printPath(const ComputePathToPoseResult & path) const;

@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <math.h>
-#include <chrono>
-#include <vector>
-#include <memory>
 #include <algorithm>
-#include <queue>
-#include <limits>
-#include <string>
-#include <fstream>
+#include <chrono>
 #include <cmath>
+#include <fstream>
+#include <limits>
+#include <math.h>
+#include <memory>
+#include <queue>
+#include <string>
+#include <vector>
 
 #include "ompl/base/ScopedState.h"
 #include "ompl/base/spaces/DubinsStateSpace.h"
@@ -45,9 +45,7 @@ LookupTable NodeLattice::dist_heuristic_lookup_table;
 // Currently, these are set to project *at minimum* into a neighboring
 // cell. Though this could be later modified to project a certain
 // amount of time or particular distance forward.
-void LatticeMotionTable::initMotionModel(
-  unsigned int & size_x_in,
-  SearchInfo & search_info)
+void LatticeMotionTable::initMotionModel(unsigned int & size_x_in, SearchInfo & search_info)
 {
   size_x = size_x_in;
 
@@ -77,11 +75,11 @@ void LatticeMotionTable::initMotionModel(
 
   if (!state_space) {
     if (!allow_reverse_expansion) {
-      state_space = std::make_unique<ompl::base::DubinsStateSpace>(
-        lattice_metadata.min_turning_radius);
+      state_space =
+        std::make_unique<ompl::base::DubinsStateSpace>(lattice_metadata.min_turning_radius);
     } else {
-      state_space = std::make_unique<ompl::base::ReedsSheppStateSpace>(
-        lattice_metadata.min_turning_radius);
+      state_space =
+        std::make_unique<ompl::base::ReedsSheppStateSpace>(lattice_metadata.min_turning_radius);
     }
   }
 
@@ -106,8 +104,7 @@ void LatticeMotionTable::initMotionModel(
   trig_values.reserve(lattice_metadata.number_of_headings);
   for (unsigned int i = 0; i < lattice_metadata.heading_angles.size(); ++i) {
     trig_values.emplace_back(
-      cos(lattice_metadata.heading_angles[i]),
-      sin(lattice_metadata.heading_angles[i]));
+      cos(lattice_metadata.heading_angles[i]), sin(lattice_metadata.heading_angles[i]));
   }
 }
 
@@ -184,10 +181,7 @@ NodeLattice::NodeLattice(const unsigned int index)
 {
 }
 
-NodeLattice::~NodeLattice()
-{
-  parent = nullptr;
-}
+NodeLattice::~NodeLattice() { parent = nullptr; }
 
 void NodeLattice::reset()
 {
@@ -203,18 +197,16 @@ void NodeLattice::reset()
 }
 
 bool NodeLattice::isNodeValid(
-  const bool & traverse_unknown,
-  GridCollisionChecker * collision_checker,
-  MotionPrimitive * motion_primitive,
-  bool is_backwards)
+  const bool & traverse_unknown, GridCollisionChecker * collision_checker,
+  MotionPrimitive * motion_primitive, bool is_backwards)
 {
   // Check primitive end pose
-  // Convert grid quantization of primitives to radians, then collision checker quantization
+  // Convert grid quantization of primitives to radians, then collision checker
+  // quantization
   static const double bin_size = 2.0 * M_PI / collision_checker->getPrecomputedAngles().size();
   const double & angle = motion_table.getAngleFromBin(this->pose.theta) / bin_size;
   if (collision_checker->inCollision(
-      this->pose.x, this->pose.y, angle /*bin in collision checker*/, traverse_unknown))
-  {
+        this->pose.x, this->pose.y, angle /*bin in collision checker*/, traverse_unknown)) {
     return false;
   }
 
@@ -227,7 +219,8 @@ bool NodeLattice::isNodeValid(
     const float & resolution_diag_sq = 2.0 * grid_resolution * grid_resolution;
     MotionPose last_pose(1e9, 1e9, 1e9), pose_dist(0.0, 0.0, 0.0);
 
-    // Back out the initial node starting point to move motion primitive relative to
+    // Back out the initial node starting point to move motion primitive
+    // relative to
     MotionPose initial_pose, prim_pose;
     initial_pose._x = this->pose.x - (motion_primitive->poses.back()._x / grid_resolution);
     initial_pose._y = this->pose.y - (motion_primitive->poses.back()._y / grid_resolution);
@@ -242,19 +235,16 @@ bool NodeLattice::isNodeValid(
         // Convert primitive pose into grid space if it should be checked
         prim_pose._x = initial_pose._x + (it->_x / grid_resolution);
         prim_pose._y = initial_pose._y + (it->_y / grid_resolution);
-        // If reversing, invert the angle because the robot is backing into the primitive
-        // not driving forward with it
+        // If reversing, invert the angle because the robot is backing into the
+        // primitive not driving forward with it
         if (is_backwards) {
           prim_pose._theta = std::fmod(it->_theta + M_PI, 2.0 * M_PI);
         } else {
           prim_pose._theta = it->_theta;
         }
         if (collision_checker->inCollision(
-            prim_pose._x,
-            prim_pose._y,
-            prim_pose._theta / bin_size /*bin in collision checker*/,
-            traverse_unknown))
-        {
+              prim_pose._x, prim_pose._y, prim_pose._theta / bin_size /*bin in collision checker*/,
+              traverse_unknown)) {
           return false;
         }
         max_cell_cost = std::max(max_cell_cost, collision_checker->getCost());
@@ -271,8 +261,8 @@ float NodeLattice::getTraversalCost(const NodePtr & child)
   const float normalized_cost = child->getCost() / 252.0;
   if (std::isnan(normalized_cost)) {
     throw std::runtime_error(
-            "Node attempted to get traversal "
-            "cost without a known collision cost!");
+      "Node attempted to get traversal "
+      "cost without a known collision cost!");
   }
 
   // this is the first node
@@ -290,20 +280,21 @@ float NodeLattice::getTraversalCost(const NodePtr & child)
   }
 
   float travel_cost = 0.0;
-  float travel_cost_raw = prim_length *
-    (motion_table.travel_distance_reward + motion_table.cost_penalty * normalized_cost);
+  float travel_cost_raw = prim_length * (motion_table.travel_distance_reward +
+                                         motion_table.cost_penalty * normalized_cost);
 
   if (transition_prim->arc_length < 0.001) {
     // New motion is a straight motion, no additional costs to be applied
     travel_cost = travel_cost_raw;
   } else {
     if (prim->left_turn == transition_prim->left_turn) {
-      // Turning motion but keeps in same general direction: encourages to commit to actions
+      // Turning motion but keeps in same general direction: encourages to
+      // commit to actions
       travel_cost = travel_cost_raw * motion_table.non_straight_penalty;
     } else {
       // Turning motion and velocity directions: penalizes wiggling.
-      travel_cost = travel_cost_raw *
-        (motion_table.non_straight_penalty + motion_table.change_penalty);
+      travel_cost =
+        travel_cost_raw * (motion_table.non_straight_penalty + motion_table.change_penalty);
     }
   }
 
@@ -317,37 +308,32 @@ float NodeLattice::getTraversalCost(const NodePtr & child)
 }
 
 float NodeLattice::getHeuristicCost(
-  const Coordinates & node_coords,
-  const Coordinates & goal_coords,
+  const Coordinates & node_coords, const Coordinates & goal_coords,
   const nav2_costmap_2d::Costmap2D * costmap)
 {
   // get obstacle heuristic value
-  const float obstacle_heuristic = getObstacleHeuristic(
-    node_coords, goal_coords, motion_table.cost_penalty);
+  const float obstacle_heuristic =
+    getObstacleHeuristic(node_coords, goal_coords, motion_table.cost_penalty);
   const float distance_heuristic =
     getDistanceHeuristic(node_coords, goal_coords, obstacle_heuristic);
   return std::max(obstacle_heuristic, distance_heuristic);
 }
 
 void NodeLattice::initMotionModel(
-  const MotionModel & motion_model,
-  unsigned int & size_x,
-  unsigned int & /*size_y*/,
-  unsigned int & /*num_angle_quantization*/,
-  SearchInfo & search_info)
+  const MotionModel & motion_model, unsigned int & size_x, unsigned int & /*size_y*/,
+  unsigned int & /*num_angle_quantization*/, SearchInfo & search_info)
 {
   if (motion_model != MotionModel::STATE_LATTICE) {
     throw std::runtime_error(
-            "Invalid motion model for Lattice node. Please select"
-            " STATE_LATTICE and provide a valid lattice file.");
+      "Invalid motion model for Lattice node. Please select"
+      " STATE_LATTICE and provide a valid lattice file.");
   }
 
   motion_table.initMotionModel(size_x, search_info);
 }
 
 float NodeLattice::getDistanceHeuristic(
-  const Coordinates & node_coords,
-  const Coordinates & goal_coords,
+  const Coordinates & node_coords, const Coordinates & goal_coords,
   const float & obstacle_heuristic)
 {
   // rotate and translate node_coords such that goal_coords relative is (0,0,0)
@@ -372,13 +358,12 @@ float NodeLattice::getDistanceHeuristic(
   }
 
   Coordinates node_coords_relative(
-    round(dx * cos_th - dy * sin_th),
-    round(dx * sin_th + dy * cos_th),
-    round(dtheta_bin));
+    round(dx * cos_th - dy * sin_th), round(dx * sin_th + dy * cos_th), round(dtheta_bin));
 
-  // Check if the relative node coordinate is within the localized window around the goal
-  // to apply the distance heuristic. Since the lookup table is contains only the positive
-  // X axis, we mirror the Y and theta values across the X axis to find the heuristic values.
+  // Check if the relative node coordinate is within the localized window around
+  // the goal to apply the distance heuristic. Since the lookup table is
+  // contains only the positive X axis, we mirror the Y and theta values across
+  // the X axis to find the heuristic values.
   float motion_heuristic = 0.0;
   const int floored_size = floor(size_lookup / 2.0);
   const int ceiling_size = ceil(size_lookup / 2.0);
@@ -393,10 +378,8 @@ float NodeLattice::getDistanceHeuristic(
     }
     const int x_pos = node_coords_relative.x + floored_size;
     const int y_pos = static_cast<int>(mirrored_relative_y);
-    const int index =
-      x_pos * ceiling_size * motion_table.num_angle_quantization +
-      y_pos * motion_table.num_angle_quantization +
-      theta_pos;
+    const int index = x_pos * ceiling_size * motion_table.num_angle_quantization +
+                      y_pos * motion_table.num_angle_quantization + theta_pos;
     motion_heuristic = dist_heuristic_lookup_table[index];
   } else if (obstacle_heuristic == 0.0) {
     static ompl::base::ScopedState<> from(motion_table.state_space), to(motion_table.state_space);
@@ -413,18 +396,16 @@ float NodeLattice::getDistanceHeuristic(
 }
 
 void NodeLattice::precomputeDistanceHeuristic(
-  const float & lookup_table_dim,
-  const MotionModel & motion_model,
-  const unsigned int & dim_3_size,
+  const float & lookup_table_dim, const MotionModel & motion_model, const unsigned int & dim_3_size,
   const SearchInfo & search_info)
 {
   // Dubin or Reeds-Shepp shortest distances
   if (!search_info.allow_reverse_expansion) {
-    motion_table.state_space = std::make_unique<ompl::base::DubinsStateSpace>(
-      search_info.minimum_turning_radius);
+    motion_table.state_space =
+      std::make_unique<ompl::base::DubinsStateSpace>(search_info.minimum_turning_radius);
   } else {
-    motion_table.state_space = std::make_unique<ompl::base::ReedsSheppStateSpace>(
-      search_info.minimum_turning_radius);
+    motion_table.state_space =
+      std::make_unique<ompl::base::ReedsSheppStateSpace>(search_info.minimum_turning_radius);
   }
   motion_table.lattice_metadata =
     LatticeMotionTable::getLatticeMetadata(search_info.lattice_filepath);
@@ -438,11 +419,12 @@ void NodeLattice::precomputeDistanceHeuristic(
   unsigned int index = 0;
   int dim_3_size_int = static_cast<int>(dim_3_size);
 
-  // Create a lookup table of Dubin/Reeds-Shepp distances in a window around the goal
-  // to help drive the search towards admissible approaches. Deu to symmetries in the
-  // Heuristic space, we need to only store 2 of the 4 quadrants and simply mirror
-  // around the X axis any relative node lookup. This reduces memory overhead and increases
-  // the size of a window a platform can store in memory.
+  // Create a lookup table of Dubin/Reeds-Shepp distances in a window around the
+  // goal to help drive the search towards admissible approaches. Deu to
+  // symmetries in the Heuristic space, we need to only store 2 of the 4
+  // quadrants and simply mirror around the X axis any relative node lookup.
+  // This reduces memory overhead and increases the size of a window a platform
+  // can store in memory.
   dist_heuristic_lookup_table.resize(size_lookup * ceil(size_lookup / 2.0) * dim_3_size_int);
   for (float x = ceil(-size_lookup / 2.0); x <= floor(size_lookup / 2.0); x += 1.0) {
     for (float y = 0.0; y <= floor(size_lookup / 2.0); y += 1.0) {
@@ -459,10 +441,8 @@ void NodeLattice::precomputeDistanceHeuristic(
 }
 
 void NodeLattice::getNeighbors(
-  std::function<bool(const unsigned int &, nav2_smac_planner::NodeLattice * &)> & NeighborGetter,
-  GridCollisionChecker * collision_checker,
-  const bool & traverse_unknown,
-  NodeVector & neighbors)
+  std::function<bool(const unsigned int &, nav2_smac_planner::NodeLattice *&)> & NeighborGetter,
+  GridCollisionChecker * collision_checker, const bool & traverse_unknown, NodeVector & neighbors)
 {
   unsigned int index = 0;
   float angle;
@@ -512,17 +492,13 @@ void NodeLattice::getNeighbors(
         }
       }
 
-      neighbor->setPose(
-        Coordinates(
-          motion_projection.x,
-          motion_projection.y,
-          angle));
+      neighbor->setPose(Coordinates(motion_projection.x, motion_projection.y, angle));
 
-      // Using a special isNodeValid API here, giving the motion primitive to use to
-      // validity check the transition of the current node to the new node over
+      // Using a special isNodeValid API here, giving the motion primitive to
+      // use to validity check the transition of the current node to the new
+      // node over
       if (neighbor->isNodeValid(
-          traverse_unknown, collision_checker, motion_primitives[i], backwards))
-      {
+            traverse_unknown, collision_checker, motion_primitives[i], backwards)) {
         neighbor->setMotionPrimitive(motion_primitives[i]);
         // Marking if this search was obtained in the reverse direction
         neighbor->backwards(backwards);
@@ -554,15 +530,15 @@ bool NodeLattice::backtracePath(CoordinateVector & path)
 }
 
 void NodeLattice::addNodeToPath(
-  NodeLattice::NodePtr current_node,
-  NodeLattice::CoordinateVector & path)
+  NodeLattice::NodePtr current_node, NodeLattice::CoordinateVector & path)
 {
   Coordinates initial_pose, prim_pose;
   MotionPrimitive * prim = nullptr;
   const float & grid_resolution = NodeLattice::motion_table.lattice_metadata.grid_resolution;
   prim = current_node->getMotionPrimitive();
-  // if motion primitive is valid, then was searched (rather than analytically expanded),
-  // include dense path of subpoints making up the primitive at grid resolution
+  // if motion primitive is valid, then was searched (rather than analytically
+  // expanded), include dense path of subpoints making up the primitive at grid
+  // resolution
   if (prim) {
     initial_pose.x = current_node->pose.x - (prim->poses.back()._x / grid_resolution);
     initial_pose.y = current_node->pose.y - (prim->poses.back()._y / grid_resolution);
@@ -572,8 +548,8 @@ void NodeLattice::addNodeToPath(
       // Convert primitive pose into grid space if it should be checked
       prim_pose.x = initial_pose.x + (it->_x / grid_resolution);
       prim_pose.y = initial_pose.y + (it->_y / grid_resolution);
-      // If reversing, invert the angle because the robot is backing into the primitive
-      // not driving forward with it
+      // If reversing, invert the angle because the robot is backing into the
+      // primitive not driving forward with it
       if (current_node->isBackward()) {
         prim_pose.theta = std::fmod(it->_theta + M_PI, 2.0 * M_PI);
       } else {

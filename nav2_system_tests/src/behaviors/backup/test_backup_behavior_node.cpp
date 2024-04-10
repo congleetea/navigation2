@@ -14,11 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <gtest/gtest.h>
-#include <cmath>
-#include <tuple>
-#include <string>
 #include <algorithm>
+#include <cmath>
+#include <gtest/gtest.h>
+#include <string>
+#include <tuple>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -37,7 +37,6 @@ struct TestParameters
   float tolerance;
 };
 
-
 std::string testNameGenerator(const testing::TestParamInfo<TestParameters> &)
 {
   static int test_index = 0;
@@ -46,8 +45,7 @@ std::string testNameGenerator(const testing::TestParamInfo<TestParameters> &)
   return name;
 }
 
-class BackupBehaviorTestFixture
-  : public ::testing::TestWithParam<TestParameters>
+class BackupBehaviorTestFixture : public ::testing::TestWithParam<TestParameters>
 {
 public:
   static void SetUpTestCase()
@@ -88,29 +86,22 @@ TEST_P(BackupBehaviorTestFixture, testBackupBehavior)
 
   float dist_to_obstacle = 2.0f;
 
-  if ( ((dist_to_obstacle - std::fabs(test_params.x)) < std::fabs(goal.speed)) ||
-    std::fabs(goal.target.y) > 0)
-  {
+  if (
+    ((dist_to_obstacle - std::fabs(test_params.x)) < std::fabs(goal.speed)) ||
+    std::fabs(goal.target.y) > 0) {
     EXPECT_FALSE(success);
   } else {
     EXPECT_TRUE(success);
   }
 }
 
-std::vector<TestParameters> test_params = {TestParameters{-0.05, 0.0, -0.2, 0.01},
-  TestParameters{-0.05, 0.1, -0.2, 0.01},
+std::vector<TestParameters> test_params = {
+  TestParameters{-0.05, 0.0, -0.2, 0.01}, TestParameters{-0.05, 0.1, -0.2, 0.01},
   TestParameters{-2.0, 0.0, -0.2, 0.1}};
 
 INSTANTIATE_TEST_SUITE_P(
-  BackupBehaviorTests,
-  BackupBehaviorTestFixture,
-  ::testing::Values(
-    test_params[0],
-    test_params[1],
-    test_params[2]),
-  testNameGenerator
-);
-
+  BackupBehaviorTests, BackupBehaviorTestFixture,
+  ::testing::Values(test_params[0], test_params[1], test_params[2]), testNameGenerator);
 
 int main(int argc, char ** argv)
 {

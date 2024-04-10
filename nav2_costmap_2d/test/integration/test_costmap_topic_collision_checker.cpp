@@ -12,27 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <chrono>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
-#include <chrono>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_costmap_2d/costmap_topic_collision_checker.hpp"
+#include "../testing_helper.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
+#include "nav2_costmap_2d/costmap_2d_publisher.hpp"
+#include "nav2_costmap_2d/costmap_topic_collision_checker.hpp"
+#include "nav2_costmap_2d/inflation_layer.hpp"
 #include "nav2_costmap_2d/layered_costmap.hpp"
 #include "nav2_costmap_2d/static_layer.hpp"
-#include "nav2_costmap_2d/inflation_layer.hpp"
-#include "nav2_costmap_2d/costmap_2d_publisher.hpp"
-#include "../testing_helper.hpp"
-#include "nav2_util/robot_utils.hpp"
 #include "nav2_util/node_utils.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav2_util/robot_utils.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_listener.h"
 #include "tf2_ros/create_timer_ros.h"
 #include "tf2_ros/transform_broadcaster.h"
+#include "tf2_ros/transform_listener.h"
+#include "gtest/gtest.h"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #include "tf2/utils.h"
@@ -46,19 +46,18 @@ using nav2_util::geometry_utils::orientationAroundZAxis;
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
 class DummyCostmapSubscriber : public nav2_costmap_2d::CostmapSubscriber
 {
 public:
-  DummyCostmapSubscriber(
-    nav2_util::LifecycleNode::SharedPtr node,
-    std::string & topic_name)
+  DummyCostmapSubscriber(nav2_util::LifecycleNode::SharedPtr node, std::string & topic_name)
   : CostmapSubscriber(node, topic_name)
-  {}
+  {
+  }
 
   void setCostmap(nav2_msgs::msg::Costmap::SharedPtr msg)
   {
@@ -71,11 +70,10 @@ class DummyFootprintSubscriber : public nav2_costmap_2d::FootprintSubscriber
 {
 public:
   DummyFootprintSubscriber(
-    nav2_util::LifecycleNode::SharedPtr node,
-    std::string & topic_name,
-    tf2_ros::Buffer & tf_)
+    nav2_util::LifecycleNode::SharedPtr node, std::string & topic_name, tf2_ros::Buffer & tf_)
   : FootprintSubscriber(node, topic_name, tf_)
-  {}
+  {
+  }
 
   void setFootprint(geometry_msgs::msg::PolygonStamped::SharedPtr msg)
   {
@@ -87,9 +85,7 @@ public:
 class TestCollisionChecker : public nav2_util::LifecycleNode
 {
 public:
-  explicit TestCollisionChecker(std::string name)
-  : LifecycleNode(name),
-    global_frame_("map")
+  explicit TestCollisionChecker(std::string name) : LifecycleNode(name), global_frame_("map")
   {
     // Declare non-plugin specific costmap parameters
     declare_parameter("map_topic", rclcpp::ParameterValue(std::string("map")));
@@ -97,22 +93,17 @@ public:
     declare_parameter("use_maximum", rclcpp::ParameterValue(false));
     declare_parameter("lethal_cost_threshold", rclcpp::ParameterValue(100));
     declare_parameter(
-      "unknown_cost_value",
-      rclcpp::ParameterValue(static_cast<unsigned char>(0xff)));
+      "unknown_cost_value", rclcpp::ParameterValue(static_cast<unsigned char>(0xff)));
     declare_parameter("trinary_costmap", rclcpp::ParameterValue(true));
   }
 
-  nav2_util::CallbackReturn
-  on_configure(const rclcpp_lifecycle::State & /*state*/)
+  nav2_util::CallbackReturn on_configure(const rclcpp_lifecycle::State & /*state*/)
   {
     RCLCPP_INFO(get_logger(), "Configuring");
-    callback_group_ = create_callback_group(
-      rclcpp::CallbackGroupType::MutuallyExclusive, false);
+    callback_group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false);
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(get_clock());
     auto timer_interface = std::make_shared<tf2_ros::CreateTimerROS>(
-      get_node_base_interface(),
-      get_node_timers_interface(),
-      callback_group_);
+      get_node_base_interface(), get_node_timers_interface(), callback_group_);
     tf_buffer_->setCreateTimerInterface(timer_interface);
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(shared_from_this());
@@ -120,14 +111,10 @@ public:
     std::string costmap_topic = "costmap_raw";
     std::string footprint_topic = "published_footprint";
 
-    costmap_sub_ = std::make_shared<DummyCostmapSubscriber>(
-      shared_from_this(),
-      costmap_topic);
+    costmap_sub_ = std::make_shared<DummyCostmapSubscriber>(shared_from_this(), costmap_topic);
 
-    footprint_sub_ = std::make_shared<DummyFootprintSubscriber>(
-      shared_from_this(),
-      footprint_topic,
-      *tf_buffer_);
+    footprint_sub_ =
+      std::make_shared<DummyFootprintSubscriber>(shared_from_this(), footprint_topic, *tf_buffer_);
 
     collision_checker_ = std::make_unique<nav2_costmap_2d::CostmapTopicCollisionChecker>(
       *costmap_sub_, *footprint_sub_, get_name());
@@ -150,22 +137,19 @@ public:
     return nav2_util::CallbackReturn::SUCCESS;
   }
 
-  nav2_util::CallbackReturn
-  on_activate(const rclcpp_lifecycle::State & /*state*/)
+  nav2_util::CallbackReturn on_activate(const rclcpp_lifecycle::State & /*state*/)
   {
     RCLCPP_INFO(get_logger(), "Activating");
     return nav2_util::CallbackReturn::SUCCESS;
   }
 
-  nav2_util::CallbackReturn
-  on_deactivate(const rclcpp_lifecycle::State & /*state*/)
+  nav2_util::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & /*state*/)
   {
     RCLCPP_INFO(get_logger(), "Deactivating");
     return nav2_util::CallbackReturn::SUCCESS;
   }
 
-  nav2_util::CallbackReturn
-  on_cleanup(const rclcpp_lifecycle::State & /*state*/)
+  nav2_util::CallbackReturn on_cleanup(const rclcpp_lifecycle::State & /*state*/)
   {
     RCLCPP_INFO(get_logger(), "Cleaning Up");
     delete layers_;
@@ -251,8 +235,7 @@ protected:
     tf_broadcaster_->sendTransform(tf_stamped);
   }
 
-  nav2_msgs::msg::Costmap
-  toCostmapMsg(nav2_costmap_2d::Costmap2D * costmap)
+  nav2_msgs::msg::Costmap toCostmapMsg(nav2_costmap_2d::Costmap2D * costmap)
   {
     double resolution = costmap->getResolution();
 
@@ -300,7 +283,6 @@ protected:
   geometry_msgs::msg::PoseStamped current_pose_;
   std::vector<geometry_msgs::msg::Point> footprint_;
 };
-
 
 class TestNode : public ::testing::Test
 {

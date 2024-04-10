@@ -18,19 +18,19 @@
 #define NAV2_NAVFN_PLANNER__NAVFN_PLANNER_HPP_
 
 #include <chrono>
-#include <string>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_core/global_planner.hpp"
-#include "nav_msgs/msg/path.hpp"
-#include "nav2_navfn_planner/navfn.hpp"
-#include "nav2_util/robot_utils.hpp"
-#include "nav2_util/lifecycle_node.hpp"
 #include "nav2_costmap_2d/costmap_2d_ros.hpp"
+#include "nav2_navfn_planner/navfn.hpp"
 #include "nav2_util/geometry_utils.hpp"
+#include "nav2_util/lifecycle_node.hpp"
+#include "nav2_util/robot_utils.hpp"
+#include "nav_msgs/msg/path.hpp"
 
 namespace nav2_navfn_planner
 {
@@ -56,8 +56,8 @@ public:
    * @param costmap_ros Costmap2DROS object
    */
   void configure(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-    std::string name, std::shared_ptr<tf2_ros::Buffer> tf,
+    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, std::string name,
+    std::shared_ptr<tf2_ros::Buffer> tf,
     std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros) override;
 
   /**
@@ -75,7 +75,6 @@ public:
    */
   void deactivate() override;
 
-
   /**
    * @brief Creating a plan from start and goal poses
    * @param start Start pose
@@ -88,7 +87,8 @@ public:
 
 protected:
   /**
-   * @brief Compute a plan given start and goal poses, provided in global world frame.
+   * @brief Compute a plan given start and goal poses, provided in global world
+   * frame.
    * @param start Start pose
    * @param goal Goal pose
    * @param tolerance Relaxation constraint in x and y
@@ -96,39 +96,37 @@ protected:
    * @return true if can find the path
    */
   bool makePlan(
-    const geometry_msgs::msg::Pose & start,
-    const geometry_msgs::msg::Pose & goal, double tolerance,
+    const geometry_msgs::msg::Pose & start, const geometry_msgs::msg::Pose & goal, double tolerance,
     nav_msgs::msg::Path & plan);
 
   /**
-   * @brief Compute the navigation function given a seed point in the world to start from
+   * @brief Compute the navigation function given a seed point in the world to
+   * start from
    * @param world_point Point in world coordinate frame
    * @return true if can compute
    */
   bool computePotential(const geometry_msgs::msg::Point & world_point);
 
   /**
-   * @brief Compute a plan to a goal from a potential - must call computePotential first
+   * @brief Compute a plan to a goal from a potential - must call
+   * computePotential first
    * @param goal Goal pose
    * @param plan Path to be computed
    * @return true if can compute a plan path
    */
-  bool getPlanFromPotential(
-    const geometry_msgs::msg::Pose & goal,
-    nav_msgs::msg::Path & plan);
+  bool getPlanFromPotential(const geometry_msgs::msg::Pose & goal, nav_msgs::msg::Path & plan);
 
   /**
-   * @brief Remove artifacts at the end of the path - originated from planning on a discretized world
+   * @brief Remove artifacts at the end of the path - originated from planning
+   * on a discretized world
    * @param goal Goal pose
    * @param plan Computed path
    */
-  void smoothApproachToGoal(
-    const geometry_msgs::msg::Pose & goal,
-    nav_msgs::msg::Path & plan);
+  void smoothApproachToGoal(const geometry_msgs::msg::Pose & goal, nav_msgs::msg::Path & plan);
 
   /**
-   * @brief Compute the potential, or navigation cost, at a given point in the world
-   *        must call computePotential first
+   * @brief Compute the potential, or navigation cost, at a given point in the
+   * world must call computePotential first
    * @param world_point Point in world coordinate frame
    * @return double point potential (navigation cost)
    */
@@ -138,7 +136,8 @@ protected:
   // - must call computePotential first
   // - currently unused
   // bool validPointPotential(const geometry_msgs::msg::Point & world_point);
-  // bool validPointPotential(const geometry_msgs::msg::Point & world_point, double tolerance);
+  // bool validPointPotential(const geometry_msgs::msg::Point & world_point,
+  // double tolerance);
 
   /**
    * @brief Compute the squared distance between two points
@@ -147,8 +146,7 @@ protected:
    * @return double squared distance between two points
    */
   inline double squared_distance(
-    const geometry_msgs::msg::Pose & p1,
-    const geometry_msgs::msg::Pose & p2)
+    const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Pose & p2)
   {
     double dx = p1.position.x - p2.position.x;
     double dy = p1.position.y - p2.position.y;
@@ -208,8 +206,8 @@ protected:
   // Whether or not the planner should be allowed to plan through unknown space
   bool allow_unknown_, use_final_approach_orientation_;
 
-  // If the goal is obstructed, the tolerance specifies how many meters the planner
-  // can relax the constraint in x and y before failing
+  // If the goal is obstructed, the tolerance specifies how many meters the
+  // planner can relax the constraint in x and y before failing
   double tolerance_;
 
   // Whether to use the astar planner or default dijkstras
@@ -225,8 +223,8 @@ protected:
    * @brief Callback executed when a paramter change is detected
    * @param parameters list of changed parameters
    */
-  rcl_interfaces::msg::SetParametersResult
-  dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters);
+  rcl_interfaces::msg::SetParametersResult dynamicParametersCallback(
+    std::vector<rclcpp::Parameter> parameters);
 };
 
 }  // namespace nav2_navfn_planner

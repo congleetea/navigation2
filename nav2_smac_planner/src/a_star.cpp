@@ -13,15 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <omp.h>
-#include <cmath>
-#include <stdexcept>
-#include <memory>
 #include <algorithm>
-#include <limits>
-#include <type_traits>
 #include <chrono>
+#include <cmath>
+#include <limits>
+#include <memory>
+#include <omp.h>
+#include <stdexcept>
 #include <thread>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -31,10 +31,9 @@ using namespace std::chrono;  // NOLINT
 namespace nav2_smac_planner
 {
 
-template<typename NodeT>
+template <typename NodeT>
 AStarAlgorithm<NodeT>::AStarAlgorithm(
-  const MotionModel & motion_model,
-  const SearchInfo & search_info)
+  const MotionModel & motion_model, const SearchInfo & search_info)
 : _traverse_unknown(true),
   _max_iterations(0),
   _max_planning_time(0),
@@ -49,18 +48,15 @@ AStarAlgorithm<NodeT>::AStarAlgorithm(
   _graph.reserve(100000);
 }
 
-template<typename NodeT>
+template <typename NodeT>
 AStarAlgorithm<NodeT>::~AStarAlgorithm()
 {
 }
 
-template<typename NodeT>
+template <typename NodeT>
 void AStarAlgorithm<NodeT>::initialize(
-  const bool & allow_unknown,
-  int & max_iterations,
-  const int & max_on_approach_iterations,
-  const double & max_planning_time,
-  const float & lookup_table_size,
+  const bool & allow_unknown, int & max_iterations, const int & max_on_approach_iterations,
+  const double & max_planning_time, const float & lookup_table_size,
   const unsigned int & dim_3_size)
 {
   _traverse_unknown = allow_unknown;
@@ -73,13 +69,10 @@ void AStarAlgorithm<NodeT>::initialize(
     _motion_model, _search_info, _traverse_unknown, _dim3_size);
 }
 
-template<>
+template <>
 void AStarAlgorithm<Node2D>::initialize(
-  const bool & allow_unknown,
-  int & max_iterations,
-  const int & max_on_approach_iterations,
-  const double & max_planning_time,
-  const float & /*lookup_table_size*/,
+  const bool & allow_unknown, int & max_iterations, const int & max_on_approach_iterations,
+  const double & max_planning_time, const float & /*lookup_table_size*/,
   const unsigned int & dim_3_size)
 {
   _traverse_unknown = allow_unknown;
@@ -95,7 +88,7 @@ void AStarAlgorithm<Node2D>::initialize(
     _motion_model, _search_info, _traverse_unknown, _dim3_size);
 }
 
-template<typename NodeT>
+template <typename NodeT>
 void AStarAlgorithm<NodeT>::setCollisionChecker(GridCollisionChecker * collision_checker)
 {
   _collision_checker = collision_checker;
@@ -113,7 +106,7 @@ void AStarAlgorithm<NodeT>::setCollisionChecker(GridCollisionChecker * collision
   _expander->setCollisionChecker(collision_checker);
 }
 
-template<typename NodeT>
+template <typename NodeT>
 typename AStarAlgorithm<NodeT>::NodePtr AStarAlgorithm<NodeT>::addToGraph(
   const unsigned int & index)
 {
@@ -125,11 +118,9 @@ typename AStarAlgorithm<NodeT>::NodePtr AStarAlgorithm<NodeT>::addToGraph(
   return &(_graph.emplace(index, NodeT(index)).first->second);
 }
 
-template<>
+template <>
 void AStarAlgorithm<Node2D>::setStart(
-  const unsigned int & mx,
-  const unsigned int & my,
-  const unsigned int & dim_3)
+  const unsigned int & mx, const unsigned int & my, const unsigned int & dim_3)
 {
   if (dim_3 != 0) {
     throw std::runtime_error("Node type Node2D cannot be given non-zero starting dim 3.");
@@ -137,25 +128,18 @@ void AStarAlgorithm<Node2D>::setStart(
   _start = addToGraph(Node2D::getIndex(mx, my, getSizeX()));
 }
 
-template<typename NodeT>
+template <typename NodeT>
 void AStarAlgorithm<NodeT>::setStart(
-  const unsigned int & mx,
-  const unsigned int & my,
-  const unsigned int & dim_3)
+  const unsigned int & mx, const unsigned int & my, const unsigned int & dim_3)
 {
   _start = addToGraph(NodeT::getIndex(mx, my, dim_3));
   _start->setPose(
-    Coordinates(
-      static_cast<float>(mx),
-      static_cast<float>(my),
-      static_cast<float>(dim_3)));
+    Coordinates(static_cast<float>(mx), static_cast<float>(my), static_cast<float>(dim_3)));
 }
 
-template<>
+template <>
 void AStarAlgorithm<Node2D>::setGoal(
-  const unsigned int & mx,
-  const unsigned int & my,
-  const unsigned int & dim_3)
+  const unsigned int & mx, const unsigned int & my, const unsigned int & dim_3)
 {
   if (dim_3 != 0) {
     throw std::runtime_error("Node type Node2D cannot be given non-zero goal dim 3.");
@@ -165,18 +149,14 @@ void AStarAlgorithm<Node2D>::setGoal(
   _goal_coordinates = Node2D::Coordinates(mx, my);
 }
 
-template<typename NodeT>
+template <typename NodeT>
 void AStarAlgorithm<NodeT>::setGoal(
-  const unsigned int & mx,
-  const unsigned int & my,
-  const unsigned int & dim_3)
+  const unsigned int & mx, const unsigned int & my, const unsigned int & dim_3)
 {
   _goal = addToGraph(NodeT::getIndex(mx, my, dim_3));
 
   typename NodeT::Coordinates goal_coords(
-    static_cast<float>(mx),
-    static_cast<float>(my),
-    static_cast<float>(dim_3));
+    static_cast<float>(mx), static_cast<float>(my), static_cast<float>(dim_3));
 
   if (!_search_info.cache_obstacle_heuristic || goal_coords != _goal_coordinates) {
     if (!_start) {
@@ -190,7 +170,7 @@ void AStarAlgorithm<NodeT>::setGoal(
   _goal->setPose(_goal_coordinates);
 }
 
-template<typename NodeT>
+template <typename NodeT>
 bool AStarAlgorithm<NodeT>::areInputsValid()
 {
   // Check if graph was filled in
@@ -204,9 +184,8 @@ bool AStarAlgorithm<NodeT>::areInputsValid()
   }
 
   // Check if ending point is valid
-  if (getToleranceHeuristic() < 0.001 &&
-    !_goal->isNodeValid(_traverse_unknown, _collision_checker))
-  {
+  if (
+    getToleranceHeuristic() < 0.001 && !_goal->isNodeValid(_traverse_unknown, _collision_checker)) {
     throw std::runtime_error("Failed to compute path, goal is occupied with no tolerance.");
   }
 
@@ -218,10 +197,9 @@ bool AStarAlgorithm<NodeT>::areInputsValid()
   return true;
 }
 
-template<typename NodeT>
+template <typename NodeT>
 bool AStarAlgorithm<NodeT>::createPath(
-  CoordinateVector & path, int & iterations,
-  const float & tolerance)
+  CoordinateVector & path, int & iterations, const float & tolerance)
 {
   steady_clock::time_point start_time = steady_clock::now();
   _tolerance = tolerance;
@@ -249,16 +227,15 @@ bool AStarAlgorithm<NodeT>::createPath(
 
   // Given an index, return a node ptr reference if its collision-free and valid
   const unsigned int max_index = getSizeX() * getSizeY() * getSizeDim3();
-  NodeGetter neighborGetter =
-    [&, this](const unsigned int & index, NodePtr & neighbor_rtn) -> bool
-    {
-      if (index >= max_index) {
-        return false;
-      }
+  NodeGetter neighborGetter = [&, this](
+                                const unsigned int & index, NodePtr & neighbor_rtn) -> bool {
+    if (index >= max_index) {
+      return false;
+    }
 
-      neighbor_rtn = addToGraph(index);
-      return true;
-    };
+    neighbor_rtn = addToGraph(index);
+    return true;
+  };
 
   while (iterations < getMaxIterations() && !_queue.empty()) {
     // Check for planning timeout only on every Nth iteration
@@ -307,15 +284,15 @@ bool AStarAlgorithm<NodeT>::createPath(
     neighbors.clear();
     current_node->getNeighbors(neighborGetter, _collision_checker, _traverse_unknown, neighbors);
 
-    for (neighbor_iterator = neighbors.begin();
-      neighbor_iterator != neighbors.end(); ++neighbor_iterator)
-    {
+    for (neighbor_iterator = neighbors.begin(); neighbor_iterator != neighbors.end();
+         ++neighbor_iterator) {
       neighbor = *neighbor_iterator;
 
       // 4.1) Compute the cost to go to this node
       g_cost = current_node->getAccumulatedCost() + current_node->getTraversalCost(neighbor);
 
-      // 4.2) If this is a lower cost than prior, we set this as the new cost and new approach
+      // 4.2) If this is a lower cost than prior, we set this as the new cost
+      // and new approach
       if (g_cost < neighbor->getAccumulatedCost()) {
         neighbor->setAccumulatedCost(g_cost);
         neighbor->parent = current_node;
@@ -327,32 +304,33 @@ bool AStarAlgorithm<NodeT>::createPath(
   }
 
   if (_best_heuristic_node.first < getToleranceHeuristic()) {
-    // If we run out of serach options, return the path that is closest, if within tolerance.
+    // If we run out of serach options, return the path that is closest, if
+    // within tolerance.
     return _graph.at(_best_heuristic_node.second).backtracePath(path);
   }
 
   return false;
 }
 
-template<typename NodeT>
+template <typename NodeT>
 bool AStarAlgorithm<NodeT>::isGoal(NodePtr & node)
 {
   return node == getGoal();
 }
 
-template<typename NodeT>
+template <typename NodeT>
 typename AStarAlgorithm<NodeT>::NodePtr & AStarAlgorithm<NodeT>::getStart()
 {
   return _start;
 }
 
-template<typename NodeT>
+template <typename NodeT>
 typename AStarAlgorithm<NodeT>::NodePtr & AStarAlgorithm<NodeT>::getGoal()
 {
   return _goal;
 }
 
-template<typename NodeT>
+template <typename NodeT>
 typename AStarAlgorithm<NodeT>::NodePtr AStarAlgorithm<NodeT>::getNextNode()
 {
   NodeBasic<NodeT> node = _queue.top().second;
@@ -361,7 +339,7 @@ typename AStarAlgorithm<NodeT>::NodePtr AStarAlgorithm<NodeT>::getNextNode()
   return node.graph_node_ptr;
 }
 
-template<typename NodeT>
+template <typename NodeT>
 void AStarAlgorithm<NodeT>::addNode(const float & cost, NodePtr & node)
 {
   NodeBasic<NodeT> queued_node(node->getIndex());
@@ -369,13 +347,11 @@ void AStarAlgorithm<NodeT>::addNode(const float & cost, NodePtr & node)
   _queue.emplace(cost, queued_node);
 }
 
-template<typename NodeT>
+template <typename NodeT>
 float AStarAlgorithm<NodeT>::getHeuristicCost(const NodePtr & node)
 {
-  const Coordinates node_coords =
-    NodeT::getCoords(node->getIndex(), getSizeX(), getSizeDim3());
-  float heuristic = NodeT::getHeuristicCost(
-    node_coords, _goal_coordinates, _costmap);
+  const Coordinates node_coords = NodeT::getCoords(node->getIndex(), getSizeX(), getSizeDim3());
+  float heuristic = NodeT::getHeuristicCost(node_coords, _goal_coordinates, _costmap);
 
   if (heuristic < _best_heuristic_node.first) {
     _best_heuristic_node = {heuristic, node->getIndex()};
@@ -384,14 +360,14 @@ float AStarAlgorithm<NodeT>::getHeuristicCost(const NodePtr & node)
   return heuristic;
 }
 
-template<typename NodeT>
+template <typename NodeT>
 void AStarAlgorithm<NodeT>::clearQueue()
 {
   NodeQueue q;
   std::swap(_queue, q);
 }
 
-template<typename NodeT>
+template <typename NodeT>
 void AStarAlgorithm<NodeT>::clearGraph()
 {
   Graph g;
@@ -399,37 +375,37 @@ void AStarAlgorithm<NodeT>::clearGraph()
   _graph.reserve(100000);
 }
 
-template<typename NodeT>
+template <typename NodeT>
 int & AStarAlgorithm<NodeT>::getMaxIterations()
 {
   return _max_iterations;
 }
 
-template<typename NodeT>
+template <typename NodeT>
 int & AStarAlgorithm<NodeT>::getOnApproachMaxIterations()
 {
   return _max_on_approach_iterations;
 }
 
-template<typename NodeT>
+template <typename NodeT>
 float & AStarAlgorithm<NodeT>::getToleranceHeuristic()
 {
   return _tolerance;
 }
 
-template<typename NodeT>
+template <typename NodeT>
 unsigned int & AStarAlgorithm<NodeT>::getSizeX()
 {
   return _x_size;
 }
 
-template<typename NodeT>
+template <typename NodeT>
 unsigned int & AStarAlgorithm<NodeT>::getSizeY()
 {
   return _y_size;
 }
 
-template<typename NodeT>
+template <typename NodeT>
 unsigned int & AStarAlgorithm<NodeT>::getSizeDim3()
 {
   return _dim3_size;

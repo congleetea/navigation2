@@ -13,19 +13,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <chrono>
+#include <gtest/gtest.h>
 #include <memory>
 #include <set>
 
-#include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_util/robot_utils.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "../../test_behavior_tree_fixture.hpp"
 #include "nav2_behavior_tree/plugins/condition/is_stuck_condition.hpp"
 
-using namespace std::chrono;  // NOLINT
+using namespace std::chrono;           // NOLINT
 using namespace std::chrono_literals;  // NOLINT
 
 class IsStuckTestFixture : public nav2_behavior_tree::BehaviorTreeTestFixture
@@ -36,17 +36,13 @@ public:
     bt_node_ = std::make_shared<nav2_behavior_tree::IsStuckCondition>("is_stuck", *config_);
   }
 
-  void TearDown()
-  {
-    bt_node_.reset();
-  }
+  void TearDown() { bt_node_.reset(); }
 
 protected:
   static std::shared_ptr<nav2_behavior_tree::IsStuckCondition> bt_node_;
 };
 
-std::shared_ptr<nav2_behavior_tree::IsStuckCondition>
-IsStuckTestFixture::bt_node_ = nullptr;
+std::shared_ptr<nav2_behavior_tree::IsStuckCondition> IsStuckTestFixture::bt_node_ = nullptr;
 
 TEST_F(IsStuckTestFixture, test_behavior)
 {

@@ -14,14 +14,13 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-
 #ifndef NAV2_AMCL__SENSORS__LASER__LASER_HPP_
 #define NAV2_AMCL__SENSORS__LASER__LASER_HPP_
 
-#include <string>
+#include "nav2_amcl/map/map.hpp"
 #include "nav2_amcl/pf/pf.hpp"
 #include "nav2_amcl/pf/pf_pdf.hpp"
-#include "nav2_amcl/map/map.hpp"
+#include <string>
 
 namespace nav2_amcl
 {
@@ -93,16 +92,16 @@ public:
   /*
    * @brief LaserData constructor
    */
-  LaserData() {ranges = NULL;}
+  LaserData() { ranges = NULL; }
   /*
    * @brief LaserData destructor
    */
-  virtual ~LaserData() {delete[] ranges;}
+  virtual ~LaserData() { delete[] ranges; }
 
 public:
   int range_count;
   double range_max;
-  double(*ranges)[2];
+  double (*ranges)[2];
 };
 
 /*
@@ -146,8 +145,8 @@ public:
    * @brief BeamModel constructor
    */
   LikelihoodFieldModel(
-    double z_hit, double z_rand, double sigma_hit, double max_occ_dist,
-    size_t max_beams, map_t * map);
+    double z_hit, double z_rand, double sigma_hit, double max_occ_dist, size_t max_beams,
+    map_t * map);
 
   /*
    * @brief Run a sensor update on laser
@@ -178,9 +177,8 @@ public:
    * @brief BeamModel constructor
    */
   LikelihoodFieldModelProb(
-    double z_hit, double z_rand, double sigma_hit, double max_occ_dist,
-    bool do_beamskip, double beam_skip_distance,
-    double beam_skip_threshold, double beam_skip_error_threshold,
+    double z_hit, double z_rand, double sigma_hit, double max_occ_dist, bool do_beamskip,
+    double beam_skip_distance, double beam_skip_threshold, double beam_skip_error_threshold,
     size_t max_beams, map_t * map);
 
   /*

@@ -13,15 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <chrono>
+#include <gtest/gtest.h>
 #include <memory>
 #include <set>
 
 #include "../../test_behavior_tree_fixture.hpp"
 #include "nav2_behavior_tree/plugins/decorator/goal_updated_controller.hpp"
 
-using namespace std::chrono;  // NOLINT
+using namespace std::chrono;           // NOLINT
 using namespace std::chrono_literals;  // NOLINT
 
 class GoalUpdatedControllerTestFixture : public nav2_behavior_tree::BehaviorTreeTestFixture
@@ -55,9 +55,9 @@ protected:
 };
 
 std::shared_ptr<nav2_behavior_tree::GoalUpdatedController>
-GoalUpdatedControllerTestFixture::bt_node_ = nullptr;
-std::shared_ptr<nav2_behavior_tree::DummyNode>
-GoalUpdatedControllerTestFixture::dummy_node_ = nullptr;
+  GoalUpdatedControllerTestFixture::bt_node_ = nullptr;
+std::shared_ptr<nav2_behavior_tree::DummyNode> GoalUpdatedControllerTestFixture::dummy_node_ =
+  nullptr;
 
 TEST_F(GoalUpdatedControllerTestFixture, test_behavior)
 {

@@ -13,34 +13,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <fstream>
-#include <string>
-#include <vector>
-#include <memory>
-#include <unordered_map>
-#include <limits>
-#include "nav2_smac_planner/node_lattice.hpp"
-#include "gtest/gtest.h"
 #include "ament_index_cpp/get_package_share_directory.hpp"
+#include "nav2_smac_planner/node_lattice.hpp"
 #include "nav2_util/lifecycle_node.hpp"
+#include "gtest/gtest.h"
+#include <fstream>
+#include <limits>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 using json = nlohmann::json;
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
 TEST(NodeLatticeTest, parser_test)
 {
   std::string pkg_share_dir = ament_index_cpp::get_package_share_directory("nav2_smac_planner");
-  std::string filePath =
-    pkg_share_dir +
-    "/sample_primitives/5cm_resolution/0.5m_turning_radius/ackermann" +
-    "/output.json";
+  std::string filePath = pkg_share_dir +
+                         "/sample_primitives/5cm_resolution/0.5m_turning_radius/ackermann" +
+                         "/output.json";
   std::ifstream myJsonFile(filePath);
 
   ASSERT_TRUE(myJsonFile.is_open());
@@ -95,10 +94,9 @@ TEST(NodeLatticeTest, parser_test)
 TEST(NodeLatticeTest, test_node_lattice_neighbors_and_parsing)
 {
   std::string pkg_share_dir = ament_index_cpp::get_package_share_directory("nav2_smac_planner");
-  std::string filePath =
-    pkg_share_dir +
-    "/sample_primitives/5cm_resolution/0.5m_turning_radius/ackermann" +
-    "/output.json";
+  std::string filePath = pkg_share_dir +
+                         "/sample_primitives/5cm_resolution/0.5m_turning_radius/ackermann" +
+                         "/output.json";
 
   nav2_smac_planner::SearchInfo info;
   info.minimum_turning_radius = 1.1;
@@ -129,17 +127,16 @@ TEST(NodeLatticeTest, test_node_lattice_neighbors_and_parsing)
   EXPECT_NEAR(projections[0]->poses.back()._theta, 5.176, 0.01);
 
   EXPECT_NEAR(
-    nav2_smac_planner::NodeLattice::motion_table.getLatticeMetadata(
-      filePath).grid_resolution, 0.05, 0.005);
+    nav2_smac_planner::NodeLattice::motion_table.getLatticeMetadata(filePath).grid_resolution, 0.05,
+    0.005);
 }
 
 TEST(NodeLatticeTest, test_node_lattice_conversions)
 {
   std::string pkg_share_dir = ament_index_cpp::get_package_share_directory("nav2_smac_planner");
-  std::string filePath =
-    pkg_share_dir +
-    "/sample_primitives/5cm_resolution/0.5m_turning_radius/ackermann" +
-    "/output.json";
+  std::string filePath = pkg_share_dir +
+                         "/sample_primitives/5cm_resolution/0.5m_turning_radius/ackermann" +
+                         "/output.json";
 
   nav2_smac_planner::SearchInfo info;
   info.minimum_turning_radius = 1.1;
@@ -175,10 +172,9 @@ TEST(NodeLatticeTest, test_node_lattice)
 {
   auto node = std::make_shared<rclcpp_lifecycle::LifecycleNode>("test");
   std::string pkg_share_dir = ament_index_cpp::get_package_share_directory("nav2_smac_planner");
-  std::string filePath =
-    pkg_share_dir +
-    "/sample_primitives/5cm_resolution/0.5m_turning_radius/ackermann" +
-    "/output.json";
+  std::string filePath = pkg_share_dir +
+                         "/sample_primitives/5cm_resolution/0.5m_turning_radius/ackermann" +
+                         "/output.json";
 
   nav2_smac_planner::SearchInfo info;
   info.minimum_turning_radius = 1.1;
@@ -214,8 +210,7 @@ TEST(NodeLatticeTest, test_node_lattice)
   testA.reset();
   EXPECT_EQ(testA.wasVisited(), false);
 
-  nav2_costmap_2d::Costmap2D * costmapA = new nav2_costmap_2d::Costmap2D(
-    10, 10, 0.05, 0.0, 0.0, 0);
+  nav2_costmap_2d::Costmap2D * costmapA = new nav2_costmap_2d::Costmap2D(10, 10, 0.05, 0.0, 0.0, 0);
   std::unique_ptr<nav2_smac_planner::GridCollisionChecker> checker =
     std::make_unique<nav2_smac_planner::GridCollisionChecker>(costmapA, 72, node);
   checker->setFootprint(nav2_costmap_2d::Footprint(), true, 0.0);
@@ -248,15 +243,13 @@ TEST(NodeLatticeTest, test_node_lattice)
   delete costmapA;
 }
 
-
 TEST(NodeLatticeTest, test_get_neighbors)
 {
   auto lnode = std::make_shared<rclcpp_lifecycle::LifecycleNode>("test");
   std::string pkg_share_dir = ament_index_cpp::get_package_share_directory("nav2_smac_planner");
-  std::string filePath =
-    pkg_share_dir +
-    "/sample_primitives/5cm_resolution/0.5m_turning_radius/ackermann" +
-    "/output.json";
+  std::string filePath = pkg_share_dir +
+                         "/sample_primitives/5cm_resolution/0.5m_turning_radius/ackermann" +
+                         "/output.json";
 
   nav2_smac_planner::SearchInfo info;
   info.minimum_turning_radius = 1.1;
@@ -279,18 +272,16 @@ TEST(NodeLatticeTest, test_get_neighbors)
 
   nav2_smac_planner::NodeLattice node(49);
 
-  nav2_costmap_2d::Costmap2D * costmapA = new nav2_costmap_2d::Costmap2D(
-    10, 10, 0.05, 0.0, 0.0, 0);
+  nav2_costmap_2d::Costmap2D * costmapA = new nav2_costmap_2d::Costmap2D(10, 10, 0.05, 0.0, 0.0, 0);
   std::unique_ptr<nav2_smac_planner::GridCollisionChecker> checker =
     std::make_unique<nav2_smac_planner::GridCollisionChecker>(costmapA, 72, lnode);
   checker->setFootprint(nav2_costmap_2d::Footprint(), true, 0.0);
 
-  std::function<bool(const unsigned int &, nav2_smac_planner::NodeLattice * &)> neighborGetter =
-    [&, this](const unsigned int & index, nav2_smac_planner::NodeLattice * & neighbor_rtn) -> bool
-    {
-      // because we don't return a real object
-      return false;
-    };
+  std::function<bool(const unsigned int &, nav2_smac_planner::NodeLattice *&)> neighborGetter =
+    [&, this](const unsigned int & index, nav2_smac_planner::NodeLattice *& neighbor_rtn) -> bool {
+    // because we don't return a real object
+    return false;
+  };
 
   nav2_smac_planner::NodeLattice::NodeVector neighbors;
   node.getNeighbors(neighborGetter, checker.get(), false, neighbors);
@@ -304,10 +295,9 @@ TEST(NodeLatticeTest, test_node_lattice_custom_footprint)
 {
   auto lnode = std::make_shared<rclcpp_lifecycle::LifecycleNode>("test");
   std::string pkg_share_dir = ament_index_cpp::get_package_share_directory("nav2_smac_planner");
-  std::string filePath =
-    pkg_share_dir +
-    "/sample_primitives/5cm_resolution/0.5m_turning_radius/ackermann" +
-    "/output.json";
+  std::string filePath = pkg_share_dir +
+                         "/sample_primitives/5cm_resolution/0.5m_turning_radius/ackermann" +
+                         "/output.json";
 
   nav2_smac_planner::SearchInfo info;
   info.minimum_turning_radius = 0.5;
@@ -330,8 +320,7 @@ TEST(NodeLatticeTest, test_node_lattice_custom_footprint)
 
   nav2_smac_planner::NodeLattice node(49);
 
-  nav2_costmap_2d::Costmap2D * costmap = new nav2_costmap_2d::Costmap2D(
-    40, 40, 0.05, 0.0, 0.0, 0);
+  nav2_costmap_2d::Costmap2D * costmap = new nav2_costmap_2d::Costmap2D(40, 40, 0.05, 0.0, 0.0, 0);
   std::unique_ptr<nav2_smac_planner::GridCollisionChecker> checker =
     std::make_unique<nav2_smac_planner::GridCollisionChecker>(costmap, 72, lnode);
 
@@ -356,7 +345,8 @@ TEST(NodeLatticeTest, test_node_lattice_custom_footprint)
   node.pose.x = 20;
   node.pose.y = 20;
   node.pose.theta = 0;
-  // Test that the node is valid though all motion primitives poses for custom footprint
+  // Test that the node is valid though all motion primitives poses for custom
+  // footprint
   nav2_smac_planner::MotionPrimitivePtrs motion_primitives =
     nav2_smac_planner::NodeLattice::motion_table.getMotionPrimitives(&node);
   EXPECT_GT(motion_primitives.size(), 0u);

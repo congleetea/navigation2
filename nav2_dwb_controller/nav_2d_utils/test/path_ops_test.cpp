@@ -32,12 +32,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cmath>
-#include "gtest/gtest.h"
 #include "nav_2d_utils/path_ops.hpp"
+#include "gtest/gtest.h"
+#include <cmath>
 
-using std::sqrt;
 using nav_2d_utils::adjustPlanResolution;
+using std::sqrt;
 
 TEST(path_ops_test, AdjustResolutionEmpty)
 {
@@ -71,8 +71,8 @@ TEST(path_ops_test, AdjustResolutionSimple)
     pose1 = out.poses[i - 1];
     pose2 = out.poses[i];
 
-    double sq_dist = (pose1.x - pose2.x) * (pose1.x - pose2.x) +
-      (pose1.y - pose2.y) * (pose1.y - pose2.y);
+    double sq_dist =
+      (pose1.x - pose2.x) * (pose1.x - pose2.x) + (pose1.y - pose2.y) * (pose1.y - pose2.y);
 
     EXPECT_TRUE(sqrt(sq_dist) <= max_length);
   }

@@ -16,20 +16,20 @@
 #define NAV2_SMAC_PLANNER__SMAC_PLANNER_LATTICE_HPP_
 
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav2_core/global_planner.hpp"
+#include "nav2_costmap_2d/costmap_2d.hpp"
+#include "nav2_costmap_2d/costmap_2d_ros.hpp"
 #include "nav2_smac_planner/a_star.hpp"
 #include "nav2_smac_planner/smoother.hpp"
 #include "nav2_smac_planner/utils.hpp"
-#include "nav_msgs/msg/occupancy_grid.hpp"
-#include "nav2_core/global_planner.hpp"
-#include "nav_msgs/msg/path.hpp"
-#include "nav2_costmap_2d/costmap_2d_ros.hpp"
-#include "nav2_costmap_2d/costmap_2d.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_util/lifecycle_node.hpp"
 #include "nav2_util/node_utils.hpp"
+#include "nav_msgs/msg/occupancy_grid.hpp"
+#include "nav_msgs/msg/path.hpp"
 #include "tf2/utils.h"
 
 namespace nav2_smac_planner
@@ -56,8 +56,8 @@ public:
    * @param costmap_ros Costmap2DROS object
    */
   void configure(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-    std::string name, std::shared_ptr<tf2_ros::Buffer> tf,
+    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, std::string name,
+    std::shared_ptr<tf2_ros::Buffer> tf,
     std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros) override;
 
   /**
@@ -90,8 +90,8 @@ protected:
    * @brief Callback executed when a paramter change is detected
    * @param parameters list of changed parameters
    */
-  rcl_interfaces::msg::SetParametersResult
-  dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters);
+  rcl_interfaces::msg::SetParametersResult dynamicParametersCallback(
+    std::vector<rclcpp::Parameter> parameters);
 
   std::unique_ptr<AStarAlgorithm<NodeLattice>> _a_star;
   GridCollisionChecker _collision_checker;

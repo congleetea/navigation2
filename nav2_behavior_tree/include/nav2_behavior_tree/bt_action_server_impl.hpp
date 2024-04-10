@@ -15,31 +15,27 @@
 #ifndef NAV2_BEHAVIOR_TREE__BT_ACTION_SERVER_IMPL_HPP_
 #define NAV2_BEHAVIOR_TREE__BT_ACTION_SERVER_IMPL_HPP_
 
-#include <memory>
-#include <string>
-#include <fstream>
-#include <set>
 #include <exception>
+#include <fstream>
+#include <memory>
+#include <set>
+#include <string>
 #include <vector>
 
-#include "nav2_msgs/action/navigate_to_pose.hpp"
-#include "nav2_behavior_tree/bt_action_server.hpp"
 #include "ament_index_cpp/get_package_share_directory.hpp"
+#include "nav2_behavior_tree/bt_action_server.hpp"
+#include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "nav2_util/node_utils.hpp"
 
 namespace nav2_behavior_tree
 {
 
-template<class ActionT>
+template <class ActionT>
 BtActionServer<ActionT>::BtActionServer(
-  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-  const std::string & action_name,
-  const std::vector<std::string> & plugin_lib_names,
-  const std::string & default_bt_xml_filename,
-  OnGoalReceivedCallback on_goal_received_callback,
-  OnLoopCallback on_loop_callback,
-  OnPreemptCallback on_preempt_callback,
-  OnCompletionCallback on_completion_callback)
+  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, const std::string & action_name,
+  const std::vector<std::string> & plugin_lib_names, const std::string & default_bt_xml_filename,
+  OnGoalReceivedCallback on_goal_received_callback, OnLoopCallback on_loop_callback,
+  OnPreemptCallback on_preempt_callback, OnCompletionCallback on_completion_callback)
 : action_name_(action_name),
   default_bt_xml_filename_(default_bt_xml_filename),
   plugin_lib_names_(plugin_lib_names),
@@ -62,11 +58,12 @@ BtActionServer<ActionT>::BtActionServer(
   }
 }
 
-template<class ActionT>
+template <class ActionT>
 BtActionServer<ActionT>::~BtActionServer()
-{}
+{
+}
 
-template<class ActionT>
+template <class ActionT>
 bool BtActionServer<ActionT>::on_configure()
 {
   auto node = node_.lock();
@@ -79,18 +76,18 @@ bool BtActionServer<ActionT>::on_configure()
   std::replace(client_node_name.begin(), client_node_name.end(), '/', '_');
   // Use suffix '_rclcpp_node' to keep parameter file consistency #1773
   auto options = rclcpp::NodeOptions().arguments(
-    {"--ros-args",
-      "-r",
-      std::string("__node:=") +
-      std::string(node->get_name()) + "_" + client_node_name + "_rclcpp_node",
-      "--"});
+    {"--ros-args", "-r",
+     std::string("__node:=") + std::string(node->get_name()) + "_" + client_node_name +
+       "_rclcpp_node",
+     "--"});
 
   // Support for handling the topic-based goal pose from rviz
   client_node_ = std::make_shared<rclcpp::Node>("_", options);
 
-  // Declare parameters for common client node applications to share with BT nodes
-  // Declare if not declared in case being used an external application, then copying
-  // all of the main node's parameters to the client for BT nodes to obtain
+  // Declare parameters for common client node applications to share with BT
+  // nodes Declare if not declared in case being used an external application,
+  // then copying all of the main node's parameters to the client for BT nodes
+  // to obtain
   nav2_util::declare_parameter_if_not_declared(
     node, "global_frame", rclcpp::ParameterValue(std::string("map")));
   nav2_util::declare_parameter_if_not_declared(
@@ -100,11 +97,9 @@ bool BtActionServer<ActionT>::on_configure()
   nav2_util::copy_all_parameters(node, client_node_);
 
   action_server_ = std::make_shared<ActionServer>(
-    node->get_node_base_interface(),
-    node->get_node_clock_interface(),
-    node->get_node_logging_interface(),
-    node->get_node_waitables_interface(),
-    action_name_, std::bind(&BtActionServer<ActionT>::executeCallback, this));
+    node->get_node_base_interface(), node->get_node_clock_interface(),
+    node->get_node_logging_interface(), node->get_node_waitables_interface(), action_name_,
+    std::bind(&BtActionServer<ActionT>::executeCallback, this));
 
   // Get parameters for BT timeouts
   int timeout;
@@ -120,14 +115,15 @@ bool BtActionServer<ActionT>::on_configure()
   blackboard_ = BT::Blackboard::create();
 
   // Put items on the blackboard
-  blackboard_->set<rclcpp::Node::SharedPtr>("node", client_node_);  // NOLINT
+  blackboard_->set<rclcpp::Node::SharedPtr>("node", client_node_);                         // NOLINT
   blackboard_->set<std::chrono::milliseconds>("server_timeout", default_server_timeout_);  // NOLINT
-  blackboard_->set<std::chrono::milliseconds>("bt_loop_duration", bt_loop_duration_);  // NOLINT
+  blackboard_->set<std::chrono::milliseconds>("bt_loop_duration",
+                                              bt_loop_duration_);  // NOLINT
 
   return true;
 }
 
-template<class ActionT>
+template <class ActionT>
 bool BtActionServer<ActionT>::on_activate()
 {
   if (!loadBehaviorTree(default_bt_xml_filename_)) {
@@ -138,14 +134,14 @@ bool BtActionServer<ActionT>::on_activate()
   return true;
 }
 
-template<class ActionT>
+template <class ActionT>
 bool BtActionServer<ActionT>::on_deactivate()
 {
   action_server_->deactivate();
   return true;
 }
 
-template<class ActionT>
+template <class ActionT>
 bool BtActionServer<ActionT>::on_cleanup()
 {
   client_node_.reset();
@@ -159,7 +155,7 @@ bool BtActionServer<ActionT>::on_cleanup()
   return true;
 }
 
-template<class ActionT>
+template <class ActionT>
 bool BtActionServer<ActionT>::loadBehaviorTree(const std::string & bt_xml_filename)
 {
   // Empty filename is default for backward compatibility
@@ -179,9 +175,8 @@ bool BtActionServer<ActionT>::loadBehaviorTree(const std::string & bt_xml_filena
     return false;
   }
 
-  auto xml_string = std::string(
-    std::istreambuf_iterator<char>(xml_file),
-    std::istreambuf_iterator<char>());
+  auto xml_string =
+    std::string(std::istreambuf_iterator<char>(xml_file), std::istreambuf_iterator<char>());
 
   // Create the Behavior Tree from the XML input
   try {
@@ -202,7 +197,7 @@ bool BtActionServer<ActionT>::loadBehaviorTree(const std::string & bt_xml_filena
   return true;
 }
 
-template<class ActionT>
+template <class ActionT>
 void BtActionServer<ActionT>::executeCallback()
 {
   if (!on_goal_received_callback_(action_server_->get_current_goal())) {
@@ -211,30 +206,31 @@ void BtActionServer<ActionT>::executeCallback()
   }
 
   auto is_canceling = [&]() {
-      if (action_server_ == nullptr) {
-        RCLCPP_DEBUG(logger_, "Action server unavailable. Canceling.");
-        return true;
-      }
-      if (!action_server_->is_server_active()) {
-        RCLCPP_DEBUG(logger_, "Action server is inactive. Canceling.");
-        return true;
-      }
-      return action_server_->is_cancel_requested();
-    };
+    if (action_server_ == nullptr) {
+      RCLCPP_DEBUG(logger_, "Action server unavailable. Canceling.");
+      return true;
+    }
+    if (!action_server_->is_server_active()) {
+      RCLCPP_DEBUG(logger_, "Action server is inactive. Canceling.");
+      return true;
+    }
+    return action_server_->is_cancel_requested();
+  };
 
   auto on_loop = [&]() {
-      if (action_server_->is_preempt_requested() && on_preempt_callback_) {
-        on_preempt_callback_(action_server_->get_pending_goal());
-      }
-      topic_logger_->flush();
-      on_loop_callback_();
-    };
+    if (action_server_->is_preempt_requested() && on_preempt_callback_) {
+      on_preempt_callback_(action_server_->get_pending_goal());
+    }
+    topic_logger_->flush();
+    on_loop_callback_();
+  };
 
   // Execute the BT that was previously created in the configure step
   nav2_behavior_tree::BtStatus rc = bt_->run(&tree_, on_loop, is_canceling, bt_loop_duration_);
 
   // Make sure that the Bt is not in a running state from a previous execution
-  // note: if all the ControlNodes are implemented correctly, this is not needed.
+  // note: if all the ControlNodes are implemented correctly, this is not
+  // needed.
   bt_->haltAllActions(tree_.rootNode());
 
   // Give server an opportunity to populate the result message or simple give

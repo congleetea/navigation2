@@ -23,7 +23,7 @@
  * Author: Andrew Howard
  * Date: 18 Jan 2003
  * CVS: $Id: map_draw.c 7057 2008-10-02 00:44:06Z gbiggs $
-**************************************************************************/
+ **************************************************************************/
 
 #pragma GCC diagnostic ignored "-Wpedantic"
 #ifdef INCLUDE_RTKGUI
@@ -33,9 +33,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <rtk.h>
 #include "nav2_amcl/map/map.hpp"
-
+#include <rtk.h>
 
 ////////////////////////////////////////////////////////////////////////////
 // Draw the occupancy map
@@ -62,12 +61,10 @@ void map_draw_occ(map_t * map, rtk_fig_t * fig)
 
   // Draw the entire occupancy map as an image
   rtk_fig_image(
-    fig, map->origin_x, map->origin_y, 0,
-    map->scale, map->size_x, map->size_y, 16, image, NULL);
+    fig, map->origin_x, map->origin_y, 0, map->scale, map->size_x, map->size_y, 16, image, NULL);
 
   free(image);
 }
-
 
 ////////////////////////////////////////////////////////////////////////////
 // Draw the cspace map
@@ -95,12 +92,10 @@ void map_draw_cspace(map_t * map, rtk_fig_t * fig)
 
   // Draw the entire occupancy map as an image
   rtk_fig_image(
-    fig, map->origin_x, map->origin_y, 0,
-    map->scale, map->size_x, map->size_y, 16, image, NULL);
+    fig, map->origin_x, map->origin_y, 0, map->scale, map->size_x, map->size_y, 16, image, NULL);
 
   free(image);
 }
-
 
 ////////////////////////////////////////////////////////////////////////////
 // Draw a wifi map
@@ -109,8 +104,8 @@ void map_draw_wifi(map_t * map, rtk_fig_t * fig, int index)
   int i, j;
   int level, col;
   map_cell_t * cell;
-  uint16_t * image, * mask;
-  uint16_t * ipix, * mpix;
+  uint16_t *image, *mask;
+  uint16_t *ipix, *mpix;
 
   image = malloc(map->size_x * map->size_y * sizeof(image[0]));
   mask = malloc(map->size_x * map->size_y * sizeof(mask[0]));
@@ -136,12 +131,10 @@ void map_draw_wifi(map_t * map, rtk_fig_t * fig, int index)
 
   // Draw the entire occupancy map as an image
   rtk_fig_image(
-    fig, map->origin_x, map->origin_y, 0,
-    map->scale, map->size_x, map->size_y, 16, image, mask);
+    fig, map->origin_x, map->origin_y, 0, map->scale, map->size_x, map->size_y, 16, image, mask);
 
   free(mask);
   free(image);
 }
-
 
 #endif

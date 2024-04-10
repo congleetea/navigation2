@@ -13,15 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <chrono>
+#include <gtest/gtest.h>
 #include <memory>
 #include <set>
 
 #include "../../test_behavior_tree_fixture.hpp"
 #include "nav2_behavior_tree/plugins/decorator/rate_controller.hpp"
 
-using namespace std::chrono;  // NOLINT
+using namespace std::chrono;           // NOLINT
 using namespace std::chrono_literals;  // NOLINT
 
 class RateControllerTestFixture : public nav2_behavior_tree::BehaviorTreeTestFixture
@@ -29,8 +29,7 @@ class RateControllerTestFixture : public nav2_behavior_tree::BehaviorTreeTestFix
 public:
   void SetUp()
   {
-    bt_node_ = std::make_shared<nav2_behavior_tree::RateController>(
-      "rate_controller", *config_);
+    bt_node_ = std::make_shared<nav2_behavior_tree::RateController>("rate_controller", *config_);
     dummy_node_ = std::make_shared<nav2_behavior_tree::DummyNode>();
     bt_node_->setChild(dummy_node_.get());
   }
@@ -46,10 +45,8 @@ protected:
   static std::shared_ptr<nav2_behavior_tree::DummyNode> dummy_node_;
 };
 
-std::shared_ptr<nav2_behavior_tree::RateController>
-RateControllerTestFixture::bt_node_ = nullptr;
-std::shared_ptr<nav2_behavior_tree::DummyNode>
-RateControllerTestFixture::dummy_node_ = nullptr;
+std::shared_ptr<nav2_behavior_tree::RateController> RateControllerTestFixture::bt_node_ = nullptr;
+std::shared_ptr<nav2_behavior_tree::DummyNode> RateControllerTestFixture::dummy_node_ = nullptr;
 
 TEST_F(RateControllerTestFixture, test_behavior)
 {

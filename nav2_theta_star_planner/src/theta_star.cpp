@@ -12,8 +12,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#include <vector>
 #include "nav2_theta_star_planner/theta_star.hpp"
+#include <vector>
 
 namespace theta_star
 {
@@ -32,8 +32,7 @@ ThetaStar::ThetaStar()
 }
 
 void ThetaStar::setStartAndGoal(
-  const geometry_msgs::msg::PoseStamped & start,
-  const geometry_msgs::msg::PoseStamped & goal)
+  const geometry_msgs::msg::PoseStamped & start, const geometry_msgs::msg::PoseStamped & goal)
 {
   unsigned int s[2], d[2];
   costmap_->worldToMap(start.pose.position.x, start.pose.position.y, s[0], s[1]);
@@ -48,8 +47,13 @@ bool ThetaStar::generatePath(std::vector<coordsW> & raw_path)
   resetContainers();
   addToNodesData(index_generated_);
   double src_g_cost = getTraversalCost(src_.x, src_.y), src_h_cost = getHCost(src_.x, src_.y);
-  nodes_data_[index_generated_] =
-  {src_.x, src_.y, src_g_cost, src_h_cost, &nodes_data_[index_generated_], true,
+  nodes_data_[index_generated_] = {
+    src_.x,
+    src_.y,
+    src_g_cost,
+    src_h_cost,
+    &nodes_data_[index_generated_],
+    true,
     src_g_cost + src_h_cost};
   queue_.push({&nodes_data_[index_generated_]});
   addIndex(src_.x, src_.y, &nodes_data_[index_generated_]);
@@ -91,7 +95,7 @@ void ThetaStar::resetParent(tree_node * curr_data)
 
   if (losCheck(curr_data->x, curr_data->y, maybe_par->x, maybe_par->y, los_cost)) {
     g_cost = maybe_par->g +
-      getEuclideanCost(curr_data->x, curr_data->y, maybe_par->x, maybe_par->y) + los_cost;
+             getEuclideanCost(curr_data->x, curr_data->y, maybe_par->x, maybe_par->y) + los_cost;
 
     if (g_cost < curr_data->g) {
       curr_data->parent_id = maybe_par;
@@ -120,7 +124,7 @@ void ThetaStar::setNeighbors(const tree_node * curr_data)
     }
 
     g_cost = curr_data->g + getEuclideanCost(curr_data->x, curr_data->y, mx, my) +
-      getTraversalCost(mx, my);
+             getTraversalCost(mx, my);
 
     m_id = getIndex(mx, my);
 
@@ -171,8 +175,7 @@ void ThetaStar::backtrace(std::vector<coordsW> & raw_points, const tree_node * c
 }
 
 bool ThetaStar::losCheck(
-  const int & x0, const int & y0, const int & x1, const int & y1,
-  double & sl_cost) const
+  const int & x0, const int & y0, const int & x1, const int & y1, double & sl_cost) const
 {
   sl_cost = 0;
 
@@ -234,9 +237,9 @@ void ThetaStar::resetContainers()
   int last_size_y = size_y_;
   int curr_size_x = static_cast<int>(costmap_->getSizeInCellsX());
   int curr_size_y = static_cast<int>(costmap_->getSizeInCellsY());
-  if (((last_size_x != curr_size_x) || (last_size_y != curr_size_y)) &&
-    static_cast<int>(node_position_.size()) < (curr_size_x * curr_size_y))
-  {
+  if (
+    ((last_size_x != curr_size_x) || (last_size_y != curr_size_y)) &&
+    static_cast<int>(node_position_.size()) < (curr_size_x * curr_size_y)) {
     initializePosn(curr_size_y * curr_size_x - last_size_y * last_size_x);
     nodes_data_.reserve(curr_size_x * curr_size_y);
   } else {

@@ -14,22 +14,22 @@
 
 #include <gtest/gtest.h>
 
-#include <vector>
 #include <cmath>
 #include <limits>
 #include <memory>
+#include <vector>
 
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_util/occ_grid_values.hpp"
-#include "nav_msgs/msg/occupancy_grid.hpp"
 #include "nav2_costmap_2d/cost_values.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
+#include "nav2_util/occ_grid_values.hpp"
+#include "nav_msgs/msg/occupancy_grid.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 

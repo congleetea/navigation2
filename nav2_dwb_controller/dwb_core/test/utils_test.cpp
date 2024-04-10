@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "gtest/gtest.h"
 #include "dwb_core/trajectory_utils.hpp"
+#include "gtest/gtest.h"
 
 using dwb_core::getClosestPose;
 using dwb_core::projectPose;

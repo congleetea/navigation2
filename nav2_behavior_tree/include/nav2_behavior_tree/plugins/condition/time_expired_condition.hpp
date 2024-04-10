@@ -18,8 +18,8 @@
 
 #include <string>
 
-#include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp_v3/condition_node.h"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_behavior_tree
 {
@@ -36,9 +36,7 @@ public:
    * @param condition_name Name for the XML tag for this node
    * @param conf BT node configuration
    */
-  TimeExpiredCondition(
-    const std::string & condition_name,
-    const BT::NodeConfiguration & conf);
+  TimeExpiredCondition(const std::string & condition_name, const BT::NodeConfiguration & conf);
 
   TimeExpiredCondition() = delete;
 
@@ -54,9 +52,7 @@ public:
    */
   static BT::PortsList providedPorts()
   {
-    return {
-      BT::InputPort<double>("seconds", 1.0, "Seconds")
-    };
+    return {BT::InputPort<double>("seconds", 1.0, "Seconds")};
   }
 
 private:

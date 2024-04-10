@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,8 +32,8 @@ struct Path
   xt::xtensor<float, 1> yaws;
 
   /**
-    * @brief Reset path data
-    */
+   * @brief Reset path data
+   */
   void reset(unsigned int size)
   {
     x = xt::zeros<float>({size});

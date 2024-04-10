@@ -23,19 +23,17 @@ NodeThread::NodeThread(rclcpp::node_interfaces::NodeBaseInterface::SharedPtr nod
 : node_(node_base)
 {
   executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-  thread_ = std::make_unique<std::thread>(
-    [&]()
-    {
-      executor_->add_node(node_);
-      executor_->spin();
-      executor_->remove_node(node_);
-    });
+  thread_ = std::make_unique<std::thread>([&]() {
+    executor_->add_node(node_);
+    executor_->spin();
+    executor_->remove_node(node_);
+  });
 }
 
 NodeThread::NodeThread(rclcpp::executors::SingleThreadedExecutor::SharedPtr executor)
 : executor_(executor)
 {
-  thread_ = std::make_unique<std::thread>([&]() {executor_->spin();});
+  thread_ = std::make_unique<std::thread>([&]() { executor_->spin(); });
 }
 
 NodeThread::~NodeThread()

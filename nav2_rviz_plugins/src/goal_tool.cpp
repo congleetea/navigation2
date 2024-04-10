@@ -24,15 +24,9 @@
 namespace nav2_rviz_plugins
 {
 
-GoalTool::GoalTool()
-: rviz_default_plugins::tools::PoseTool()
-{
-  shortcut_key_ = 'g';
-}
+GoalTool::GoalTool() : rviz_default_plugins::tools::PoseTool() { shortcut_key_ = 'g'; }
 
-GoalTool::~GoalTool()
-{
-}
+GoalTool::~GoalTool() {}
 
 void GoalTool::onInitialize()
 {
@@ -41,8 +35,7 @@ void GoalTool::onInitialize()
   setIcon(rviz_common::loadPixmap("package://rviz_default_plugins/icons/classes/SetGoal.png"));
 }
 
-void
-GoalTool::onPoseSet(double x, double y, double theta)
+void GoalTool::onPoseSet(double x, double y, double theta)
 {
   // Set goal pose on global object GoalUpdater to update nav2 Panel
   GoalUpdater.setGoal(x, y, theta, context_->getFixedFrame());

@@ -32,15 +32,15 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "nav2_controller/plugins/simple_goal_checker.hpp"
+#include "angles/angles.h"
+#include "nav2_util/geometry_utils.hpp"
+#include "nav2_util/node_utils.hpp"
+#include "pluginlib/class_list_macros.hpp"
+#include <limits>
 #include <memory>
 #include <string>
-#include <limits>
 #include <vector>
-#include "nav2_controller/plugins/simple_goal_checker.hpp"
-#include "pluginlib/class_list_macros.hpp"
-#include "angles/angles.h"
-#include "nav2_util/node_utils.hpp"
-#include "nav2_util/geometry_utils.hpp"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #include "tf2/utils.h"
@@ -62,22 +62,18 @@ SimpleGoalChecker::SimpleGoalChecker()
 }
 
 void SimpleGoalChecker::initialize(
-  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-  const std::string & plugin_name,
-  const std::shared_ptr<nav2_costmap_2d::Costmap2DROS>/*costmap_ros*/)
+  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, const std::string & plugin_name,
+  const std::shared_ptr<nav2_costmap_2d::Costmap2DROS> /*costmap_ros*/)
 {
   plugin_name_ = plugin_name;
   auto node = parent.lock();
 
   nav2_util::declare_parameter_if_not_declared(
-    node,
-    plugin_name + ".xy_goal_tolerance", rclcpp::ParameterValue(0.25));
+    node, plugin_name + ".xy_goal_tolerance", rclcpp::ParameterValue(0.25));
   nav2_util::declare_parameter_if_not_declared(
-    node,
-    plugin_name + ".yaw_goal_tolerance", rclcpp::ParameterValue(0.25));
+    node, plugin_name + ".yaw_goal_tolerance", rclcpp::ParameterValue(0.25));
   nav2_util::declare_parameter_if_not_declared(
-    node,
-    plugin_name + ".stateful", rclcpp::ParameterValue(true));
+    node, plugin_name + ".stateful", rclcpp::ParameterValue(true));
 
   node->get_parameter(plugin_name + ".xy_goal_tolerance", xy_goal_tolerance_);
   node->get_parameter(plugin_name + ".yaw_goal_tolerance", yaw_goal_tolerance_);
@@ -90,10 +86,7 @@ void SimpleGoalChecker::initialize(
     std::bind(&SimpleGoalChecker::dynamicParametersCallback, this, _1));
 }
 
-void SimpleGoalChecker::reset()
-{
-  check_xy_ = true;
-}
+void SimpleGoalChecker::reset() { check_xy_ = true; }
 
 bool SimpleGoalChecker::isGoalReached(
   const geometry_msgs::msg::Pose & query_pose, const geometry_msgs::msg::Pose & goal_pose,
@@ -101,7 +94,7 @@ bool SimpleGoalChecker::isGoalReached(
 {
   if (check_xy_) {
     double dx = query_pose.position.x - goal_pose.position.x,
-      dy = query_pose.position.y - goal_pose.position.y;
+           dy = query_pose.position.y - goal_pose.position.y;
     if (dx * dx + dy * dy > xy_goal_tolerance_sq_) {
       return false;
     }
@@ -112,14 +105,12 @@ bool SimpleGoalChecker::isGoalReached(
     }
   }
   double dyaw = angles::shortest_angular_distance(
-    tf2::getYaw(query_pose.orientation),
-    tf2::getYaw(goal_pose.orientation));
+    tf2::getYaw(query_pose.orientation), tf2::getYaw(goal_pose.orientation));
   return fabs(dyaw) < yaw_goal_tolerance_;
 }
 
 bool SimpleGoalChecker::getTolerances(
-  geometry_msgs::msg::Pose & pose_tolerance,
-  geometry_msgs::msg::Twist & vel_tolerance)
+  geometry_msgs::msg::Pose & pose_tolerance, geometry_msgs::msg::Twist & vel_tolerance)
 {
   double invalid_field = std::numeric_limits<double>::lowest();
 
@@ -140,8 +131,8 @@ bool SimpleGoalChecker::getTolerances(
   return true;
 }
 
-rcl_interfaces::msg::SetParametersResult
-SimpleGoalChecker::dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters)
+rcl_interfaces::msg::SetParametersResult SimpleGoalChecker::dynamicParametersCallback(
+  std::vector<rclcpp::Parameter> parameters)
 {
   rcl_interfaces::msg::SetParametersResult result;
   for (auto & parameter : parameters) {

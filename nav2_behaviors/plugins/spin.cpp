@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cmath>
-#include <thread>
 #include <algorithm>
+#include <cmath>
 #include <memory>
+#include <thread>
 #include <utility>
 
 #include "nav2_behaviors/plugins/spin.hpp"
+#include "nav2_util/node_utils.hpp"
 #include "tf2/utils.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
-#include "nav2_util/node_utils.hpp"
 
 using namespace std::chrono_literals;
 
@@ -51,23 +51,19 @@ void Spin::onConfigure()
   }
 
   nav2_util::declare_parameter_if_not_declared(
-    node,
-    "simulate_ahead_time", rclcpp::ParameterValue(2.0));
+    node, "simulate_ahead_time", rclcpp::ParameterValue(2.0));
   node->get_parameter("simulate_ahead_time", simulate_ahead_time_);
 
   nav2_util::declare_parameter_if_not_declared(
-    node,
-    "max_rotational_vel", rclcpp::ParameterValue(1.0));
+    node, "max_rotational_vel", rclcpp::ParameterValue(1.0));
   node->get_parameter("max_rotational_vel", max_rotational_vel_);
 
   nav2_util::declare_parameter_if_not_declared(
-    node,
-    "min_rotational_vel", rclcpp::ParameterValue(0.4));
+    node, "min_rotational_vel", rclcpp::ParameterValue(0.4));
   node->get_parameter("min_rotational_vel", min_rotational_vel_);
 
   nav2_util::declare_parameter_if_not_declared(
-    node,
-    "rotational_acc_lim", rclcpp::ParameterValue(3.2));
+    node, "rotational_acc_lim", rclcpp::ParameterValue(3.2));
   node->get_parameter("rotational_acc_lim", rotational_acc_lim_);
 }
 
@@ -75,9 +71,7 @@ Status Spin::onRun(const std::shared_ptr<const SpinAction::Goal> command)
 {
   geometry_msgs::msg::PoseStamped current_pose;
   if (!nav2_util::getCurrentPose(
-      current_pose, *tf_, global_frame_, robot_base_frame_,
-      transform_tolerance_))
-  {
+        current_pose, *tf_, global_frame_, robot_base_frame_, transform_tolerance_)) {
     RCLCPP_ERROR(logger_, "Current robot pose is not available.");
     return Status::FAILED;
   }
@@ -86,9 +80,7 @@ Status Spin::onRun(const std::shared_ptr<const SpinAction::Goal> command)
   relative_yaw_ = 0.0;
 
   cmd_yaw_ = command->target_yaw;
-  RCLCPP_INFO(
-    logger_, "Turning %0.2f for spin behavior.",
-    cmd_yaw_);
+  RCLCPP_INFO(logger_, "Turning %0.2f for spin behavior.", cmd_yaw_);
 
   command_time_allowance_ = command->time_allowance;
   end_time_ = steady_clock_.now() + command_time_allowance_;
@@ -101,17 +93,13 @@ Status Spin::onCycleUpdate()
   rclcpp::Duration time_remaining = end_time_ - steady_clock_.now();
   if (time_remaining.seconds() < 0.0 && command_time_allowance_.seconds() > 0.0) {
     stopRobot();
-    RCLCPP_WARN(
-      logger_,
-      "Exceeded time allowance before reaching the Spin goal - Exiting Spin");
+    RCLCPP_WARN(logger_, "Exceeded time allowance before reaching the Spin goal - Exiting Spin");
     return Status::FAILED;
   }
 
   geometry_msgs::msg::PoseStamped current_pose;
   if (!nav2_util::getCurrentPose(
-      current_pose, *tf_, global_frame_, robot_base_frame_,
-      transform_tolerance_))
-  {
+        current_pose, *tf_, global_frame_, robot_base_frame_, transform_tolerance_)) {
     RCLCPP_ERROR(logger_, "Current robot pose is not available.");
     return Status::FAILED;
   }
@@ -158,8 +146,7 @@ Status Spin::onCycleUpdate()
 }
 
 bool Spin::isCollisionFree(
-  const double & relative_yaw,
-  geometry_msgs::msg::Twist * cmd_vel,
+  const double & relative_yaw, geometry_msgs::msg::Twist * cmd_vel,
   geometry_msgs::msg::Pose2D & pose2d)
 {
   // Simulate ahead by simulate_ahead_time_ in cycle_frequency_ increments

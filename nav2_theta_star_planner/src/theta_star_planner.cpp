@@ -12,18 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <vector>
-#include <memory>
-#include <string>
 #include "nav2_theta_star_planner/theta_star_planner.hpp"
 #include "nav2_theta_star_planner/theta_star.hpp"
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace nav2_theta_star_planner
 {
 void ThetaStarPlanner::configure(
-  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-  std::string name, std::shared_ptr<tf2_ros::Buffer> tf,
-  std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros)
+  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, std::string name,
+  std::shared_ptr<tf2_ros::Buffer> tf, std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros)
 {
   planner_ = std::make_unique<theta_star::ThetaStar>();
   parent_node_ = parent;
@@ -42,7 +41,10 @@ void ThetaStarPlanner::configure(
 
   if (planner_->how_many_corners_ != 8 && planner_->how_many_corners_ != 4) {
     planner_->how_many_corners_ = 8;
-    RCLCPP_WARN(logger_, "Your value for - .how_many_corners  was overridden, and is now set to 8");
+    RCLCPP_WARN(
+      logger_,
+      "Your value for - .how_many_corners  was overridden, "
+      "and is now set to 8");
   }
 
   nav2_util::declare_parameter_if_not_declared(
@@ -85,8 +87,7 @@ void ThetaStarPlanner::deactivate()
 }
 
 nav_msgs::msg::Path ThetaStarPlanner::createPlan(
-  const geometry_msgs::msg::PoseStamped & start,
-  const geometry_msgs::msg::PoseStamped & goal)
+  const geometry_msgs::msg::PoseStamped & start, const geometry_msgs::msg::PoseStamped & goal)
 {
   nav_msgs::msg::Path global_path;
   auto start_time = std::chrono::steady_clock::now();
@@ -109,9 +110,10 @@ nav_msgs::msg::Path ThetaStarPlanner::createPlan(
     pose.pose.position.z = 0.0;
 
     pose.pose = start.pose;
-    // if we have a different start and goal orientation, set the unique path pose to the goal
-    // orientation, unless use_final_approach_orientation=true where we need it to be the start
-    // orientation to avoid movement from the local planner
+    // if we have a different start and goal orientation, set the unique path
+    // pose to the goal orientation, unless use_final_approach_orientation=true
+    // where we need it to be the start orientation to avoid movement from the
+    // local planner
     if (start.pose.orientation != goal.pose.orientation && !use_final_approach_orientation_) {
       pose.pose.orientation = goal.pose.orientation;
     }
@@ -121,8 +123,8 @@ nav_msgs::msg::Path ThetaStarPlanner::createPlan(
 
   planner_->setStartAndGoal(start, goal);
   RCLCPP_DEBUG(
-    logger_, "Got the src and dst... (%i, %i) && (%i, %i)",
-    planner_->src_.x, planner_->src_.y, planner_->dst_.x, planner_->dst_.y);
+    logger_, "Got the src and dst... (%i, %i) && (%i, %i)", planner_->src_.x, planner_->src_.y,
+    planner_->dst_.x, planner_->dst_.y);
   getPlan(global_path);
   // check if a plan is generated
   size_t plan_size = global_path.poses.size();
@@ -130,10 +132,10 @@ nav_msgs::msg::Path ThetaStarPlanner::createPlan(
     global_path.poses.back().pose.orientation = goal.pose.orientation;
   }
 
-  // If use_final_approach_orientation=true, interpolate the last pose orientation from the
-  // previous pose to set the orientation to the 'final approach' orientation of the robot so
-  // it does not rotate.
-  // And deal with corner case of plan of length 1
+  // If use_final_approach_orientation=true, interpolate the last pose
+  // orientation from the previous pose to set the orientation to the 'final
+  // approach' orientation of the robot so it does not rotate. And deal with
+  // corner case of plan of length 1
   if (use_final_approach_orientation_) {
     if (plan_size == 1) {
       global_path.poses.back().pose.orientation = start.pose.orientation;
@@ -173,8 +175,7 @@ void ThetaStarPlanner::getPlan(nav_msgs::msg::Path & global_path)
 }
 
 nav_msgs::msg::Path ThetaStarPlanner::linearInterpolation(
-  const std::vector<coordsW> & raw_path,
-  const double & dist_bw_points)
+  const std::vector<coordsW> & raw_path, const double & dist_bw_points)
 {
   nav_msgs::msg::Path pa;
 
@@ -200,8 +201,8 @@ nav_msgs::msg::Path ThetaStarPlanner::linearInterpolation(
   return pa;
 }
 
-rcl_interfaces::msg::SetParametersResult
-ThetaStarPlanner::dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters)
+rcl_interfaces::msg::SetParametersResult ThetaStarPlanner::dynamicParametersCallback(
+  std::vector<rclcpp::Parameter> parameters)
 {
   rcl_interfaces::msg::SetParametersResult result;
   for (auto parameter : parameters) {

@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <string>
+#include <chrono>
+#include <iomanip>
+#include <iostream>
+#include <memory>
 #include <random>
+#include <sstream>
+#include <string>
 #include <tuple>
 #include <utility>
 #include <vector>
-#include <memory>
-#include <iostream>
-#include <chrono>
-#include <sstream>
-#include <iomanip>
 
-#include "planner_tester.hpp"
 #include "geometry_msgs/msg/twist.hpp"
-#include "nav2_map_server/map_mode.hpp"
 #include "nav2_map_server/map_io.hpp"
+#include "nav2_map_server/map_mode.hpp"
 #include "nav2_msgs/msg/costmap_meta_data.hpp"
+#include "planner_tester.hpp"
 
 using namespace std::chrono_literals;
 using namespace std::chrono;  // NOLINT
@@ -38,11 +38,17 @@ namespace nav2_system_tests
 {
 
 PlannerTester::PlannerTester()
-: Node("PlannerTester"), is_active_(false),
-  map_set_(false), costmap_set_(false),
-  using_fake_costmap_(true), trinary_costmap_(true),
-  track_unknown_space_(false), lethal_threshold_(100), unknown_cost_value_(-1),
-  testCostmapType_(TestCostmap::open_space), base_transform_(nullptr),
+: Node("PlannerTester"),
+  is_active_(false),
+  map_set_(false),
+  costmap_set_(false),
+  using_fake_costmap_(true),
+  trinary_costmap_(true),
+  track_unknown_space_(false),
+  lethal_threshold_(100),
+  unknown_cost_value_(-1),
+  testCostmapType_(TestCostmap::open_space),
+  base_transform_(nullptr),
   map_publish_rate_(100s)
 {
 }
@@ -67,8 +73,7 @@ void PlannerTester::activate()
   // The navfn wrapper
   auto state = rclcpp_lifecycle::State();
   planner_tester_ = std::make_shared<NavFnPlannerTester>();
-  planner_tester_->declare_parameter(
-    "GridBased.use_astar", rclcpp::ParameterValue(true));
+  planner_tester_->declare_parameter("GridBased.use_astar", rclcpp::ParameterValue(true));
   planner_tester_->set_parameter(
     rclcpp::Parameter(std::string("GridBased.use_astar"), rclcpp::ParameterValue(true)));
   planner_tester_->set_parameter(
@@ -121,8 +126,8 @@ void PlannerTester::startRobotTransform()
   updateRobotPosition(robot_position);
 
   // Publish the transform periodically
-  transform_timer_ = create_wall_timer(
-    100ms, std::bind(&PlannerTester::publishRobotTransform, this));
+  transform_timer_ =
+    create_wall_timer(100ms, std::bind(&PlannerTester::publishRobotTransform, this));
 }
 
 void PlannerTester::updateRobotPosition(const geometry_msgs::msg::Point & position)
@@ -166,8 +171,8 @@ void PlannerTester::loadDefaultMap()
   char const * path = getenv("TEST_MAP");
   if (path == NULL) {
     throw std::runtime_error(
-            "Path to map image file"
-            " has not been specified in environment variable `TEST_MAP`.");
+      "Path to map image file"
+      " has not been specified in environment variable `TEST_MAP`.");
   } else {
     file_path = std::string(path);
   }
@@ -187,9 +192,7 @@ void PlannerTester::loadDefaultMap()
     load_parameters.negate = negate;
     loadMapFromFile(load_parameters, *map_);
   } catch (...) {
-    RCLCPP_ERROR(
-      this->get_logger(),
-      "Failed to load image from file: %s", file_path.c_str());
+    RCLCPP_ERROR(this->get_logger(), "Failed to load image from file: %s", file_path.c_str());
     throw;
   }
 
@@ -198,7 +201,7 @@ void PlannerTester::loadDefaultMap()
   map_->info.map_load_time = this->now();
 
   // TODO(orduno): #443 replace with a latched topic
-  map_timer_ = create_wall_timer(1s, [this]() -> void {map_pub_->publish(*map_);});
+  map_timer_ = create_wall_timer(1s, [this]() -> void { map_pub_->publish(*map_); });
 
   map_set_ = true;
   costmap_set_ = false;
@@ -237,15 +240,15 @@ void PlannerTester::setCostmap()
 }
 
 bool PlannerTester::defaultPlannerTest(
-  ComputePathToPoseResult & path,
-  const double /*deviation_tolerance*/)
+  ComputePathToPoseResult & path, const double /*deviation_tolerance*/)
 {
   if (!costmap_set_) {
     RCLCPP_ERROR(this->get_logger(), "Costmap must be set before requesting a plan");
     return false;
   }
 
-  // TODO(orduno) #443 Add support for planners that take into account robot orientation
+  // TODO(orduno) #443 Add support for planners that take into account robot
+  // orientation
   geometry_msgs::msg::Point robot_position;
   ComputePathToPoseCommand goal;
   auto costmap_properties = costmap_->get_properties();
@@ -271,14 +274,14 @@ bool PlannerTester::defaultPlannerTest(
     goal.pose.position.y = 390.0;
   }
 
-  // TODO(orduno): #443 On a default test, provide the reference path to compare with the planner
+  // TODO(orduno): #443 On a default test, provide the reference path to compare
+  // with the planner
   //               result.
   return plannerTest(robot_position, goal, path);
 }
 
 bool PlannerTester::defaultPlannerRandomTests(
-  const unsigned int number_tests,
-  const float acceptable_fail_ratio = 0.1)
+  const unsigned int number_tests, const float acceptable_fail_ratio = 0.1)
 {
   if (!costmap_set_) {
     RCLCPP_ERROR(this->get_logger(), "Costmap must be set before requesting a plan");
@@ -287,8 +290,7 @@ bool PlannerTester::defaultPlannerRandomTests(
 
   if (using_fake_costmap_) {
     RCLCPP_ERROR(
-      this->get_logger(),
-      "Randomized testing with hardcoded costmaps not implemented yet");
+      this->get_logger(), "Randomized testing with hardcoded costmaps not implemented yet");
     return false;
   }
 
@@ -301,17 +303,18 @@ bool PlannerTester::defaultPlannerRandomTests(
   std::uniform_int_distribution<> distribution_y(1, costmap_->get_properties().size_y - 1);
 
   auto generate_random = [&]() mutable -> std::pair<int, int> {
-      bool point_is_free = false;
-      int x, y;
-      while (!point_is_free) {
-        x = distribution_x(generator);
-        y = distribution_y(generator);
-        point_is_free = costmap_->is_free(x, y);
-      }
-      return std::make_pair(x, y);
-    };
+    bool point_is_free = false;
+    int x, y;
+    while (!point_is_free) {
+      x = distribution_x(generator);
+      y = distribution_y(generator);
+      point_is_free = costmap_->is_free(x, y);
+    }
+    return std::make_pair(x, y);
+  };
 
-  // TODO(orduno) #443 Add support for planners that take into account robot orientation
+  // TODO(orduno) #443 Add support for planners that take into account robot
+  // orientation
   geometry_msgs::msg::Point robot_position;
   ComputePathToPoseCommand goal;
   ComputePathToPoseResult path;
@@ -344,8 +347,7 @@ bool PlannerTester::defaultPlannerRandomTests(
   auto elapsed = duration_cast<milliseconds>(end - start);
 
   RCLCPP_INFO(
-    this->get_logger(),
-    "Tested with %u tests. Planner failed on %u. Test time %ld ms",
+    this->get_logger(), "Tested with %u tests. Planner failed on %u. Test time %ld ms",
     number_tests, num_fail, elapsed.count());
 
   if ((num_fail / number_tests) > acceptable_fail_ratio) {
@@ -356,13 +358,13 @@ bool PlannerTester::defaultPlannerRandomTests(
 }
 
 bool PlannerTester::plannerTest(
-  const geometry_msgs::msg::Point & robot_position,
-  const ComputePathToPoseCommand & goal,
+  const geometry_msgs::msg::Point & robot_position, const ComputePathToPoseCommand & goal,
   ComputePathToPoseResult & path)
 {
   RCLCPP_DEBUG(this->get_logger(), "Getting the path from the planner");
 
-  // First make available the current robot position for the planner to take as starting point
+  // First make available the current robot position for the planner to take as
+  // starting point
   updateRobotPosition(robot_position);
   sleep(0.05);
 
@@ -374,7 +376,8 @@ bool PlannerTester::plannerTest(
   if (status == TaskStatus::FAILED) {
     return false;
   } else if (status == TaskStatus::SUCCEEDED) {
-    // TODO(orduno): #443 check why task may report success while planner returns a path of 0 points
+    // TODO(orduno): #443 check why task may report success while planner
+    // returns a path of 0 points
     RCLCPP_DEBUG(this->get_logger(), "Got path, checking for possible collisions");
     return isCollisionFree(path) && isWithinTolerance(robot_position, goal, path);
   }
@@ -383,8 +386,7 @@ bool PlannerTester::plannerTest(
 }
 
 TaskStatus PlannerTester::createPlan(
-  const ComputePathToPoseCommand & goal,
-  ComputePathToPoseResult & path)
+  const ComputePathToPoseCommand & goal, ComputePathToPoseResult & path)
 {
   // Update the costmap of the planner to the set data
   planner_tester_->setCostmap(costmap_.get());
@@ -406,11 +408,10 @@ bool PlannerTester::isPathValid(nav_msgs::msg::Path & path)
   auto result = path_valid_client_->async_send_request(request);
 
   RCLCPP_INFO(this->get_logger(), "Waiting for service complete");
-  if (rclcpp::spin_until_future_complete(
-      this->planner_tester_, result,
-      std::chrono::milliseconds(100)) ==
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  if (
+    rclcpp::spin_until_future_complete(
+      this->planner_tester_, result, std::chrono::milliseconds(100)) ==
+    rclcpp::FutureReturnCode::SUCCESS) {
     return result.get()->is_valid;
   } else {
     RCLCPP_INFO(get_logger(), "Failed to call is_path_valid service");
@@ -422,12 +423,15 @@ bool PlannerTester::isCollisionFree(const ComputePathToPoseResult & path)
 {
   // At each point of the path, check if the corresponding cell is free
 
-  // TODO(orduno): #443 for now we are assuming the robot is the size of a single cell
+  // TODO(orduno): #443 for now we are assuming the robot is the size of a
+  // single cell
   //               costmap/world_model has consider the robot footprint
 
-  // TODO(orduno): #443 Tweak criteria for defining if a path goes into obstacles.
-  //               Current navfn planner will sometimes produce paths that cut corners
-  //               i.e. some points are around the corner are actually inside the obstacle
+  // TODO(orduno): #443 Tweak criteria for defining if a path goes into
+  // obstacles.
+  //               Current navfn planner will sometimes produce paths that cut
+  //               corners i.e. some points are around the corner are actually
+  //               inside the obstacle
 
   bool collisionFree = true;
 
@@ -438,8 +442,8 @@ bool PlannerTester::isCollisionFree(const ComputePathToPoseResult & path)
 
     if (!collisionFree) {
       RCLCPP_WARN(
-        this->get_logger(), "Path has collision at (%.2f, %.2f)",
-        pose.pose.position.x, pose.pose.position.y);
+        this->get_logger(), "Path has collision at (%.2f, %.2f)", pose.pose.position.x,
+        pose.pose.position.y);
       printPath(path);
       return false;
     }
@@ -450,22 +454,19 @@ bool PlannerTester::isCollisionFree(const ComputePathToPoseResult & path)
 }
 
 bool PlannerTester::isWithinTolerance(
-  const geometry_msgs::msg::Point & robot_position,
-  const ComputePathToPoseCommand & goal,
+  const geometry_msgs::msg::Point & robot_position, const ComputePathToPoseCommand & goal,
   const ComputePathToPoseResult & path) const
 {
-  return isWithinTolerance(
-    robot_position, goal, path, 0.0, ComputePathToPoseResult());
+  return isWithinTolerance(robot_position, goal, path, 0.0, ComputePathToPoseResult());
 }
 
 bool PlannerTester::isWithinTolerance(
-  const geometry_msgs::msg::Point & robot_position,
-  const ComputePathToPoseCommand & goal,
-  const ComputePathToPoseResult & path,
-  const double /*deviationTolerance*/,
+  const geometry_msgs::msg::Point & robot_position, const ComputePathToPoseCommand & goal,
+  const ComputePathToPoseResult & path, const double /*deviationTolerance*/,
   const ComputePathToPoseResult & /*reference_path*/) const
 {
-  // TODO(orduno) #443 Work in progress, for now we only check that the path start matches the
+  // TODO(orduno) #443 Work in progress, for now we only check that the path
+  // start matches the
   //              robot start location and that the path end matches the goal.
 
   auto path_start = path.poses[0];
@@ -475,8 +476,7 @@ bool PlannerTester::isWithinTolerance(
     path_start.pose.position.x == robot_position.x &&
     path_start.pose.position.y == robot_position.y &&
     path_end.pose.position.x == goal.pose.position.x &&
-    path_end.pose.position.y == goal.pose.position.y)
-  {
+    path_end.pose.position.y == goal.pose.position.y) {
     RCLCPP_DEBUG(this->get_logger(), "Path has correct start and end points");
 
     return true;
@@ -489,8 +489,8 @@ bool PlannerTester::isWithinTolerance(
 
   RCLCPP_DEBUG(
     this->get_logger(), "Computed path starts at (%.2f, %.2f) and ends at (%.2f, %.2f)",
-    path_start.pose.position.x, path_start.pose.position.y,
-    path_end.pose.position.x, path_end.pose.position.y);
+    path_start.pose.position.x, path_start.pose.position.y, path_end.pose.position.x,
+    path_end.pose.position.y);
 
   return false;
 }
@@ -501,9 +501,9 @@ void PlannerTester::printPath(const ComputePathToPoseResult & path) const
   auto ss = std::stringstream{};
 
   for (auto pose : path.poses) {
-    ss << "   point #" << index << " with" <<
-      " x: " << std::setprecision(3) << pose.pose.position.x <<
-      " y: " << std::setprecision(3) << pose.pose.position.y << '\n';
+    ss << "   point #" << index << " with"
+       << " x: " << std::setprecision(3) << pose.pose.position.x << " y: " << std::setprecision(3)
+       << pose.pose.position.y << '\n';
     ++index;
   }
 

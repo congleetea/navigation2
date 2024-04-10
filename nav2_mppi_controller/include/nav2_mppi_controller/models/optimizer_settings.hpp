@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +16,8 @@
 #ifndef NAV2_MPPI_CONTROLLER__MODELS__OPTIMIZER_SETTINGS_HPP_
 #define NAV2_MPPI_CONTROLLER__MODELS__OPTIMIZER_SETTINGS_HPP_
 
-#include <cstddef>
 #include "nav2_mppi_controller/models/constraints.hpp"
+#include <cstddef>
 
 namespace mppi::models
 {

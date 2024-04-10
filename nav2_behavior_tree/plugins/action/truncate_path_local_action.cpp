@@ -29,14 +29,10 @@
 namespace nav2_behavior_tree
 {
 
-TruncatePathLocal::TruncatePathLocal(
-  const std::string & name,
-  const BT::NodeConfiguration & conf)
+TruncatePathLocal::TruncatePathLocal(const std::string & name, const BT::NodeConfiguration & conf)
 : BT::ActionNodeBase(name, conf)
 {
-  tf_buffer_ =
-    config().blackboard->template get<std::shared_ptr<tf2_ros::Buffer>>(
-    "tf_buffer");
+  tf_buffer_ = config().blackboard->template get<std::shared_ptr<tf2_ros::Buffer>>("tf_buffer");
 }
 
 inline BT::NodeStatus TruncatePathLocal::tick()
@@ -92,14 +88,15 @@ inline BT::NodeStatus TruncatePathLocal::tick()
     current_pose, path_.poses.end(), distance_forward);
 
   // expand backwards to extract desired length
-  // Note: current_pose + 1 is used because reverse iterator points to a cell before it
+  // Note: current_pose + 1 is used because reverse iterator points to a cell
+  // before it
   auto backward_pose_it = nav2_util::geometry_utils::first_after_integrated_distance(
     std::reverse_iterator(current_pose + 1), path_.poses.rend(), distance_backward);
 
   nav_msgs::msg::Path output_path;
   output_path.header = path_.header;
-  output_path.poses = std::vector<geometry_msgs::msg::PoseStamped>(
-    backward_pose_it.base(), forward_pose_it);
+  output_path.poses =
+    std::vector<geometry_msgs::msg::PoseStamped>(backward_pose_it.base(), forward_pose_it);
   setOutput("output_path", output_path);
 
   return BT::NodeStatus::SUCCESS;
@@ -119,8 +116,7 @@ inline bool TruncatePathLocal::getRobotPose(
     double transform_tolerance;
     getInput("transform_tolerance", transform_tolerance);
     if (!nav2_util::getCurrentPose(
-        pose, *tf_buffer_, path_frame_id, robot_frame, transform_tolerance))
-    {
+          pose, *tf_buffer_, path_frame_id, robot_frame, transform_tolerance)) {
       RCLCPP_WARN(
         config().blackboard->get<rclcpp::Node::SharedPtr>("node")->get_logger(),
         "Failed to lookup current robot pose for %s", name().c_str());
@@ -130,10 +126,8 @@ inline bool TruncatePathLocal::getRobotPose(
   return true;
 }
 
-double
-TruncatePathLocal::poseDistance(
-  const geometry_msgs::msg::PoseStamped & pose1,
-  const geometry_msgs::msg::PoseStamped & pose2,
+double TruncatePathLocal::poseDistance(
+  const geometry_msgs::msg::PoseStamped & pose1, const geometry_msgs::msg::PoseStamped & pose2,
   const double angular_distance_weight)
 {
   double dx = pose1.pose.position.x - pose2.pose.position.x;
@@ -151,7 +145,7 @@ TruncatePathLocal::poseDistance(
 }  // namespace nav2_behavior_tree
 
 #include "behaviortree_cpp_v3/bt_factory.h"
-BT_REGISTER_NODES(factory) {
-  factory.registerNodeType<nav2_behavior_tree::TruncatePathLocal>(
-    "TruncatePathLocal");
+BT_REGISTER_NODES(factory)
+{
+  factory.registerNodeType<nav2_behavior_tree::TruncatePathLocal>("TruncatePathLocal");
 }

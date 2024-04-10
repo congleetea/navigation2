@@ -20,9 +20,9 @@
 #include <string>
 
 #include "geometry_msgs/msg/twist.hpp"
-#include "std_msgs/msg/empty.hpp"
 #include "nav2_behaviors/timed_behavior.hpp"
 #include "nav2_msgs/action/assisted_teleop.hpp"
+#include "std_msgs/msg/empty.hpp"
 
 namespace nav2_behaviors
 {
@@ -68,8 +68,7 @@ protected:
    * @param projection_time time to project by
    */
   geometry_msgs::msg::Pose2D projectPose(
-    const geometry_msgs::msg::Pose2D & pose,
-    const geometry_msgs::msg::Twist & twist,
+    const geometry_msgs::msg::Pose2D & pose, const geometry_msgs::msg::Twist & twist,
     double projection_time);
 
   /**

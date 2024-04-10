@@ -15,15 +15,15 @@
 #ifndef NAV2_MAP_SERVER__MAP_SERVER_HPP_
 #define NAV2_MAP_SERVER__MAP_SERVER_HPP_
 
-#include <string>
-#include <memory>
 #include <functional>
+#include <memory>
+#include <string>
 
-#include "rclcpp/rclcpp.hpp"
+#include "nav2_msgs/srv/load_map.hpp"
 #include "nav2_util/lifecycle_node.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "nav_msgs/srv/get_map.hpp"
-#include "nav2_msgs/srv/load_map.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_map_server
 {
@@ -49,7 +49,8 @@ public:
 
 protected:
   /**
-   * @brief Sets up required params and services. Loads map and its parameters from the file
+   * @brief Sets up required params and services. Loads map and its parameters
+   * from the file
    * @param state Lifecycle Node's state
    * @return Success or Failure
    */
@@ -88,8 +89,7 @@ protected:
    * @return true or false
    */
   bool loadMapResponseFromYaml(
-    const std::string & yaml_file,
-    std::shared_ptr<nav2_msgs::srv::LoadMap::Response> response);
+    const std::string & yaml_file, std::shared_ptr<nav2_msgs::srv::LoadMap::Response> response);
 
   /**
    * @brief Method correcting msg_ header when it belongs to instantiated object

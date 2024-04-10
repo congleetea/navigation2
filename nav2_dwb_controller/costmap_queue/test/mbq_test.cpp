@@ -32,9 +32,9 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string>
-#include "gtest/gtest.h"
 #include "costmap_queue/map_based_queue.hpp"
+#include "gtest/gtest.h"
+#include <string>
 
 using costmap_queue::MapBasedQueue;
 

@@ -38,9 +38,9 @@
 #ifndef NAV2_COSTMAP_2D__COSTMAP_LAYER_HPP_
 #define NAV2_COSTMAP_2D__COSTMAP_LAYER_HPP_
 
-#include <rclcpp/rclcpp.hpp>
 #include <nav2_costmap_2d/layer.hpp>
 #include <nav2_costmap_2d/layered_costmap.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 namespace nav2_costmap_2d
 {
@@ -59,16 +59,17 @@ public:
    */
   CostmapLayer()
   : has_extra_bounds_(false),
-    extra_min_x_(1e6), extra_max_x_(-1e6),
-    extra_min_y_(1e6), extra_max_y_(-1e6) {}
+    extra_min_x_(1e6),
+    extra_max_x_(-1e6),
+    extra_min_y_(1e6),
+    extra_max_y_(-1e6)
+  {
+  }
 
   /**
    * @brief If layer is discrete
    */
-  bool isDiscretized()
-  {
-    return true;
-  }
+  bool isDiscretized() { return true; }
 
   /**
    * @brief Match the size of the master costmap
@@ -101,8 +102,7 @@ protected:
    * is written into the master grid.
    */
   void updateWithTrueOverwrite(
-    nav2_costmap_2d::Costmap2D & master_grid,
-    int min_i, int min_j, int max_i, int max_j);
+    nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i, int max_j);
 
   /*
    * Updates the master_grid within the specified
@@ -112,8 +112,7 @@ protected:
    * is written into the master grid (does not copy NO_INFORMATION)
    */
   void updateWithOverwrite(
-    nav2_costmap_2d::Costmap2D & master_grid,
-    int min_i, int min_j, int max_i, int max_j);
+    nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i, int max_j);
 
   /*
    * Updates the master_grid within the specified
@@ -125,8 +124,7 @@ protected:
    * the master value does not change.
    */
   void updateWithMax(
-    nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i,
-    int max_j);
+    nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i, int max_j);
 
   /*
    * Updates the master_grid within the specified
@@ -141,8 +139,7 @@ protected:
    * the master value is set to (INSCRIBED_INFLATED_OBSTACLE - 1).
    */
   void updateWithAddition(
-    nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i,
-    int max_j);
+    nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i, int max_j);
 
   /**
    * Updates the bounding box specified in the parameters to include

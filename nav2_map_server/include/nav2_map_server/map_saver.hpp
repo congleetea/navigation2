@@ -16,12 +16,12 @@
 #ifndef NAV2_MAP_SERVER__MAP_SAVER_HPP_
 #define NAV2_MAP_SERVER__MAP_SAVER_HPP_
 
-#include <string>
 #include <memory>
+#include <string>
 
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_util/lifecycle_node.hpp"
 #include "nav2_msgs/srv/save_map.hpp"
+#include "nav2_util/lifecycle_node.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "map_io.hpp"
 
@@ -52,9 +52,7 @@ public:
    * @param save_parameters Map saving parameters.
    * @return true of false
    */
-  bool saveMapTopicToFile(
-    const std::string & map_topic,
-    const SaveParameters & save_parameters);
+  bool saveMapTopicToFile(const std::string & map_topic, const SaveParameters & save_parameters);
 
   /**
    * @brief Sets up map saving service

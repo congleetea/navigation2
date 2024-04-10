@@ -12,32 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <math.h>
-#include <memory>
-#include <string>
-#include <vector>
 #include <chrono>
 #include <limits>
+#include <math.h>
+#include <memory>
 #include <random>
+#include <string>
+#include <vector>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
+#include "ament_index_cpp/get_package_share_directory.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_costmap_2d/costmap_subscriber.hpp"
 #include "nav2_msgs/msg/costmap.hpp"
-#include "nav2_util/lifecycle_node.hpp"
 #include "nav2_smoother/savitzky_golay_smoother.hpp"
-#include "ament_index_cpp/get_package_share_directory.hpp"
+#include "nav2_util/lifecycle_node.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
-using namespace smoother_utils;  // NOLINT
-using namespace nav2_smoother;  // NOLINT
+using namespace smoother_utils;        // NOLINT
+using namespace nav2_smoother;         // NOLINT
 using namespace std::chrono_literals;  // NOLINT
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -104,7 +104,8 @@ TEST(SmootherTest, test_sg_smoother_basics)
     EXPECT_NEAR(
       fabs(
         straight_regular_path.poses[i].pose.position.y -
-        straight_regular_path_baseline.poses[i].pose.position.y), 0.0, 0.011);
+        straight_regular_path_baseline.poses[i].pose.position.y),
+      0.0, 0.011);
   }
 
   // Attempt smoothing with no time given, should fail
@@ -142,7 +143,8 @@ TEST(SmootherTest, test_sg_smoother_noisey_path)
   smoother->configure(parent, "test", dummy_tf, dummy_costmap, dummy_footprint);
   rclcpp::Duration max_time = rclcpp::Duration::from_seconds(1.0);  // 1 seconds
 
-  // Given nominal irregular/noisey path, test that the output is shorter and smoother
+  // Given nominal irregular/noisey path, test that the output is shorter and
+  // smoother
   nav_msgs::msg::Path noisey_path, noisey_path_baseline;
   noisey_path.header.frame_id = "map";
   noisey_path.header.stamp = node->now();
@@ -191,9 +193,9 @@ TEST(SmootherTest, test_sg_smoother_noisey_path)
       noisey_path.poses[i + 1].pose.position.y - noisey_path.poses[i].pose.position.y);
     base_length += std::hypot(
       noisey_path_baseline.poses[i + 1].pose.position.x -
-      noisey_path_baseline.poses[i].pose.position.x,
+        noisey_path_baseline.poses[i].pose.position.x,
       noisey_path_baseline.poses[i + 1].pose.position.y -
-      noisey_path_baseline.poses[i].pose.position.y);
+        noisey_path_baseline.poses[i].pose.position.y);
   }
 
   EXPECT_LT(length, base_length);
@@ -209,9 +211,9 @@ TEST(SmootherTest, test_sg_smoother_noisey_path)
   for (unsigned int i = 0; i != noisey_path.poses.size() - 1; i++) {
     length += std::hypot(
       noisey_path_refined.poses[i + 1].pose.position.x -
-      noisey_path_refined.poses[i].pose.position.x,
+        noisey_path_refined.poses[i].pose.position.x,
       noisey_path_refined.poses[i + 1].pose.position.y -
-      noisey_path_refined.poses[i].pose.position.y);
+        noisey_path_refined.poses[i].pose.position.y);
     non_refined_length += std::hypot(
       noisey_path.poses[i + 1].pose.position.x - noisey_path_baseline.poses[i].pose.position.x,
       noisey_path.poses[i + 1].pose.position.y - noisey_path_baseline.poses[i].pose.position.y);
@@ -322,10 +324,9 @@ TEST(SmootherTest, test_sg_smoother_reversing)
       cusp_path.poses[i + 1].pose.position.x - cusp_path.poses[i].pose.position.x,
       cusp_path.poses[i + 1].pose.position.y - cusp_path.poses[i].pose.position.y);
     base_length += std::hypot(
-      cusp_path_baseline.poses[i + 1].pose.position.x -
-      cusp_path_baseline.poses[i].pose.position.x,
+      cusp_path_baseline.poses[i + 1].pose.position.x - cusp_path_baseline.poses[i].pose.position.x,
       cusp_path_baseline.poses[i + 1].pose.position.y -
-      cusp_path_baseline.poses[i].pose.position.y);
+        cusp_path_baseline.poses[i].pose.position.y);
   }
 
   EXPECT_LT(length, base_length);

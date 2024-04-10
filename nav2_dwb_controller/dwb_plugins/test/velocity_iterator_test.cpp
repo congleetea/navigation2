@@ -32,8 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "gtest/gtest.h"
 #include "dwb_plugins/one_d_velocity_iterator.hpp"
+#include "gtest/gtest.h"
 
 using dwb_plugins::OneDVelocityIterator;
 
@@ -72,7 +72,6 @@ TEST(VelocityIterator, acceleration)
   EXPECT_NEAR(it.getVelocity(), 2.5, EPSILON);
 }
 
-
 TEST(VelocityIterator, time)
 {
   OneDVelocityIterator it(2.0, 0.0, 5.0, 1.0, -1.0, 0.5, 2);
@@ -92,7 +91,6 @@ TEST(VelocityIterator, samples)
   ++it;
   EXPECT_TRUE(it.isFinished());
 }
-
 
 TEST(VelocityIterator, samples2)
 {

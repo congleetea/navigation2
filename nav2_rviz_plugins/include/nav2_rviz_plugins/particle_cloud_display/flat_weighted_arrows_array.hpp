@@ -50,9 +50,9 @@
 
 #include <OgreManualObject.h>
 #include <OgreMaterialManager.h>
+#include <OgreQuaternion.h>
 #include <OgreSceneNode.h>
 #include <OgreVector3.h>
-#include <OgreQuaternion.h>
 
 #include "nav2_rviz_plugins/particle_cloud_display/particle_cloud_display.hpp"
 
@@ -69,19 +69,14 @@ public:
 
   void createAndAttachManualObject(Ogre::SceneNode * scene_node);
   void updateManualObject(
-    Ogre::ColourValue color,
-    float alpha,
-    float min_length,
-    float max_length,
+    Ogre::ColourValue color, float alpha, float min_length, float max_length,
     const std::vector<nav2_rviz_plugins::OgrePoseWithWeight> & poses);
   void clear();
 
 private:
   void setManualObjectMaterial();
   void setManualObjectVertices(
-    const Ogre::ColourValue & color,
-    float min_length,
-    float max_length,
+    const Ogre::ColourValue & color, float min_length, float max_length,
     const std::vector<nav2_rviz_plugins::OgrePoseWithWeight> & poses);
 
   Ogre::SceneManager * scene_manager_;

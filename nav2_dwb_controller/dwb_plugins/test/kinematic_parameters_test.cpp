@@ -32,49 +32,44 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string>
 #include <memory>
+#include <string>
 #include <vector>
 
-#include "gtest/gtest.h"
 #include "dwb_plugins/kinematic_parameters.hpp"
+#include "gtest/gtest.h"
 
 using rcl_interfaces::msg::Parameter;
-using rcl_interfaces::msg::ParameterType;
 using rcl_interfaces::msg::ParameterEvent;
+using rcl_interfaces::msg::ParameterType;
 
 class KinematicsHandlerTest : public dwb_plugins::KinematicsHandler
 {
 public:
-  void simulate_event(
-    std::vector<rclcpp::Parameter> parameters)
+  void simulate_event(std::vector<rclcpp::Parameter> parameters)
   {
     dynamicParametersCallback(parameters);
   }
 };
 
-TEST(KinematicParameters, SetAllParameters) {
+TEST(KinematicParameters, SetAllParameters)
+{
   std::string nodeName = "test_node";
   auto node = nav2_util::LifecycleNode::make_shared(nodeName);
   KinematicsHandlerTest kh;
   kh.initialize(node, nodeName);
 
   std::vector<rclcpp::Parameter> parameters;
-  rclcpp::Parameter
-    p_minX(nodeName + ".min_vel_x", 12.34),
-  p_maxX(nodeName + ".max_vel_x", 23.45),
-  p_minY(nodeName + ".min_vel_y", 34.56),
-  p_maxY(nodeName + ".max_vel_y", 45.67),
-  p_accX(nodeName + ".acc_lim_x", 56.78),
-  p_decelX(nodeName + ".acc_lim_y", 67.89),
-  p_accY(nodeName + ".decel_lim_x", 78.90),
-  p_decelY(nodeName + ".decel_lim_y", 89.01),
-  p_minSpeedXY(nodeName + ".min_speed_xy", 90.12),
-  p_maxSpeedXY(nodeName + ".max_speed_xy", 123.456),
-  p_maxTheta(nodeName + ".max_vel_theta", 345.678),
-  p_accTheta(nodeName + ".acc_lim_theta", 234.567),
-  p_decelTheta(nodeName + ".decel_lim_theta", 456.789),
-  p_minSpeedTheta(nodeName + ".min_speed_theta", 567.890);
+  rclcpp::Parameter p_minX(nodeName + ".min_vel_x", 12.34), p_maxX(nodeName + ".max_vel_x", 23.45),
+    p_minY(nodeName + ".min_vel_y", 34.56), p_maxY(nodeName + ".max_vel_y", 45.67),
+    p_accX(nodeName + ".acc_lim_x", 56.78), p_decelX(nodeName + ".acc_lim_y", 67.89),
+    p_accY(nodeName + ".decel_lim_x", 78.90), p_decelY(nodeName + ".decel_lim_y", 89.01),
+    p_minSpeedXY(nodeName + ".min_speed_xy", 90.12),
+    p_maxSpeedXY(nodeName + ".max_speed_xy", 123.456),
+    p_maxTheta(nodeName + ".max_vel_theta", 345.678),
+    p_accTheta(nodeName + ".acc_lim_theta", 234.567),
+    p_decelTheta(nodeName + ".decel_lim_theta", 456.789),
+    p_minSpeedTheta(nodeName + ".min_speed_theta", 567.890);
 
   parameters.push_back(p_minX);
   parameters.push_back(p_minX);
@@ -111,7 +106,6 @@ TEST(KinematicParameters, SetAllParameters) {
   EXPECT_EQ(kp.getDecelTheta(), 456.789);
   EXPECT_EQ(kp.getMinSpeedTheta(), 567.890);
 }
-
 
 int main(int argc, char ** argv)
 {

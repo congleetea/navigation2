@@ -15,14 +15,14 @@
 #ifndef NAV2_BEHAVIOR_TREE__BT_ACTION_NODE_HPP_
 #define NAV2_BEHAVIOR_TREE__BT_ACTION_NODE_HPP_
 
+#include <chrono>
 #include <memory>
 #include <string>
-#include <chrono>
 
 #include "behaviortree_cpp_v3/action_node.h"
+#include "nav2_behavior_tree/bt_conversions.hpp"
 #include "nav2_util/node_utils.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
-#include "nav2_behavior_tree/bt_conversions.hpp"
 
 namespace nav2_behavior_tree
 {
@@ -33,7 +33,7 @@ using namespace std::chrono_literals;  // NOLINT
  * @brief Abstract class representing an action based BT node
  * @tparam ActionT Type of action
  */
-template<class ActionT>
+template <class ActionT>
 class BtActionNode : public BT::ActionNodeBase
 {
 public:
@@ -44,15 +44,13 @@ public:
    * @param conf BT node configuration
    */
   BtActionNode(
-    const std::string & xml_tag_name,
-    const std::string & action_name,
+    const std::string & xml_tag_name, const std::string & action_name,
     const BT::NodeConfiguration & conf)
   : BT::ActionNodeBase(xml_tag_name, conf), action_name_(action_name), should_send_goal_(true)
   {
     node_ = config().blackboard->template get<rclcpp::Node::SharedPtr>("node");
-    callback_group_ = node_->create_callback_group(
-      rclcpp::CallbackGroupType::MutuallyExclusive,
-      false);
+    callback_group_ =
+      node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false);
     callback_group_executor_.add_callback_group(callback_group_, node_->get_node_base_interface());
 
     // Get the required items from the blackboard
@@ -78,9 +76,7 @@ public:
 
   BtActionNode() = delete;
 
-  virtual ~BtActionNode()
-  {
-  }
+  virtual ~BtActionNode() {}
 
   /**
    * @brief Create instance of an action client
@@ -88,7 +84,8 @@ public:
    */
   void createActionClient(const std::string & action_name)
   {
-    // Now that we have the ROS node to use, create the action client for this BT action
+    // Now that we have the ROS node to use, create the action client for this
+    // BT action
     action_client_ = rclcpp_action::create_client<ActionT>(node_, action_name, callback_group_);
 
     // Make sure the server is actually there before continuing
@@ -98,8 +95,7 @@ public:
         node_->get_logger(), "\"%s\" action server not available after waiting for 1 s",
         action_name.c_str());
       throw std::runtime_error(
-              std::string("Action server ") + action_name +
-              std::string(" not available"));
+        std::string("Action server ") + action_name + std::string(" not available"));
     }
   }
 
@@ -113,8 +109,7 @@ public:
   {
     BT::PortsList basic = {
       BT::InputPort<std::string>("server_name", "Action server name"),
-      BT::InputPort<std::chrono::milliseconds>("server_timeout")
-    };
+      BT::InputPort<std::chrono::milliseconds>("server_timeout")};
     basic.insert(addition.begin(), addition.end());
 
     return basic;
@@ -124,60 +119,52 @@ public:
    * @brief Creates list of BT ports
    * @return BT::PortsList Containing basic ports along with node-specific ports
    */
-  static BT::PortsList providedPorts()
-  {
-    return providedBasicPorts({});
-  }
+  static BT::PortsList providedPorts() { return providedBasicPorts({}); }
 
   // Derived classes can override any of the following methods to hook into the
   // processing for the action: on_tick, on_wait_for_result, and on_success
 
   /**
    * @brief Function to perform some user-defined operation on tick
-   * Could do dynamic checks, such as getting updates to values on the blackboard
+   * Could do dynamic checks, such as getting updates to values on the
+   * blackboard
    */
-  virtual void on_tick()
-  {
-  }
+  virtual void on_tick() {}
 
   /**
    * @brief Function to perform some user-defined operation after a timeout
    * waiting for a result that hasn't been received yet. Also provides access to
-   * the latest feedback message from the action server. Feedback will be nullptr
-   * in subsequent calls to this function if no new feedback is received while waiting for a result.
-   * @param feedback shared_ptr to latest feedback message, nullptr if no new feedback was received
+   * the latest feedback message from the action server. Feedback will be
+   * nullptr in subsequent calls to this function if no new feedback is received
+   * while waiting for a result.
+   * @param feedback shared_ptr to latest feedback message, nullptr if no new
+   * feedback was received
    */
-  virtual void on_wait_for_result(std::shared_ptr<const typename ActionT::Feedback>/*feedback*/)
-  {
-  }
+  virtual void on_wait_for_result(std::shared_ptr<const typename ActionT::Feedback> /*feedback*/) {}
 
   /**
    * @brief Function to perform some user-defined operation upon successful
    * completion of the action. Could put a value on the blackboard.
-   * @return BT::NodeStatus Returns SUCCESS by default, user may override return another value
+   * @return BT::NodeStatus Returns SUCCESS by default, user may override return
+   * another value
    */
-  virtual BT::NodeStatus on_success()
-  {
-    return BT::NodeStatus::SUCCESS;
-  }
+  virtual BT::NodeStatus on_success() { return BT::NodeStatus::SUCCESS; }
 
   /**
-   * @brief Function to perform some user-defined operation whe the action is aborted.
-   * @return BT::NodeStatus Returns FAILURE by default, user may override return another value
+   * @brief Function to perform some user-defined operation whe the action is
+   * aborted.
+   * @return BT::NodeStatus Returns FAILURE by default, user may override return
+   * another value
    */
-  virtual BT::NodeStatus on_aborted()
-  {
-    return BT::NodeStatus::FAILURE;
-  }
+  virtual BT::NodeStatus on_aborted() { return BT::NodeStatus::FAILURE; }
 
   /**
-   * @brief Function to perform some user-defined operation when the action is cancelled.
-   * @return BT::NodeStatus Returns SUCCESS by default, user may override return another value
+   * @brief Function to perform some user-defined operation when the action is
+   * cancelled.
+   * @return BT::NodeStatus Returns SUCCESS by default, user may override return
+   * another value
    */
-  virtual BT::NodeStatus on_cancelled()
-  {
-    return BT::NodeStatus::SUCCESS;
-  }
+  virtual BT::NodeStatus on_cancelled() { return BT::NodeStatus::SUCCESS; }
 
   /**
    * @brief The main override required by a BT action
@@ -190,7 +177,8 @@ public:
       // setting the status to RUNNING to notify the BT Loggers (if any)
       setStatus(BT::NodeStatus::RUNNING);
 
-      // reset the flag to send the goal or not, allowing the user the option to set it in on_tick
+      // reset the flag to send the goal or not, allowing the user the option to
+      // set it in on_tick
       should_send_goal_ = true;
 
       // user defined callback, may modify "should_send_goal_".
@@ -212,10 +200,12 @@ public:
           if (elapsed < server_timeout_) {
             return BT::NodeStatus::RUNNING;
           }
-          // if server has taken more time than the specified timeout value return FAILURE
+          // if server has taken more time than the specified timeout value
+          // return FAILURE
           RCLCPP_WARN(
             node_->get_logger(),
-            "Timed out while waiting for action server to acknowledge goal request for %s",
+            "Timed out while waiting for action server to "
+            "acknowledge goal request for %s",
             action_name_.c_str());
           future_goal_handle_.reset();
           return BT::NodeStatus::FAILURE;
@@ -231,9 +221,9 @@ public:
         feedback_.reset();
 
         auto goal_status = goal_handle_->get_status();
-        if (goal_updated_ && (goal_status == action_msgs::msg::GoalStatus::STATUS_EXECUTING ||
-          goal_status == action_msgs::msg::GoalStatus::STATUS_ACCEPTED))
-        {
+        if (
+          goal_updated_ && (goal_status == action_msgs::msg::GoalStatus::STATUS_EXECUTING ||
+                            goal_status == action_msgs::msg::GoalStatus::STATUS_ACCEPTED)) {
           goal_updated_ = false;
           send_new_goal();
           auto elapsed = (node_->now() - time_goal_sent_).to_chrono<std::chrono::milliseconds>();
@@ -243,7 +233,8 @@ public:
             }
             RCLCPP_WARN(
               node_->get_logger(),
-              "Timed out while waiting for action server to acknowledge goal request for %s",
+              "Timed out while waiting for action server to "
+              "acknowledge goal request for %s",
               action_name_.c_str());
             future_goal_handle_.reset();
             return BT::NodeStatus::FAILURE;
@@ -259,9 +250,9 @@ public:
         }
       }
     } catch (const std::runtime_error & e) {
-      if (e.what() == std::string("send_goal failed") ||
-        e.what() == std::string("Goal was rejected by the action server"))
-      {
+      if (
+        e.what() == std::string("send_goal failed") ||
+        e.what() == std::string("Goal was rejected by the action server")) {
         // Action related failure that should not fail the tree, but the node
         return BT::NodeStatus::FAILURE;
       } else {
@@ -293,19 +284,18 @@ public:
   }
 
   /**
-   * @brief The other (optional) override required by a BT action. In this case, we
-   * make sure to cancel the ROS2 action if it is still running.
+   * @brief The other (optional) override required by a BT action. In this case,
+   * we make sure to cancel the ROS2 action if it is still running.
    */
   void halt() override
   {
     if (should_cancel_goal()) {
       auto future_cancel = action_client_->async_cancel_goal(goal_handle_);
-      if (callback_group_executor_.spin_until_future_complete(future_cancel, server_timeout_) !=
-        rclcpp::FutureReturnCode::SUCCESS)
-      {
+      if (
+        callback_group_executor_.spin_until_future_complete(future_cancel, server_timeout_) !=
+        rclcpp::FutureReturnCode::SUCCESS) {
         RCLCPP_ERROR(
-          node_->get_logger(),
-          "Failed to cancel action server for %s", action_name_.c_str());
+          node_->get_logger(), "Failed to cancel action server for %s", action_name_.c_str());
       }
     }
 
@@ -349,24 +339,26 @@ protected:
         if (future_goal_handle_) {
           RCLCPP_DEBUG(
             node_->get_logger(),
-            "Goal result for %s available, but it hasn't received the goal response yet. "
-            "It's probably a goal result for the last goal request", action_name_.c_str());
+            "Goal result for %s available, but it hasn't received the goal "
+            "response yet. "
+            "It's probably a goal result for the last goal request",
+            action_name_.c_str());
           return;
         }
 
         // TODO(#1652): a work around until rcl_action interface is updated
-        // if goal ids are not matched, the older goal call this callback so ignore the result
-        // if matched, it must be processed (including aborted)
+        // if goal ids are not matched, the older goal call this callback so
+        // ignore the result if matched, it must be processed (including
+        // aborted)
         if (this->goal_handle_->get_goal_id() == result.goal_id) {
           goal_result_available_ = true;
           result_ = result;
         }
       };
     send_goal_options.feedback_callback =
-      [this](typename rclcpp_action::ClientGoalHandle<ActionT>::SharedPtr,
-        const std::shared_ptr<const typename ActionT::Feedback> feedback) {
-        feedback_ = feedback;
-      };
+      [this](
+        typename rclcpp_action::ClientGoalHandle<ActionT>::SharedPtr,
+        const std::shared_ptr<const typename ActionT::Feedback> feedback) { feedback_ = feedback; };
 
     future_goal_handle_ = std::make_shared<
       std::shared_future<typename rclcpp_action::ClientGoalHandle<ActionT>::SharedPtr>>(
@@ -376,9 +368,11 @@ protected:
 
   /**
    * @brief Function to check if the action server acknowledged a new goal
-   * @param elapsed Duration since the last goal was sent and future goal handle has not completed.
-   * After waiting for the future to complete, this value is incremented with the timeout value.
-   * @return boolean True if future_goal_handle_ returns SUCCESS, False otherwise
+   * @param elapsed Duration since the last goal was sent and future goal handle
+   * has not completed. After waiting for the future to complete, this value is
+   * incremented with the timeout value.
+   * @return boolean True if future_goal_handle_ returns SUCCESS, False
+   * otherwise
    */
   bool is_future_goal_handle_complete(std::chrono::milliseconds & elapsed)
   {
@@ -413,14 +407,17 @@ protected:
   }
 
   /**
-   * @brief Function to increment recovery count on blackboard if this node wraps a recovery
+   * @brief Function to increment recovery count on blackboard if this node
+   * wraps a recovery
    */
   void increment_recovery_count()
   {
     int recovery_count = 0;
-    config().blackboard->template get<int>("number_recoveries", recovery_count);  // NOLINT
+    config().blackboard->template get<int>("number_recoveries",
+                                           recovery_count);  // NOLINT
     recovery_count += 1;
-    config().blackboard->template set<int>("number_recoveries", recovery_count);  // NOLINT
+    config().blackboard->template set<int>("number_recoveries",
+                                           recovery_count);  // NOLINT
   }
 
   std::string action_name_;
@@ -450,10 +447,11 @@ protected:
 
   // To track the action server acknowledgement when a new goal is sent
   std::shared_ptr<std::shared_future<typename rclcpp_action::ClientGoalHandle<ActionT>::SharedPtr>>
-  future_goal_handle_;
+    future_goal_handle_;
   rclcpp::Time time_goal_sent_;
-  
-  // Can be set in on_tick or on_wait_for_result to indicate if a goal should be sent.
+
+  // Can be set in on_tick or on_wait_for_result to indicate if a goal should be
+  // sent.
   bool should_send_goal_;
 };
 

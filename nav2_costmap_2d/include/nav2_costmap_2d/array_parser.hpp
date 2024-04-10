@@ -31,8 +31,8 @@
 #ifndef NAV2_COSTMAP_2D__ARRAY_PARSER_HPP_
 #define NAV2_COSTMAP_2D__ARRAY_PARSER_HPP_
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace nav2_costmap_2d
 {

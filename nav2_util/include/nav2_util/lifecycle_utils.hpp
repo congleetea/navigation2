@@ -15,10 +15,10 @@
 #ifndef NAV2_UTIL__LIFECYCLE_UTILS_HPP_
 #define NAV2_UTIL__LIFECYCLE_UTILS_HPP_
 
-#include <vector>
-#include <string>
-#include <chrono>
 #include "nav2_util/string_utils.hpp"
+#include <chrono>
+#include <string>
+#include <vector>
 
 namespace nav2_util
 {

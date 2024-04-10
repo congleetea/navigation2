@@ -25,16 +25,12 @@
 class AssistedTeleopActionServer : public TestActionServer<nav2_msgs::action::AssistedTeleop>
 {
 public:
-  AssistedTeleopActionServer()
-  : TestActionServer("assisted_teleop")
-  {}
+  AssistedTeleopActionServer() : TestActionServer("assisted_teleop") {}
 
 protected:
-  void execute(
-    const typename std::shared_ptr<
-      rclcpp_action::ServerGoalHandle<nav2_msgs::action::AssistedTeleop>>
-    goal_handle)
-  override
+  void execute(const typename std::shared_ptr<
+               rclcpp_action::ServerGoalHandle<nav2_msgs::action::AssistedTeleop>>
+                 goal_handle) override
   {
     nav2_msgs::action::AssistedTeleop::Result::SharedPtr result =
       std::make_shared<nav2_msgs::action::AssistedTeleop::Result>();
@@ -59,24 +55,18 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
     config_->blackboard->set<std::chrono::milliseconds>(
-      "server_timeout",
-      std::chrono::milliseconds(20));
+      "server_timeout", std::chrono::milliseconds(20));
     config_->blackboard->set<std::chrono::milliseconds>(
-      "bt_loop_duration",
-      std::chrono::milliseconds(10));
+      "bt_loop_duration", std::chrono::milliseconds(10));
     config_->blackboard->set<bool>("initial_pose_received", false);
     config_->blackboard->set<int>("number_recoveries", 0);
 
-    BT::NodeBuilder builder =
-      [](const std::string & name, const BT::NodeConfiguration & config)
-      {
-        return std::make_unique<nav2_behavior_tree::AssistedTeleopAction>(
-          name, "assisted_teleop", config);
-      };
+    BT::NodeBuilder builder = [](const std::string & name, const BT::NodeConfiguration & config) {
+      return std::make_unique<nav2_behavior_tree::AssistedTeleopAction>(
+        name, "assisted_teleop", config);
+    };
 
     factory_->registerBuilder<nav2_behavior_tree::AssistedTeleopAction>("AssistedTeleop", builder);
   }
@@ -90,15 +80,9 @@ public:
     factory_.reset();
   }
 
-  void SetUp() override
-  {
-    config_->blackboard->set("number_recoveries", 0);
-  }
+  void SetUp() override { config_->blackboard->set("number_recoveries", 0); }
 
-  void TearDown() override
-  {
-    tree_.reset();
-  }
+  void TearDown() override { tree_.reset(); }
 
   static std::shared_ptr<AssistedTeleopActionServer> action_server_;
 
@@ -110,8 +94,8 @@ protected:
 };
 
 rclcpp::Node::SharedPtr AssistedTeleopActionTestFixture::node_ = nullptr;
-std::shared_ptr<AssistedTeleopActionServer>
-AssistedTeleopActionTestFixture::action_server_ = nullptr;
+std::shared_ptr<AssistedTeleopActionServer> AssistedTeleopActionTestFixture::action_server_ =
+  nullptr;
 BT::NodeConfiguration * AssistedTeleopActionTestFixture::config_ = nullptr;
 std::shared_ptr<BT::BehaviorTreeFactory> AssistedTeleopActionTestFixture::factory_ = nullptr;
 std::shared_ptr<BT::Tree> AssistedTeleopActionTestFixture::tree_ = nullptr;
@@ -180,8 +164,7 @@ TEST_F(AssistedTeleopActionTestFixture, test_failure)
   EXPECT_EQ(config_->blackboard->get<int>("number_recoveries"), 0);
 
   while (tree_->rootNode()->status() != BT::NodeStatus::SUCCESS &&
-    tree_->rootNode()->status() != BT::NodeStatus::FAILURE)
-  {
+         tree_->rootNode()->status() != BT::NodeStatus::FAILURE) {
     tree_->rootNode()->executeTick();
   }
 
@@ -201,9 +184,8 @@ int main(int argc, char ** argv)
 
   // initialize action server and spin on new thread
   AssistedTeleopActionTestFixture::action_server_ = std::make_shared<AssistedTeleopActionServer>();
-  std::thread server_thread([]() {
-      rclcpp::spin(AssistedTeleopActionTestFixture::action_server_);
-    });
+  std::thread server_thread(
+    []() { rclcpp::spin(AssistedTeleopActionTestFixture::action_server_); });
 
   int all_successful = RUN_ALL_TESTS();
 

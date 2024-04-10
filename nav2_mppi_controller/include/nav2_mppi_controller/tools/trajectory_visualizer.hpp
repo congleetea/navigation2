@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,9 +25,9 @@
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
+#include "nav2_mppi_controller/models/trajectories.hpp"
 #include "nav2_mppi_controller/tools/parameters_handler.hpp"
 #include "nav2_mppi_controller/tools/utils.hpp"
-#include "nav2_mppi_controller/models/trajectories.hpp"
 
 namespace mppi
 {
@@ -39,63 +40,63 @@ class TrajectoryVisualizer
 {
 public:
   /**
-    * @brief Constructor for mppi::TrajectoryVisualizer
-    */
+   * @brief Constructor for mppi::TrajectoryVisualizer
+   */
   TrajectoryVisualizer() = default;
 
   /**
-    * @brief Configure trajectory visualizer
-    * @param parent WeakPtr to node
-    * @param name Name of plugin
-    * @param frame_id Frame to publish trajectories in
-    * @param dynamic_parameter_handler Parameter handler object
-    */
+   * @brief Configure trajectory visualizer
+   * @param parent WeakPtr to node
+   * @param name Name of plugin
+   * @param frame_id Frame to publish trajectories in
+   * @param dynamic_parameter_handler Parameter handler object
+   */
   void on_configure(
     rclcpp_lifecycle::LifecycleNode::WeakPtr parent, const std::string & name,
     const std::string & frame_id, ParametersHandler * parameters_handler);
 
   /**
-    * @brief Cleanup object on shutdown
-    */
+   * @brief Cleanup object on shutdown
+   */
   void on_cleanup();
 
   /**
-    * @brief Activate object
-    */
+   * @brief Activate object
+   */
   void on_activate();
 
   /**
-    * @brief Deactivate object
-    */
+   * @brief Deactivate object
+   */
   void on_deactivate();
 
   /**
-    * @brief Add an optimal trajectory to visualize
-    * @param trajectory Optimal trajectory
-    */
+   * @brief Add an optimal trajectory to visualize
+   * @param trajectory Optimal trajectory
+   */
   void add(const xt::xtensor<float, 2> & trajectory, const std::string & marker_namespace);
 
   /**
-    * @brief Add candidate trajectories to visualize
-    * @param trajectories Candidate trajectories
-    */
+   * @brief Add candidate trajectories to visualize
+   * @param trajectories Candidate trajectories
+   */
   void add(const models::Trajectories & trajectories, const std::string & marker_namespace);
 
   /**
-    * @brief Visualize the plan
-    * @param plan Plan to visualize
-    */
+   * @brief Visualize the plan
+   * @param plan Plan to visualize
+   */
   void visualize(const nav_msgs::msg::Path & plan);
 
   /**
-    * @brief Reset object
-    */
+   * @brief Reset object
+   */
   void reset();
 
 protected:
   std::string frame_id_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<visualization_msgs::msg::MarkerArray>>
-  trajectories_publisher_;
+    trajectories_publisher_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>> transformed_path_pub_;
 
   std::unique_ptr<visualization_msgs::msg::MarkerArray> points_;

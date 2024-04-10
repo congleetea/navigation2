@@ -43,27 +43,17 @@ SmootherServer::SmootherServer(const rclcpp::NodeOptions & options)
   RCLCPP_INFO(get_logger(), "Creating smoother server");
 
   declare_parameter(
-    "costmap_topic", rclcpp::ParameterValue(
-      std::string(
-        "global_costmap/costmap_raw")));
+    "costmap_topic", rclcpp::ParameterValue(std::string("global_costmap/costmap_raw")));
   declare_parameter(
-    "footprint_topic",
-    rclcpp::ParameterValue(
-      std::string("global_costmap/published_footprint")));
-  declare_parameter(
-    "robot_base_frame",
-    rclcpp::ParameterValue(std::string("base_link")));
+    "footprint_topic", rclcpp::ParameterValue(std::string("global_costmap/published_footprint")));
+  declare_parameter("robot_base_frame", rclcpp::ParameterValue(std::string("base_link")));
   declare_parameter("transform_tolerance", rclcpp::ParameterValue(0.1));
   declare_parameter("smoother_plugins", default_ids_);
 }
 
-SmootherServer::~SmootherServer()
-{
-  smoothers_.clear();
-}
+SmootherServer::~SmootherServer() { smoothers_.clear(); }
 
-nav2_util::CallbackReturn
-SmootherServer::on_configure(const rclcpp_lifecycle::State &)
+nav2_util::CallbackReturn SmootherServer::on_configure(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(get_logger(), "Configuring smoother server");
 
@@ -73,8 +63,7 @@ SmootherServer::on_configure(const rclcpp_lifecycle::State &)
   if (smoother_ids_ == default_ids_) {
     for (size_t i = 0; i < default_ids_.size(); ++i) {
       nav2_util::declare_parameter_if_not_declared(
-        node, default_ids_[i] + ".plugin",
-        rclcpp::ParameterValue(default_types_[i]));
+        node, default_ids_[i] + ".plugin", rclcpp::ParameterValue(default_types_[i]));
     }
   }
 
@@ -90,13 +79,12 @@ SmootherServer::on_configure(const rclcpp_lifecycle::State &)
   this->get_parameter("footprint_topic", footprint_topic);
   this->get_parameter("transform_tolerance", transform_tolerance);
   this->get_parameter("robot_base_frame", robot_base_frame);
-  costmap_sub_ = std::make_shared<nav2_costmap_2d::CostmapSubscriber>(
-    shared_from_this(), costmap_topic);
+  costmap_sub_ =
+    std::make_shared<nav2_costmap_2d::CostmapSubscriber>(shared_from_this(), costmap_topic);
   footprint_sub_ = std::make_shared<nav2_costmap_2d::FootprintSubscriber>(
     shared_from_this(), footprint_topic, *tf_, robot_base_frame, transform_tolerance);
 
-  collision_checker_ =
-    std::make_shared<nav2_costmap_2d::CostmapTopicCollisionChecker>(
+  collision_checker_ = std::make_shared<nav2_costmap_2d::CostmapTopicCollisionChecker>(
     *costmap_sub_, *footprint_sub_, this->get_name());
 
   if (!loadSmootherPlugins()) {
@@ -108,12 +96,8 @@ SmootherServer::on_configure(const rclcpp_lifecycle::State &)
 
   // Create the action server that we implement with our smoothPath method
   action_server_ = std::make_unique<ActionServer>(
-    shared_from_this(),
-    "smooth_path",
-    std::bind(&SmootherServer::smoothPlan, this),
-    nullptr,
-    std::chrono::milliseconds(500),
-    true);
+    shared_from_this(), "smooth_path", std::bind(&SmootherServer::smoothPlan, this), nullptr,
+    std::chrono::milliseconds(500), true);
 
   return nav2_util::CallbackReturn::SUCCESS;
 }
@@ -126,21 +110,15 @@ bool SmootherServer::loadSmootherPlugins()
 
   for (size_t i = 0; i != smoother_ids_.size(); i++) {
     try {
-      smoother_types_[i] =
-        nav2_util::get_plugin_type_param(node, smoother_ids_[i]);
-      nav2_core::Smoother::Ptr smoother =
-        lp_loader_.createUniqueInstance(smoother_types_[i]);
+      smoother_types_[i] = nav2_util::get_plugin_type_param(node, smoother_ids_[i]);
+      nav2_core::Smoother::Ptr smoother = lp_loader_.createUniqueInstance(smoother_types_[i]);
       RCLCPP_INFO(
-        get_logger(), "Created smoother : %s of type %s",
-        smoother_ids_[i].c_str(), smoother_types_[i].c_str());
-      smoother->configure(
-        node, smoother_ids_[i], tf_, costmap_sub_,
-        footprint_sub_);
+        get_logger(), "Created smoother : %s of type %s", smoother_ids_[i].c_str(),
+        smoother_types_[i].c_str());
+      smoother->configure(node, smoother_ids_[i], tf_, costmap_sub_, footprint_sub_);
       smoothers_.insert({smoother_ids_[i], smoother});
     } catch (const pluginlib::PluginlibException & ex) {
-      RCLCPP_FATAL(
-        get_logger(), "Failed to create smoother. Exception: %s",
-        ex.what());
+      RCLCPP_FATAL(get_logger(), "Failed to create smoother. Exception: %s", ex.what());
       return false;
     }
   }
@@ -150,14 +128,12 @@ bool SmootherServer::loadSmootherPlugins()
   }
 
   RCLCPP_INFO(
-    get_logger(), "Smoother Server has %s smoothers available.",
-    smoother_ids_concat_.c_str());
+    get_logger(), "Smoother Server has %s smoothers available.", smoother_ids_concat_.c_str());
 
   return true;
 }
 
-nav2_util::CallbackReturn
-SmootherServer::on_activate(const rclcpp_lifecycle::State &)
+nav2_util::CallbackReturn SmootherServer::on_activate(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(get_logger(), "Activating");
 
@@ -174,8 +150,7 @@ SmootherServer::on_activate(const rclcpp_lifecycle::State &)
   return nav2_util::CallbackReturn::SUCCESS;
 }
 
-nav2_util::CallbackReturn
-SmootherServer::on_deactivate(const rclcpp_lifecycle::State &)
+nav2_util::CallbackReturn SmootherServer::on_deactivate(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(get_logger(), "Deactivating");
 
@@ -192,8 +167,7 @@ SmootherServer::on_deactivate(const rclcpp_lifecycle::State &)
   return nav2_util::CallbackReturn::SUCCESS;
 }
 
-nav2_util::CallbackReturn
-SmootherServer::on_cleanup(const rclcpp_lifecycle::State &)
+nav2_util::CallbackReturn SmootherServer::on_cleanup(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(get_logger(), "Cleaning up");
 
@@ -216,16 +190,13 @@ SmootherServer::on_cleanup(const rclcpp_lifecycle::State &)
   return nav2_util::CallbackReturn::SUCCESS;
 }
 
-nav2_util::CallbackReturn
-SmootherServer::on_shutdown(const rclcpp_lifecycle::State &)
+nav2_util::CallbackReturn SmootherServer::on_shutdown(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(get_logger(), "Shutting down");
   return nav2_util::CallbackReturn::SUCCESS;
 }
 
-bool SmootherServer::findSmootherId(
-  const std::string & c_name,
-  std::string & current_smoother)
+bool SmootherServer::findSmootherId(const std::string & c_name, std::string & current_smoother)
 {
   if (smoothers_.find(c_name) == smoothers_.end()) {
     if (smoothers_.size() == 1 && c_name.empty()) {
@@ -272,8 +243,8 @@ void SmootherServer::smoothPlan()
     // Perform smoothing
     auto goal = action_server_->get_current_goal();
     result->path = goal->path;
-    result->was_completed = smoothers_[current_smoother_]->smooth(
-      result->path, goal->max_smoothing_duration);
+    result->was_completed =
+      smoothers_[current_smoother_]->smooth(result->path, goal->max_smoothing_duration);
     result->smoothing_duration = steady_clock_.now() - start_time;
 
     if (!result->was_completed) {
@@ -281,8 +252,7 @@ void SmootherServer::smoothPlan()
         get_logger(),
         "Smoother %s did not complete smoothing in specified time limit"
         "(%lf seconds) and was interrupted after %lf seconds",
-        current_smoother_.c_str(),
-        rclcpp::Duration(goal->max_smoothing_duration).seconds(),
+        current_smoother_.c_str(), rclcpp::Duration(goal->max_smoothing_duration).seconds(),
         rclcpp::Duration(result->smoothing_duration).seconds());
     }
     plan_publisher_->publish(result->path);
@@ -299,7 +269,8 @@ void SmootherServer::smoothPlan()
         if (!collision_checker_->isCollisionFree(pose2d, fetch_data)) {
           RCLCPP_ERROR(
             get_logger(),
-            "Smoothed path leads to a collision at x: %lf, y: %lf, theta: %lf",
+            "Smoothed path leads to a collision at x: %lf, y: %lf, "
+            "theta: %lf",
             pose2d.x, pose2d.y, pose2d.theta);
           action_server_->terminate_current(result);
           return;
@@ -329,6 +300,6 @@ void SmootherServer::smoothPlan()
 #include "rclcpp_components/register_node_macro.hpp"
 
 // Register the component with class_loader.
-// This acts as a sort of entry point, allowing the component to be discoverable when its library
-// is being loaded into a running process.
+// This acts as a sort of entry point, allowing the component to be discoverable
+// when its library is being loaded into a running process.
 RCLCPP_COMPONENTS_REGISTER_NODE(nav2_smoother::SmootherServer)

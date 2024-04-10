@@ -36,13 +36,13 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <vector>
 
-#include "gtest/gtest.h"
 #include "nav_2d_utils/conversions.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/time.hpp"
+#include "gtest/gtest.h"
 
-using nav_2d_utils::posesToPath;
 using nav_2d_utils::pathToPath;
+using nav_2d_utils::posesToPath;
 
 TEST(nav_2d_utils, PosesToPathEmpty)
 {

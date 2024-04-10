@@ -30,10 +30,10 @@ namespace nav2_behavior_tree
 
 /**
  * @brief The ControllerSelector behavior is used to switch the controller
- * that will be used by the controller server. It subscribes to a topic "controller_selector"
- * to get the decision about what controller must be used. It is usually used before of
- * the FollowPath. The selected_controller output port is passed to controller_id
- * input port of the FollowPath
+ * that will be used by the controller server. It subscribes to a topic
+ * "controller_selector" to get the decision about what controller must be used.
+ * It is usually used before of the FollowPath. The selected_controller output
+ * port is passed to controller_id input port of the FollowPath
  */
 class ControllerSelector : public BT::SyncActionNode
 {
@@ -44,9 +44,7 @@ public:
    * @param xml_tag_name Name for the XML tag for this node
    * @param conf  BT node configuration
    */
-  ControllerSelector(
-    const std::string & xml_tag_name,
-    const BT::NodeConfiguration & conf);
+  ControllerSelector(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
 
   /**
    * @brief Creates list of BT ports
@@ -57,17 +55,13 @@ public:
     return {
       BT::InputPort<std::string>(
         "default_controller",
-        "the default controller to use if there is not any external topic message received."),
+        "the default controller to use if there is "
+        "not any external topic message received."),
 
       BT::InputPort<std::string>(
-        "topic_name",
-        "controller_selector",
-        "the input topic name to select the controller"),
+        "topic_name", "controller_selector", "the input topic name to select the controller"),
 
-      BT::OutputPort<std::string>(
-        "selected_controller",
-        "Selected controller by subscription")
-    };
+      BT::OutputPort<std::string>("selected_controller", "Selected controller by subscription")};
   }
 
 private:

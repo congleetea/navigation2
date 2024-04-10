@@ -33,8 +33,8 @@ class PathAlignCritic : public CriticFunction
 {
 public:
   /**
-    * @brief Initialize critic
-    */
+   * @brief Initialize critic
+   */
   void initialize() override;
 
   /**

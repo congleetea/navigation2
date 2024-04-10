@@ -15,12 +15,12 @@
 #ifndef NAV2_BEHAVIOR_TREE__PLUGINS__CONDITION__TRANSFORM_AVAILABLE_CONDITION_HPP_
 #define NAV2_BEHAVIOR_TREE__PLUGINS__CONDITION__TRANSFORM_AVAILABLE_CONDITION_HPP_
 
-#include <string>
 #include <atomic>
 #include <memory>
+#include <string>
 
-#include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp_v3/condition_node.h"
+#include "rclcpp/rclcpp.hpp"
 #include "tf2_ros/buffer.h"
 
 namespace nav2_behavior_tree
@@ -39,8 +39,7 @@ public:
    * @param conf BT node configuration
    */
   TransformAvailableCondition(
-    const std::string & condition_name,
-    const BT::NodeConfiguration & conf);
+    const std::string & condition_name, const BT::NodeConfiguration & conf);
 
   TransformAvailableCondition() = delete;
 
@@ -63,8 +62,7 @@ public:
   {
     return {
       BT::InputPort<std::string>("child", std::string(), "Child frame for transform"),
-      BT::InputPort<std::string>("parent", std::string(), "parent frame for transform")
-    };
+      BT::InputPort<std::string>("parent", std::string(), "parent frame for transform")};
   }
 
 private:

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #ifndef NAV2_BEHAVIOR_TREE__PLUGINS__CONDITION__GLOBALLY_UPDATED_GOAL_CONDITION_HPP_
-#define  NAV2_BEHAVIOR_TREE__PLUGINS__CONDITION__GLOBALLY_UPDATED_GOAL_CONDITION_HPP_
+#define NAV2_BEHAVIOR_TREE__PLUGINS__CONDITION__GLOBALLY_UPDATED_GOAL_CONDITION_HPP_
 
 #include <string>
 #include <vector>
@@ -22,7 +22,6 @@
 
 #include "behaviortree_cpp_v3/condition_node.h"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-
 
 namespace nav2_behavior_tree
 {
@@ -39,8 +38,7 @@ public:
    * @param conf BT node configuration
    */
   GloballyUpdatedGoalCondition(
-    const std::string & condition_name,
-    const BT::NodeConfiguration & conf);
+    const std::string & condition_name, const BT::NodeConfiguration & conf);
 
   GloballyUpdatedGoalCondition() = delete;
 
@@ -50,15 +48,11 @@ public:
    */
   BT::NodeStatus tick() override;
 
-
   /**
    * @brief Creates list of BT ports
    * @return BT::PortsList Containing node-specific ports
    */
-  static BT::PortsList providedPorts()
-  {
-    return {};
-  }
+  static BT::PortsList providedPorts() { return {}; }
 
 private:
   bool first_time;
@@ -68,6 +62,5 @@ private:
 };
 
 }  // namespace nav2_behavior_tree
-
 
 #endif  // NAV2_BEHAVIOR_TREE__PLUGINS__CONDITION__GLOBALLY_UPDATED_GOAL_CONDITION_HPP_

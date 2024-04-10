@@ -12,23 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
-#include <memory>
 #include <limits>
+#include <memory>
+#include <string>
 
-#include "nav_msgs/msg/path.hpp"
 #include "nav2_util/geometry_utils.hpp"
+#include "nav_msgs/msg/path.hpp"
 
 #include "nav2_behavior_tree/plugins/action/remove_passed_goals_action.hpp"
 
 namespace nav2_behavior_tree
 {
 
-RemovePassedGoals::RemovePassedGoals(
-  const std::string & name,
-  const BT::NodeConfiguration & conf)
-: BT::ActionNodeBase(name, conf),
-  viapoint_achieved_radius_(0.5)
+RemovePassedGoals::RemovePassedGoals(const std::string & name, const BT::NodeConfiguration & conf)
+: BT::ActionNodeBase(name, conf), viapoint_achieved_radius_(0.5)
 {
   getInput("radius", viapoint_achieved_radius_);
 
@@ -55,9 +52,7 @@ inline BT::NodeStatus RemovePassedGoals::tick()
 
   geometry_msgs::msg::PoseStamped current_pose;
   if (!nav2_util::getCurrentPose(
-      current_pose, *tf_, global_frame_, robot_base_frame_,
-      transform_tolerance_))
-  {
+        current_pose, *tf_, global_frame_, robot_base_frame_, transform_tolerance_)) {
     return BT::NodeStatus::FAILURE;
   }
 

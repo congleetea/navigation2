@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,10 +28,10 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_lifecycle/lifecycle_node.hpp>
 
+#include "nav2_mppi_controller/controller.hpp"
 #include "nav2_mppi_controller/motion_models.hpp"
 #include "nav2_mppi_controller/optimizer.hpp"
 #include "nav2_mppi_controller/tools/parameters_handler.hpp"
-#include "nav2_mppi_controller/controller.hpp"
 
 #include "models.hpp"
 
@@ -45,15 +46,13 @@ auto setHeader(auto && msg, auto node, std::string frame)
 
 }  // namespace detail
 
-
 /**
  * Adds some parameters for the optimizer to a special container.
  *
  * @param params_ container for optimizer's parameters.
  */
 void setUpOptimizerParams(
-  const TestOptimizerSettings & s,
-  const std::vector<std::string> & critics,
+  const TestOptimizerSettings & s, const std::vector<std::string> & critics,
   std::vector<rclcpp::Parameter> & params_, std::string node_name = std::string("dummy"))
 {
   constexpr double dummy_freq = 50.0;
@@ -76,8 +75,7 @@ void setUpControllerParams(
 }
 
 rclcpp::NodeOptions getOptimizerOptions(
-  TestOptimizerSettings s,
-  const std::vector<std::string> & critics)
+  TestOptimizerSettings s, const std::vector<std::string> & critics)
 {
   std::vector<rclcpp::Parameter> params;
   rclcpp::NodeOptions options;
@@ -128,8 +126,7 @@ std::shared_ptr<nav2_costmap_2d::Costmap2DROS> getDummyCostmapRos(TestCostmapSet
   return costmap_ros;
 }
 
-std::shared_ptr<rclcpp_lifecycle::LifecycleNode>
-getDummyNode(
+std::shared_ptr<rclcpp_lifecycle::LifecycleNode> getDummyNode(
   TestOptimizerSettings s, std::vector<std::string> critics,
   std::string node_name = std::string("dummy"))
 {
@@ -138,16 +135,15 @@ getDummyNode(
   return node;
 }
 
-std::shared_ptr<rclcpp_lifecycle::LifecycleNode>
-getDummyNode(rclcpp::NodeOptions options, std::string node_name = std::string("dummy"))
+std::shared_ptr<rclcpp_lifecycle::LifecycleNode> getDummyNode(
+  rclcpp::NodeOptions options, std::string node_name = std::string("dummy"))
 {
   auto node = std::make_shared<rclcpp_lifecycle::LifecycleNode>(node_name, options);
   return node;
 }
 
 std::shared_ptr<mppi::Optimizer> getDummyOptimizer(
-  auto node, auto costmap_ros,
-  auto * params_handler)
+  auto node, auto costmap_ros, auto * params_handler)
 {
   std::shared_ptr<mppi::Optimizer> optimizer = std::make_shared<mppi::Optimizer>();
   std::weak_ptr<rclcpp_lifecycle::LifecycleNode> weak_ptr_node{node};
@@ -158,8 +154,7 @@ std::shared_ptr<mppi::Optimizer> getDummyOptimizer(
 }
 
 mppi::PathHandler getDummyPathHandler(
-  auto node, auto costmap_ros, auto tf_buffer,
-  auto * params_handler)
+  auto node, auto costmap_ros, auto tf_buffer, auto * params_handler)
 {
   mppi::PathHandler path_handler;
   std::weak_ptr<rclcpp_lifecycle::LifecycleNode> weak_ptr_node{node};
@@ -170,8 +165,7 @@ mppi::PathHandler getDummyPathHandler(
 }
 
 std::shared_ptr<nav2_mppi_controller::MPPIController> getDummyController(
-  auto node, auto tf_buffer,
-  auto costmap_ros)
+  auto node, auto tf_buffer, auto costmap_ros)
 {
   auto controller = std::make_shared<nav2_mppi_controller::MPPIController>();
   std::weak_ptr<rclcpp_lifecycle::LifecycleNode> weak_ptr_node{node};
@@ -187,8 +181,8 @@ auto getDummyTwist()
   return twist;
 }
 
-geometry_msgs::msg::PoseStamped
-getDummyPointStamped(auto & node, std::string frame = std::string("odom"))
+geometry_msgs::msg::PoseStamped getDummyPointStamped(
+  auto & node, std::string frame = std::string("odom"))
 {
   geometry_msgs::msg::PoseStamped point;
   detail::setHeader(point, node, frame);

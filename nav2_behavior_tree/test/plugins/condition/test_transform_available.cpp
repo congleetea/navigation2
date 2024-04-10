@@ -13,10 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <chrono>
 #include <gtest/gtest.h>
 #include <memory>
 #include <set>
-#include <chrono>
 #include <string>
 
 #include "../../test_behavior_tree_fixture.hpp"
@@ -36,18 +36,13 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
     config_->blackboard->set<std::shared_ptr<tf2_ros::Buffer>>(
-      "tf_buffer",
-      transform_handler_->getBuffer());
+      "tf_buffer", transform_handler_->getBuffer());
     config_->blackboard->set<std::chrono::milliseconds>(
-      "server_timeout",
-      std::chrono::milliseconds(20));
+      "server_timeout", std::chrono::milliseconds(20));
     config_->blackboard->set<std::chrono::milliseconds>(
-      "bt_loop_duration",
-      std::chrono::milliseconds(10));
+      "bt_loop_duration", std::chrono::milliseconds(10));
     config_->blackboard->set<bool>("initial_pose_received", false);
   }
 
@@ -76,10 +71,7 @@ public:
     tree_ = std::make_shared<BT::Tree>(factory_->createTreeFromText(xml_txt, config_->blackboard));
   }
 
-  void TearDown()
-  {
-    tree_.reset();
-  }
+  void TearDown() { tree_.reset(); }
 
 protected:
   static rclcpp::Node::SharedPtr node_;
@@ -91,10 +83,9 @@ protected:
 
 rclcpp::Node::SharedPtr TransformAvailableConditionTestFixture::node_ = nullptr;
 std::shared_ptr<nav2_behavior_tree::TransformHandler>
-TransformAvailableConditionTestFixture::transform_handler_ = nullptr;
+  TransformAvailableConditionTestFixture::transform_handler_ = nullptr;
 BT::NodeConfiguration * TransformAvailableConditionTestFixture::config_ = nullptr;
-std::shared_ptr<BT::BehaviorTreeFactory>
-TransformAvailableConditionTestFixture::factory_ = nullptr;
+std::shared_ptr<BT::BehaviorTreeFactory> TransformAvailableConditionTestFixture::factory_ = nullptr;
 std::shared_ptr<BT::Tree> TransformAvailableConditionTestFixture::tree_ = nullptr;
 
 TEST_F(TransformAvailableConditionTestFixture, test_behavior)

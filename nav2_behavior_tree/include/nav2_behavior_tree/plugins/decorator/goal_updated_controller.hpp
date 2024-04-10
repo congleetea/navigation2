@@ -21,8 +21,8 @@
 
 #include "behaviortree_cpp_v3/decorator_node.h"
 
-#include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_behavior_tree
 {
@@ -38,18 +38,13 @@ public:
    * @param name Name for the XML tag for this node
    * @param conf BT node configuration
    */
-  GoalUpdatedController(
-    const std::string & name,
-    const BT::NodeConfiguration & conf);
+  GoalUpdatedController(const std::string & name, const BT::NodeConfiguration & conf);
 
   /**
    * @brief Creates list of BT ports
    * @return BT::PortsList Containing node-specific ports
    */
-  static BT::PortsList providedPorts()
-  {
-    return {};
-  }
+  static BT::PortsList providedPorts() { return {}; }
 
 private:
   /**

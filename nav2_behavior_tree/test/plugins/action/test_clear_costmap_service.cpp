@@ -26,9 +26,7 @@
 class ClearEntireCostmapService : public TestService<nav2_msgs::srv::ClearEntireCostmap>
 {
 public:
-  ClearEntireCostmapService()
-  : TestService("clear_entire_costmap")
-  {}
+  ClearEntireCostmapService() : TestService("clear_entire_costmap") {}
 };
 
 class ClearEntireCostmapServiceTestFixture : public ::testing::Test
@@ -44,15 +42,11 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
     config_->blackboard->set<std::chrono::milliseconds>(
-      "server_timeout",
-      std::chrono::milliseconds(20));
+      "server_timeout", std::chrono::milliseconds(20));
     config_->blackboard->set<std::chrono::milliseconds>(
-      "bt_loop_duration",
-      std::chrono::milliseconds(10));
+      "bt_loop_duration", std::chrono::milliseconds(10));
     config_->blackboard->set<bool>("initial_pose_received", false);
     config_->blackboard->set<int>("number_recoveries", 0);
 
@@ -68,15 +62,9 @@ public:
     factory_.reset();
   }
 
-  void SetUp() override
-  {
-    config_->blackboard->set("number_recoveries", 0);
-  }
+  void SetUp() override { config_->blackboard->set("number_recoveries", 0); }
 
-  void TearDown() override
-  {
-    tree_.reset();
-  }
+  void TearDown() override { tree_.reset(); }
 
   static std::shared_ptr<ClearEntireCostmapService> server_;
 
@@ -112,9 +100,7 @@ TEST_F(ClearEntireCostmapServiceTestFixture, test_tick)
 class ClearCostmapExceptRegionService : public TestService<nav2_msgs::srv::ClearCostmapExceptRegion>
 {
 public:
-  ClearCostmapExceptRegionService()
-  : TestService("clear_costmap_except_region")
-  {}
+  ClearCostmapExceptRegionService() : TestService("clear_costmap_except_region") {}
 };
 
 class ClearCostmapExceptRegionServiceTestFixture : public ::testing::Test
@@ -130,15 +116,11 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
     config_->blackboard->set<std::chrono::milliseconds>(
-      "server_timeout",
-      std::chrono::milliseconds(10));
+      "server_timeout", std::chrono::milliseconds(10));
     config_->blackboard->set<std::chrono::milliseconds>(
-      "bt_loop_duration",
-      std::chrono::milliseconds(10));
+      "bt_loop_duration", std::chrono::milliseconds(10));
     config_->blackboard->set<bool>("initial_pose_received", false);
     config_->blackboard->set<int>("number_recoveries", 0);
 
@@ -155,15 +137,9 @@ public:
     factory_.reset();
   }
 
-  void SetUp() override
-  {
-    config_->blackboard->set("number_recoveries", 0);
-  }
+  void SetUp() override { config_->blackboard->set("number_recoveries", 0); }
 
-  void TearDown() override
-  {
-    tree_.reset();
-  }
+  void TearDown() override { tree_.reset(); }
 
   static std::shared_ptr<ClearCostmapExceptRegionService> server_;
 
@@ -174,16 +150,13 @@ protected:
   static std::shared_ptr<BT::Tree> tree_;
 };
 
-rclcpp::Node::SharedPtr
-ClearCostmapExceptRegionServiceTestFixture::node_ = nullptr;
+rclcpp::Node::SharedPtr ClearCostmapExceptRegionServiceTestFixture::node_ = nullptr;
 std::shared_ptr<ClearCostmapExceptRegionService>
-ClearCostmapExceptRegionServiceTestFixture::server_ = nullptr;
-BT::NodeConfiguration
-* ClearCostmapExceptRegionServiceTestFixture::config_ = nullptr;
-std::shared_ptr<BT::BehaviorTreeFactory>
-ClearCostmapExceptRegionServiceTestFixture::factory_ = nullptr;
-std::shared_ptr<BT::Tree>
-ClearCostmapExceptRegionServiceTestFixture::tree_ = nullptr;
+  ClearCostmapExceptRegionServiceTestFixture::server_ = nullptr;
+BT::NodeConfiguration * ClearCostmapExceptRegionServiceTestFixture::config_ = nullptr;
+std::shared_ptr<BT::BehaviorTreeFactory> ClearCostmapExceptRegionServiceTestFixture::factory_ =
+  nullptr;
+std::shared_ptr<BT::Tree> ClearCostmapExceptRegionServiceTestFixture::tree_ = nullptr;
 
 TEST_F(ClearCostmapExceptRegionServiceTestFixture, test_tick)
 {
@@ -204,9 +177,7 @@ TEST_F(ClearCostmapExceptRegionServiceTestFixture, test_tick)
 class ClearCostmapAroundRobotService : public TestService<nav2_msgs::srv::ClearCostmapAroundRobot>
 {
 public:
-  ClearCostmapAroundRobotService()
-  : TestService("clear_costmap_around_robot")
-  {}
+  ClearCostmapAroundRobotService() : TestService("clear_costmap_around_robot") {}
 };
 
 class ClearCostmapAroundRobotServiceTestFixture : public ::testing::Test
@@ -222,15 +193,11 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
     config_->blackboard->set<std::chrono::milliseconds>(
-      "server_timeout",
-      std::chrono::milliseconds(10));
+      "server_timeout", std::chrono::milliseconds(10));
     config_->blackboard->set<std::chrono::milliseconds>(
-      "bt_loop_duration",
-      std::chrono::milliseconds(10));
+      "bt_loop_duration", std::chrono::milliseconds(10));
     config_->blackboard->set<bool>("initial_pose_received", false);
     config_->blackboard->set<int>("number_recoveries", 0);
 
@@ -247,15 +214,9 @@ public:
     factory_.reset();
   }
 
-  void SetUp() override
-  {
-    config_->blackboard->set("number_recoveries", 0);
-  }
+  void SetUp() override { config_->blackboard->set("number_recoveries", 0); }
 
-  void TearDown() override
-  {
-    tree_.reset();
-  }
+  void TearDown() override { tree_.reset(); }
 
   static std::shared_ptr<ClearCostmapAroundRobotService> server_;
 
@@ -266,16 +227,13 @@ protected:
   static std::shared_ptr<BT::Tree> tree_;
 };
 
-rclcpp::Node::SharedPtr
-ClearCostmapAroundRobotServiceTestFixture::node_ = nullptr;
-std::shared_ptr<ClearCostmapAroundRobotService>
-ClearCostmapAroundRobotServiceTestFixture::server_ = nullptr;
-BT::NodeConfiguration
-* ClearCostmapAroundRobotServiceTestFixture::config_ = nullptr;
-std::shared_ptr<BT::BehaviorTreeFactory>
-ClearCostmapAroundRobotServiceTestFixture::factory_ = nullptr;
-std::shared_ptr<BT::Tree>
-ClearCostmapAroundRobotServiceTestFixture::tree_ = nullptr;
+rclcpp::Node::SharedPtr ClearCostmapAroundRobotServiceTestFixture::node_ = nullptr;
+std::shared_ptr<ClearCostmapAroundRobotService> ClearCostmapAroundRobotServiceTestFixture::server_ =
+  nullptr;
+BT::NodeConfiguration * ClearCostmapAroundRobotServiceTestFixture::config_ = nullptr;
+std::shared_ptr<BT::BehaviorTreeFactory> ClearCostmapAroundRobotServiceTestFixture::factory_ =
+  nullptr;
+std::shared_ptr<BT::Tree> ClearCostmapAroundRobotServiceTestFixture::tree_ = nullptr;
 
 TEST_F(ClearCostmapAroundRobotServiceTestFixture, test_tick)
 {
@@ -302,21 +260,17 @@ int main(int argc, char ** argv)
 
   // initialize service and spin on new thread
   ClearEntireCostmapServiceTestFixture::server_ = std::make_shared<ClearEntireCostmapService>();
-  std::thread server_thread([]() {
-      rclcpp::spin(ClearEntireCostmapServiceTestFixture::server_);
-    });
+  std::thread server_thread([]() { rclcpp::spin(ClearEntireCostmapServiceTestFixture::server_); });
 
   ClearCostmapExceptRegionServiceTestFixture::server_ =
     std::make_shared<ClearCostmapExceptRegionService>();
-  std::thread server_thread_except_region([]() {
-      rclcpp::spin(ClearCostmapExceptRegionServiceTestFixture::server_);
-    });
+  std::thread server_thread_except_region(
+    []() { rclcpp::spin(ClearCostmapExceptRegionServiceTestFixture::server_); });
 
   ClearCostmapAroundRobotServiceTestFixture::server_ =
     std::make_shared<ClearCostmapAroundRobotService>();
-  std::thread server_thread_around_robot([]() {
-      rclcpp::spin(ClearCostmapAroundRobotServiceTestFixture::server_);
-    });
+  std::thread server_thread_around_robot(
+    []() { rclcpp::spin(ClearCostmapAroundRobotServiceTestFixture::server_); });
 
   int all_successful = RUN_ALL_TESTS();
 

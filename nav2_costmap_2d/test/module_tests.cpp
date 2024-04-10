@@ -39,24 +39,14 @@
 #include "nav2_costmap_2d/observation_buffer.hpp"
 
 const unsigned char MAP_10_BY_10_CHAR[] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 200, 200, 200,
-  0, 0, 0, 0, 100, 0, 0, 200, 200, 200,
-  0, 0, 0, 0, 100, 0, 0, 200, 200, 200,
-  70, 70, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 200, 200, 200, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 255, 255, 255,
-  0, 0, 0, 0, 0, 0, 0, 255, 255, 255
-};
+  0, 0, 0, 0, 0,   0, 0, 0,   0,   0,   0,  0,  0, 0,   0,   0,   0, 0,   0,   0,
+  0, 0, 0, 0, 0,   0, 0, 200, 200, 200, 0,  0,  0, 0,   100, 0,   0, 200, 200, 200,
+  0, 0, 0, 0, 100, 0, 0, 200, 200, 200, 70, 70, 0, 0,   0,   0,   0, 0,   0,   0,
+  0, 0, 0, 0, 0,   0, 0, 0,   0,   0,   0,  0,  0, 200, 200, 200, 0, 0,   0,   0,
+  0, 0, 0, 0, 0,   0, 0, 255, 255, 255, 0,  0,  0, 0,   0,   0,   0, 255, 255, 255};
 
 const unsigned char MAP_5_BY_5_CHAR[] = {
-  0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
 std::vector<unsigned char> MAP_5_BY_5;
@@ -90,7 +80,8 @@ bool find(const std::vector<unsigned int> & l, unsigned int n)
 /**
  * Tests the reset method
  */
-TEST(costmap, testResetForStaticMap) {
+TEST(costmap, testResetForStaticMap)
+{
   // Define a static map with a large object in the center
   std::vector<unsigned char> staticMap;
   for (unsigned int i = 0; i < 10; i++) {
@@ -100,11 +91,12 @@ TEST(costmap, testResetForStaticMap) {
   }
 
   // Allocate the cost map, with a inflation to 3 cells all around
-  nav2_costmap_2d::Costmap2D map(10, 10, RESOLUTION, 0.0, 0.0, 3, 3, 3,
-    OBSTACLE_MAX_RANGE, OBSTACLE_MIN_RANGE, MAX_Z, RAYTRACE_MAX_RANGE, RAYTRACE_MIN_RANGE, 25,
-    staticMap, THRESHOLD);
+  nav2_costmap_2d::Costmap2D map(
+    10, 10, RESOLUTION, 0.0, 0.0, 3, 3, 3, OBSTACLE_MAX_RANGE, OBSTACLE_MIN_RANGE, MAX_Z,
+    RAYTRACE_MAX_RANGE, RAYTRACE_MIN_RANGE, 25, staticMap, THRESHOLD);
 
-  // Populate the cost map with a wall around the perimeter. Free space should clear out the room.
+  // Populate the cost map with a wall around the perimeter. Free space should
+  // clear out the room.
   pcl::PointCloud<pcl::PointXYZ> cloud;
   cloud.points.resize(40);
 
@@ -141,9 +133,8 @@ TEST(costmap, testResetForStaticMap) {
   p.x = wx;
   p.y = wy;
   p.z = MAX_Z;
-  nav2_costmap_2d::Observation obs(p, cloud, OBSTACLE_MAX_RANGE, OBSTACLE_MIN_RANGE,
-    RAYTRACE_MAX_RANGE,
-    RAYTRACE_MIN_RANGE);
+  nav2_costmap_2d::Observation obs(
+    p, cloud, OBSTACLE_MAX_RANGE, OBSTACLE_MIN_RANGE, RAYTRACE_MAX_RANGE, RAYTRACE_MIN_RANGE);
   std::vector<nav2_costmap_2d::Observation> obsBuf;
   obsBuf.push_back(obs);
 
@@ -173,7 +164,8 @@ TEST(costmap, testResetForStaticMap) {
   }
   ASSERT_EQ(hitCount, 64);
 
-  // Now if we reset the cost map, we should have our map go back to being completely occupied
+  // Now if we reset the cost map, we should have our map go back to being
+  // completely occupied
   map.resetMapOutsideWindow(wx, wy, 0.0, 0.0);
 
   // We should now go back to everything being occupied
@@ -189,14 +181,17 @@ TEST(costmap, testResetForStaticMap) {
 }
 
 /**
- * Test for the cost function correctness with a larger range and different values
+ * Test for the cost function correctness with a larger range and different
+ * values
  */
-TEST(costmap, testCostFunctionCorrectness) {
-  nav2_costmap_2d::Costmap2D map(100, 100, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS * 5.0, ROBOT_RADIUS * 8.0, ROBOT_RADIUS * 10.5,
+TEST(costmap, testCostFunctionCorrectness)
+{
+  nav2_costmap_2d::Costmap2D map(
+    100, 100, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS * 5.0, ROBOT_RADIUS * 8.0, ROBOT_RADIUS * 10.5,
     100.0, MAX_Z, 100.0, 25, EMPTY_100_BY_100, THRESHOLD);
 
-  // Verify that the circumscribed cost lower bound is as expected: based on the cost function.
+  // Verify that the circumscribed cost lower bound is as expected: based on the
+  // cost function.
   unsigned char c = map.computeCost((ROBOT_RADIUS * 8.0 / RESOLUTION));
   ASSERT_EQ(map.getCircumscribedCost(), c);
 
@@ -235,8 +230,7 @@ TEST(costmap, testCostFunctionCorrectness) {
 
   // Verify the normalized cost attenuates as expected
   for (unsigned int i = (unsigned int)(ceil(ROBOT_RADIUS * 5.0) + 1);
-    i <= (unsigned int)ceil(ROBOT_RADIUS * 10.5); i++)
-  {
+       i <= (unsigned int)ceil(ROBOT_RADIUS * 10.5); i++) {
     unsigned char expectedValue = map.computeCost(i / RESOLUTION);
     ASSERT_EQ(map.getCost(50 + i, 50), expectedValue);
   }
@@ -265,22 +259,28 @@ TEST(costmap, testCostFunctionCorrectness) {
 char printableCost(unsigned char cost)
 {
   switch (cost) {
-    case nav2_costmap_2d::NO_INFORMATION: return '?';
-    case nav2_costmap_2d::LETHAL_OBSTACLE: return 'L';
-    case nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE: return 'I';
-    case nav2_costmap_2d::FREE_SPACE: return '.';
-    default: return '0' + (unsigned char) (10 * cost / 255);
+    case nav2_costmap_2d::NO_INFORMATION:
+      return '?';
+    case nav2_costmap_2d::LETHAL_OBSTACLE:
+      return 'L';
+    case nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE:
+      return 'I';
+    case nav2_costmap_2d::FREE_SPACE:
+      return '.';
+    default:
+      return '0' + (unsigned char)(10 * cost / 255);
   }
 }
 
 /**
  * Test for wave interference
  */
-TEST(costmap, testWaveInterference) {
+TEST(costmap, testWaveInterference)
+{
   // Start with an empty map
-  nav2_costmap_2d::Costmap2D map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS * 2, ROBOT_RADIUS * 3.01,
-    10.0, MAX_Z * 2, 10.0, 1, EMPTY_10_BY_10, THRESHOLD);
+  nav2_costmap_2d::Costmap2D map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS * 2,
+    ROBOT_RADIUS * 3.01, 10.0, MAX_Z * 2, 10.0, 1, EMPTY_10_BY_10, THRESHOLD);
 
   // Lay out 3 obstacles in a line - along the diagonal, separated by a cell.
   pcl::PointCloud<pcl::PointXYZ> cloud;
@@ -324,10 +324,11 @@ TEST(costmap, testWaveInterference) {
 }
 
 /** Test for copying a window of a costmap */
-TEST(costmap, testWindowCopy) {
-  nav2_costmap_2d::Costmap2D map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS,
-    10.0, MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
+TEST(costmap, testWindowCopy)
+{
+  nav2_costmap_2d::Costmap2D map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS, 10.0,
+    MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
 
   /*
   for(unsigned int i = 0; i < 10; ++i){
@@ -367,14 +368,15 @@ TEST(costmap, testWindowCopy) {
 }
 
 // test for updating costmaps with static data
-TEST(costmap, testFullyContainedStaticMapUpdate) {
-  nav2_costmap_2d::Costmap2D map(5, 5, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS,
-    10.0, MAX_Z, 10.0, 25, MAP_5_BY_5, THRESHOLD);
+TEST(costmap, testFullyContainedStaticMapUpdate)
+{
+  nav2_costmap_2d::Costmap2D map(
+    5, 5, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS, 10.0, MAX_Z, 10.0, 25,
+    MAP_5_BY_5, THRESHOLD);
 
-  nav2_costmap_2d::Costmap2D static_map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS,
-    10.0, MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
+  nav2_costmap_2d::Costmap2D static_map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS, 10.0,
+    MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
 
   map.updateStaticMapWindow(0, 0, 10, 10, MAP_10_BY_10);
 
@@ -385,14 +387,15 @@ TEST(costmap, testFullyContainedStaticMapUpdate) {
   }
 }
 
-TEST(costmap, testOverlapStaticMapUpdate) {
-  nav2_costmap_2d::Costmap2D map(5, 5, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS,
-    10.0, MAX_Z, 10.0, 25, MAP_5_BY_5, THRESHOLD);
+TEST(costmap, testOverlapStaticMapUpdate)
+{
+  nav2_costmap_2d::Costmap2D map(
+    5, 5, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS, 10.0, MAX_Z, 10.0, 25,
+    MAP_5_BY_5, THRESHOLD);
 
-  nav2_costmap_2d::Costmap2D static_map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS,
-    10.0, MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
+  nav2_costmap_2d::Costmap2D static_map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS, 10.0,
+    MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
 
   map.updateStaticMapWindow(-10, -10, 10, 10, MAP_10_BY_10);
 
@@ -423,9 +426,9 @@ TEST(costmap, testOverlapStaticMapUpdate) {
   fully_contained[5] = 254;
   fully_contained[9] = 254;
 
-  nav2_costmap_2d::Costmap2D small_static_map(5, 5, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS,
-    10.0, MAX_Z, 10.0, 25, fully_contained, THRESHOLD);
+  nav2_costmap_2d::Costmap2D small_static_map(
+    5, 5, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS, 10.0, MAX_Z, 10.0, 25,
+    fully_contained, THRESHOLD);
 
   map.updateStaticMapWindow(0, 0, 5, 5, fully_contained);
 
@@ -443,10 +446,11 @@ TEST(costmap, testOverlapStaticMapUpdate) {
 /**
  * Test for ray tracing free space
  */
-TEST(costmap, testRaytracing) {
-  nav2_costmap_2d::Costmap2D map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS,
-    10.0, MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
+TEST(costmap, testRaytracing)
+{
+  nav2_costmap_2d::Costmap2D map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS, 10.0,
+    MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
 
   // Add a point cloud, should not affect the map
   pcl::PointCloud<pcl::PointXYZ> cloud;
@@ -480,9 +484,11 @@ TEST(costmap, testRaytracing) {
   ASSERT_EQ(lethal_count, 21);
 }
 
-TEST(costmap, testAdjacentToObstacleCanStillMove) {
-  nav2_costmap_2d::Costmap2D map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, 2.1, 3.1, 4.1,
-    10.0, MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
+TEST(costmap, testAdjacentToObstacleCanStillMove)
+{
+  nav2_costmap_2d::Costmap2D map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, 2.1, 3.1, 4.1, 10.0, MAX_Z, 10.0, 25,
+    MAP_10_BY_10, THRESHOLD);
   pcl::PointCloud<pcl::PointXYZ> cloud;
   cloud.points.resize(1);
   cloud.points[0].x = 0;
@@ -508,9 +514,11 @@ TEST(costmap, testAdjacentToObstacleCanStillMove) {
   EXPECT_EQ(nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE, map.getCost(1, 1));
 }
 
-TEST(costmap, testInflationShouldNotCreateUnknowns) {
-  nav2_costmap_2d::Costmap2D map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, 2.1, 3.1, 4.1,
-    10.0, MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
+TEST(costmap, testInflationShouldNotCreateUnknowns)
+{
+  nav2_costmap_2d::Costmap2D map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, 2.1, 3.1, 4.1, 10.0, MAX_Z, 10.0, 25,
+    MAP_10_BY_10, THRESHOLD);
   pcl::PointCloud<pcl::PointXYZ> cloud;
   cloud.points.resize(1);
   cloud.points[0].x = 0;
@@ -554,10 +562,11 @@ void indexToWorld(nav2_costmap_2d::Costmap2D & map, unsigned int index, double &
   map.mapToWorld(mx, my, wx, wy);
 }
 
-TEST(costmap, testStaticMap) {
-  nav2_costmap_2d::Costmap2D map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS,
-    10.0, MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
+TEST(costmap, testStaticMap)
+{
+  nav2_costmap_2d::Costmap2D map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS, 10.0,
+    MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
 
   ASSERT_EQ(map.getSizeInCellsX(), (unsigned int)10);
   ASSERT_EQ(map.getSizeInCellsY(), (unsigned int)10);
@@ -577,8 +586,7 @@ TEST(costmap, testStaticMap) {
 
   // Iterate over all id's and verify that they are present according to their
   for (std::vector<unsigned int>::const_iterator it = occupiedCells.begin();
-    it != occupiedCells.end(); ++it)
-  {
+       it != occupiedCells.end(); ++it) {
     unsigned int ind = *it;
     unsigned int x, y;
     map.indexToCells(ind, x, y);
@@ -607,7 +615,6 @@ TEST(costmap, testStaticMap) {
   ASSERT_EQ(find(occupiedCells, map.getIndex(4, 7)), true);
   ASSERT_EQ(find(occupiedCells, map.getIndex(5, 7)), true);
 
-
   // Verify Coordinate Transformations, ROW MAJOR ORDER
   ASSERT_EQ(worldToIndex(map, 0.0, 0.0), (unsigned int)0);
   ASSERT_EQ(worldToIndex(map, 0.0, 0.99), (unsigned int)0);
@@ -623,17 +630,18 @@ TEST(costmap, testStaticMap) {
   ASSERT_EQ(wy, 9.5);
 }
 
-
 /**
  * Verify that dynamic obstacles are added
  */
 
-TEST(costmap, testDynamicObstacles) {
-  nav2_costmap_2d::Costmap2D map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS,
-    10.0, MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
+TEST(costmap, testDynamicObstacles)
+{
+  nav2_costmap_2d::Costmap2D map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS, 10.0,
+    MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
 
-  // Add a point cloud and verify its insertion. There should be only one new one
+  // Add a point cloud and verify its insertion. There should be only one new
+  // one
   pcl::PointCloud<pcl::PointXYZ> cloud;
   cloud.points.resize(3);
   cloud.points[0].x = 0;
@@ -673,12 +681,14 @@ TEST(costmap, testDynamicObstacles) {
 }
 
 /**
- * Verify that if we add a point that is already a static obstacle we do not end up with a new ostacle
+ * Verify that if we add a point that is already a static obstacle we do not end
+ * up with a new ostacle
  */
-TEST(costmap, testMultipleAdditions) {
-  nav2_costmap_2d::Costmap2D map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS,
-    10.0, MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
+TEST(costmap, testMultipleAdditions)
+{
+  nav2_costmap_2d::Costmap2D map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS, 10.0,
+    MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
 
   // A point cloud with one point that falls within an existing obstacle
   pcl::PointCloud<pcl::PointXYZ> cloud;
@@ -713,10 +723,11 @@ TEST(costmap, testMultipleAdditions) {
 /**
  * Make sure we ignore points outside of our z threshold
  */
-TEST(costmap, testZThreshold) {
-  nav2_costmap_2d::Costmap2D map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS,
-    10.0, MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
+TEST(costmap, testZThreshold)
+{
+  nav2_costmap_2d::Costmap2D map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS, 10.0,
+    MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
 
   // A point cloud with 2 points falling in a cell with a non-lethal cost
   pcl::PointCloud<pcl::PointXYZ> c0;
@@ -755,19 +766,20 @@ TEST(costmap, testZThreshold) {
  * Test inflation for both static and dynamic obstacles
  */
 
-TEST(costmap, testInflation) {
-  nav2_costmap_2d::Costmap2D map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS,
-    10.0, MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
+TEST(costmap, testInflation)
+{
+  nav2_costmap_2d::Costmap2D map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS, 10.0,
+    MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
 
   // Verify that obstacles correctly identified
   std::vector<unsigned int> occupiedCells;
 
   for (unsigned int i = 0; i < 10; ++i) {
     for (unsigned int j = 0; j < 10; ++j) {
-      if (map.getCost(i, j) == nav2_costmap_2d::LETHAL_OBSTACLE ||
-        map.getCost(i, j) == nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE)
-      {
+      if (
+        map.getCost(i, j) == nav2_costmap_2d::LETHAL_OBSTACLE ||
+        map.getCost(i, j) == nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE) {
         occupiedCells.push_back(map.getIndex(i, j));
       }
     }
@@ -784,18 +796,19 @@ TEST(costmap, testInflation) {
 
   // Iterate over all id's and verify they are obstacles
   for (std::vector<unsigned int>::const_iterator it = occupiedCells.begin();
-    it != occupiedCells.end(); ++it)
-  {
+       it != occupiedCells.end(); ++it) {
     unsigned int ind = *it;
     unsigned int x, y;
     map.indexToCells(ind, x, y);
     ASSERT_EQ(find(occupiedCells, map.getIndex(x, y)), true);
     ASSERT_EQ(
       map.getCost(x, y) == nav2_costmap_2d::LETHAL_OBSTACLE ||
-      map.getCost(x, y) == nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE, true);
+        map.getCost(x, y) == nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE,
+      true);
   }
 
-  // Set an obstacle at the origin and observe insertions for it and its neighbors
+  // Set an obstacle at the origin and observe insertions for it and its
+  // neighbors
   pcl::PointCloud<pcl::PointXYZ> c0;
   c0.points.resize(1);
   c0.points[0].x = 0;
@@ -816,9 +829,9 @@ TEST(costmap, testInflation) {
   occupiedCells.clear();
   for (unsigned int i = 0; i < 10; ++i) {
     for (unsigned int j = 0; j < 10; ++j) {
-      if (map.getCost(i, j) == nav2_costmap_2d::LETHAL_OBSTACLE ||
-        map.getCost(i, j) == nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE)
-      {
+      if (
+        map.getCost(i, j) == nav2_costmap_2d::LETHAL_OBSTACLE ||
+        map.getCost(i, j) == nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE) {
         occupiedCells.push_back(map.getIndex(i, j));
       }
     }
@@ -828,7 +841,8 @@ TEST(costmap, testInflation) {
   ASSERT_EQ(occupiedCells.size(), (unsigned int)51);
 
   // @todo Rewrite
-  // Add an obstacle at <2,0> which will inflate and refresh to of the other inflated cells
+  // Add an obstacle at <2,0> which will inflate and refresh to of the other
+  // inflated cells
   pcl::PointCloud<pcl::PointXYZ> c1;
   c1.points.resize(1);
   c1.points[0].x = 2;
@@ -849,9 +863,9 @@ TEST(costmap, testInflation) {
   occupiedCells.clear();
   for (unsigned int i = 0; i < 10; ++i) {
     for (unsigned int j = 0; j < 10; ++j) {
-      if (map.getCost(i, j) == nav2_costmap_2d::LETHAL_OBSTACLE ||
-        map.getCost(i, j) == nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE)
-      {
+      if (
+        map.getCost(i, j) == nav2_costmap_2d::LETHAL_OBSTACLE ||
+        map.getCost(i, j) == nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE) {
         occupiedCells.push_back(map.getIndex(i, j));
       }
     }
@@ -862,7 +876,6 @@ TEST(costmap, testInflation) {
   // the origin to the target, clearing the point at <0, 0>,
   // but not over-writing the inflation of the obstacle at <0, 1>
   ASSERT_EQ(occupiedCells.size(), (unsigned int)54);
-
 
   // Add an obstacle at <1, 9>. This will inflate obstacles around it
   pcl::PointCloud<pcl::PointXYZ> c2;
@@ -908,12 +921,14 @@ TEST(costmap, testInflation) {
 }
 
 /**
- * Test specific inflation scenario to ensure we do not set inflated obstacles to be raw obstacles.
+ * Test specific inflation scenario to ensure we do not set inflated obstacles
+ * to be raw obstacles.
  */
-TEST(costmap, testInflation2) {
-  nav2_costmap_2d::Costmap2D map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS,
-    10.0, MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
+TEST(costmap, testInflation2)
+{
+  nav2_costmap_2d::Costmap2D map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS, 10.0,
+    MAX_Z, 10.0, 25, MAP_10_BY_10, THRESHOLD);
 
   // Creat a small L-Shape all at once
   pcl::PointCloud<pcl::PointXYZ> c0;
@@ -946,7 +961,8 @@ TEST(costmap, testInflation2) {
 /**
  * Test inflation behavior, starting with an empty map
  */
-TEST(costmap, testInflation3) {
+TEST(costmap, testInflation3)
+{
   std::vector<unsigned char> mapData;
   for (unsigned int i = 0; i < GRID_WIDTH; i++) {
     for (unsigned int j = 0; j < GRID_HEIGHT; j++) {
@@ -954,8 +970,8 @@ TEST(costmap, testInflation3) {
     }
   }
 
-  nav2_costmap_2d::Costmap2D map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS * 2, ROBOT_RADIUS * 3,
+  nav2_costmap_2d::Costmap2D map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS * 2, ROBOT_RADIUS * 3,
     10.0, MAX_Z, 10.0, 1, mapData, THRESHOLD);
 
   // There should be no occupied cells
@@ -963,9 +979,9 @@ TEST(costmap, testInflation3) {
 
   for (unsigned int i = 0; i < 10; ++i) {
     for (unsigned int j = 0; j < 10; ++j) {
-      if (map.getCost(i, j) == nav2_costmap_2d::LETHAL_OBSTACLE ||
-        map.getCost(i, j) == nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE)
-      {
+      if (
+        map.getCost(i, j) == nav2_costmap_2d::LETHAL_OBSTACLE ||
+        map.getCost(i, j) == nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE) {
         ids.push_back(map.getIndex(i, j));
       }
     }
@@ -1004,9 +1020,9 @@ TEST(costmap, testInflation3) {
   ids.clear();
   for (unsigned int i = 0; i < 10; ++i) {
     for (unsigned int j = 0; j < 10; ++j) {
-      if (map.getCost(i, j) == nav2_costmap_2d::LETHAL_OBSTACLE ||
-        map.getCost(i, j) == nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE)
-      {
+      if (
+        map.getCost(i, j) == nav2_costmap_2d::LETHAL_OBSTACLE ||
+        map.getCost(i, j) == nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE) {
         ids.push_back(map.getIndex(i, j));
       }
     }
@@ -1033,13 +1049,14 @@ TEST(costmap, testInflation3) {
  * Test for ray tracing free space
  */
 
-TEST(costmap, testRaytracing2) {
-  nav2_costmap_2d::Costmap2D map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS,
-    100.0, MAX_Z, 100.0, 1, MAP_10_BY_10, THRESHOLD);
+TEST(costmap, testRaytracing2)
+{
+  nav2_costmap_2d::Costmap2D map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS, 100.0,
+    MAX_Z, 100.0, 1, MAP_10_BY_10, THRESHOLD);
 
-  // The sensor origin will be <0,0>. So if we add an obstacle at 9,9, we would expect cells
-  // <0, 0> thru <8, 8> to be traced through
+  // The sensor origin will be <0,0>. So if we add an obstacle at 9,9, we would
+  // expect cells <0, 0> thru <8, 8> to be traced through
   pcl::PointCloud<pcl::PointXYZ> c0;
   c0.points.resize(1);
   c0.points[0].x = 9.5;
@@ -1081,7 +1098,6 @@ TEST(costmap, testRaytracing2) {
   // Two obstacles should be removed from the map by raytracing
   ASSERT_EQ(obstacles.size(), obs_before - 2);
 
-
   // many cells will have been switched to free space along the diagonal except
   // for those inflated in the update.. tests that inflation happens properly
   // after raytracing
@@ -1092,33 +1108,27 @@ TEST(costmap, testRaytracing2) {
 }
 
 /**
- * Within a certian radius of the robot, the cost map most propagate obstacles. This
- * is to avoid a case where a hit on a far obstacle clears inscribed radius around a
- * near one.
+ * Within a certian radius of the robot, the cost map most propagate obstacles.
+ * This is to avoid a case where a hit on a far obstacle clears inscribed radius
+ * around a near one.
  */
 
-TEST(costmap, testTrickyPropagation) {
+TEST(costmap, testTrickyPropagation)
+{
   const unsigned char MAP_HALL_CHAR[10 * 10] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    254, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 254, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 254, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 254, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0,   0, 0, 0, 0, 0, 0, 0, 0,   0, 254, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0,   0, 0, 0, 0, 0, 0, 0, 254, 0, 0,   0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0,   0, 0, 0, 0, 0, 0, 0, 0,   0, 0,   0, 0, 0, 0, 254, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    254, 0, 0, 0, 0, 0, 0, 0, 0,   0, 0,   0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0,
   };
   std::vector<unsigned char> MAP_HALL;
   for (int i = 0; i < 10 * 10; i++) {
     MAP_HALL.push_back(MAP_HALL_CHAR[i]);
   }
 
-  nav2_costmap_2d::Costmap2D map(GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0,
-    ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS,
-    100.0, MAX_Z, 100.0, 1, MAP_HALL, THRESHOLD);
-
+  nav2_costmap_2d::Costmap2D map(
+    GRID_WIDTH, GRID_HEIGHT, RESOLUTION, 0.0, 0.0, ROBOT_RADIUS, ROBOT_RADIUS, ROBOT_RADIUS, 100.0,
+    MAX_Z, 100.0, 1, MAP_HALL, THRESHOLD);
 
   // Add a dynamic obstacle
   pcl::PointCloud<pcl::PointXYZ> c2;
@@ -1149,16 +1159,11 @@ TEST(costmap, testTrickyPropagation) {
   map.updateWorld(0, 0, obsBuf2, obsBuf2);
 
   const unsigned char MAP_HALL_CHAR_TEST[10 * 10] = {
-    253, 254, 253, 0, 0, 0, 0, 0, 0, 0,
-    0, 253, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 253, 0, 0, 0, 0, 0,
-    0, 0, 0, 253, 254, 253, 0, 0, 0, 0,
-    0, 0, 0, 0, 253, 0, 0, 253, 0, 0,
-    0, 0, 0, 253, 0, 0, 253, 254, 253, 0,
-    0, 0, 253, 254, 253, 0, 0, 253, 253, 0,
-    0, 0, 0, 253, 0, 0, 0, 253, 254, 253,
-    0, 0, 0, 0, 0, 0, 0, 0, 253, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    253, 254, 253, 0,   0,   0, 0, 0,   0,   0, 0, 253, 0, 0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   253, 0, 0, 0,   0,   0, 0, 0,   0, 253, 254, 253, 0,   0,   0,   0,
+    0,   0,   0,   0,   253, 0, 0, 253, 0,   0, 0, 0,   0, 253, 0,   0,   253, 254, 253, 0,
+    0,   0,   253, 254, 253, 0, 0, 253, 253, 0, 0, 0,   0, 253, 0,   0,   0,   253, 254, 253,
+    0,   0,   0,   0,   0,   0, 0, 0,   253, 0, 0, 0,   0, 0,   0,   0,   0,   0,   0,   0,
   };
 
   for (int i = 0; i < 10 * 10; i++) {
@@ -1184,23 +1189,17 @@ TEST(costmap, testTrickyPropagation) {
   map.updateWorld(0, 0, obsBuf3, obsBuf3);
 
   const unsigned char MAP_HALL_CHAR_TEST2[10 * 10] = {
-    253, 254, 253, 0, 0, 0, 0, 0, 0, 0,
-    0, 253, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 253, 0, 0, 0, 0,
-    0, 0, 0, 0, 253, 254, 253, 253, 0, 0,
-    0, 0, 0, 253, 0, 253, 253, 254, 253, 0,
-    0, 0, 253, 254, 253, 0, 0, 253, 253, 0,
-    0, 0, 0, 253, 0, 0, 0, 253, 254, 253,
-    0, 0, 0, 0, 0, 0, 0, 0, 253, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    253, 254, 253, 0,   0,   0,   0,   0,   0,   0, 0, 253, 0, 0,   0, 0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0, 0, 0,   0, 0,   0, 253, 0,   0,   0,   0,
+    0,   0,   0,   0,   253, 254, 253, 253, 0,   0, 0, 0,   0, 253, 0, 253, 253, 254, 253, 0,
+    0,   0,   253, 254, 253, 0,   0,   253, 253, 0, 0, 0,   0, 253, 0, 0,   0,   253, 254, 253,
+    0,   0,   0,   0,   0,   0,   0,   0,   253, 0, 0, 0,   0, 0,   0, 0,   0,   0,   0,   0,
   };
 
   for (int i = 0; i < 10 * 10; i++) {
     ASSERT_EQ(map.getCost(i / 10, i % 10), MAP_HALL_CHAR_TEST2[i]);
   }
 }
-
 
 int main(int argc, char ** argv)
 {

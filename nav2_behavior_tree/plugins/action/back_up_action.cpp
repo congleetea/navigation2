@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "nav2_behavior_tree/plugins/action/back_up_action.hpp"
 
@@ -21,8 +21,7 @@ namespace nav2_behavior_tree
 {
 
 BackUpAction::BackUpAction(
-  const std::string & xml_tag_name,
-  const std::string & action_name,
+  const std::string & xml_tag_name, const std::string & action_name,
   const BT::NodeConfiguration & conf)
 : BtActionNode<nav2_msgs::action::BackUp>(xml_tag_name, action_name, conf)
 {
@@ -41,22 +40,16 @@ BackUpAction::BackUpAction(
   goal_.time_allowance = rclcpp::Duration::from_seconds(time_allowance);
 }
 
-void BackUpAction::on_tick()
-{
-  increment_recovery_count();
-}
+void BackUpAction::on_tick() { increment_recovery_count(); }
 
 }  // namespace nav2_behavior_tree
 
 #include "behaviortree_cpp_v3/bt_factory.h"
 BT_REGISTER_NODES(factory)
 {
-  BT::NodeBuilder builder =
-    [](const std::string & name, const BT::NodeConfiguration & config)
-    {
-      return std::make_unique<nav2_behavior_tree::BackUpAction>(
-        name, "backup", config);
-    };
+  BT::NodeBuilder builder = [](const std::string & name, const BT::NodeConfiguration & config) {
+    return std::make_unique<nav2_behavior_tree::BackUpAction>(name, "backup", config);
+  };
 
   factory.registerBuilder<nav2_behavior_tree::BackUpAction>("BackUp", builder);
 }

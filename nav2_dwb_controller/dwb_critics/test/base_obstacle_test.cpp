@@ -32,15 +32,15 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <vector>
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
-#include "dwb_critics/obstacle_footprint.hpp"
 #include "dwb_core/exceptions.hpp"
+#include "dwb_critics/obstacle_footprint.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 TEST(BaseObstacle, IsValidCost)
 {
@@ -49,10 +49,9 @@ TEST(BaseObstacle, IsValidCost)
 
   for (int i = 0; i < 256; i++) {
     // for these 3 values the cost is not "valid"
-    if (i == nav2_costmap_2d::LETHAL_OBSTACLE ||
-      i == nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE ||
-      i == nav2_costmap_2d::NO_INFORMATION)
-    {
+    if (
+      i == nav2_costmap_2d::LETHAL_OBSTACLE || i == nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE ||
+      i == nav2_costmap_2d::NO_INFORMATION) {
       ASSERT_FALSE(critic->isValidCost(i));
     } else {
       ASSERT_TRUE(critic->isValidCost(i));

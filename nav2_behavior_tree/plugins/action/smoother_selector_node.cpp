@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "std_msgs/msg/string.hpp"
 
@@ -28,15 +28,12 @@ namespace nav2_behavior_tree
 
 using std::placeholders::_1;
 
-SmootherSelector::SmootherSelector(
-  const std::string & name,
-  const BT::NodeConfiguration & conf)
+SmootherSelector::SmootherSelector(const std::string & name, const BT::NodeConfiguration & conf)
 : BT::SyncActionNode(name, conf)
 {
   node_ = config().blackboard->get<rclcpp::Node::SharedPtr>("node");
-  callback_group_ = node_->create_callback_group(
-    rclcpp::CallbackGroupType::MutuallyExclusive,
-    false);
+  callback_group_ =
+    node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false);
   callback_group_executor_.add_callback_group(callback_group_, node_->get_node_base_interface());
 
   getInput("topic_name", topic_name_);
@@ -47,21 +44,18 @@ SmootherSelector::SmootherSelector(
   rclcpp::SubscriptionOptions sub_option;
   sub_option.callback_group = callback_group_;
   smoother_selector_sub_ = node_->create_subscription<std_msgs::msg::String>(
-    topic_name_,
-    qos,
-    std::bind(&SmootherSelector::callbackSmootherSelect, this, _1),
-    sub_option);
+    topic_name_, qos, std::bind(&SmootherSelector::callbackSmootherSelect, this, _1), sub_option);
 }
 
 BT::NodeStatus SmootherSelector::tick()
 {
   callback_group_executor_.spin_some();
 
-  // This behavior always use the last selected smoother received from the topic input.
-  // When no input is specified it uses the default smoother.
-  // If the default smoother is not specified then we work in "required smoother mode":
-  // In this mode, the behavior returns failure if the smoother selection is not received from
-  // the topic input.
+  // This behavior always use the last selected smoother received from the topic
+  // input. When no input is specified it uses the default smoother. If the
+  // default smoother is not specified then we work in "required smoother mode":
+  // In this mode, the behavior returns failure if the smoother selection is not
+  // received from the topic input.
   if (last_selected_smoother_.empty()) {
     std::string default_smoother;
     getInput("default_smoother", default_smoother);
@@ -77,8 +71,7 @@ BT::NodeStatus SmootherSelector::tick()
   return BT::NodeStatus::SUCCESS;
 }
 
-void
-SmootherSelector::callbackSmootherSelect(const std_msgs::msg::String::SharedPtr msg)
+void SmootherSelector::callbackSmootherSelect(const std_msgs::msg::String::SharedPtr msg)
 {
   last_selected_smoother_ = msg->data;
 }

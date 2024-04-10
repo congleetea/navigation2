@@ -14,9 +14,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
 #include <cmath>
 #include <memory>
+#include <string>
 
 #include "nav2_util/robot_utils.hpp"
 #include "rclcpp/logger.hpp"
@@ -25,9 +25,8 @@ namespace nav2_util
 {
 
 bool getCurrentPose(
-  geometry_msgs::msg::PoseStamped & global_pose,
-  tf2_ros::Buffer & tf_buffer, const std::string global_frame,
-  const std::string robot_frame, const double transform_timeout,
+  geometry_msgs::msg::PoseStamped & global_pose, tf2_ros::Buffer & tf_buffer,
+  const std::string global_frame, const std::string robot_frame, const double transform_timeout,
   const rclcpp::Time stamp)
 {
   tf2::toMsg(tf2::Transform::getIdentity(), global_pose.pose);
@@ -40,47 +39,35 @@ bool getCurrentPose(
 
 bool transformPoseInTargetFrame(
   const geometry_msgs::msg::PoseStamped & input_pose,
-  geometry_msgs::msg::PoseStamped & transformed_pose,
-  tf2_ros::Buffer & tf_buffer, const std::string target_frame,
-  const double transform_timeout)
+  geometry_msgs::msg::PoseStamped & transformed_pose, tf2_ros::Buffer & tf_buffer,
+  const std::string target_frame, const double transform_timeout)
 {
   static rclcpp::Logger logger = rclcpp::get_logger("transformPoseInTargetFrame");
 
   try {
-    transformed_pose = tf_buffer.transform(
-      input_pose, target_frame,
-      tf2::durationFromSec(transform_timeout));
+    transformed_pose =
+      tf_buffer.transform(input_pose, target_frame, tf2::durationFromSec(transform_timeout));
     return true;
   } catch (tf2::LookupException & ex) {
-    RCLCPP_ERROR(
-      logger,
-      "No Transform available Error looking up target frame: %s\n", ex.what());
+    RCLCPP_ERROR(logger, "No Transform available Error looking up target frame: %s\n", ex.what());
   } catch (tf2::ConnectivityException & ex) {
-    RCLCPP_ERROR(
-      logger,
-      "Connectivity Error looking up target frame: %s\n", ex.what());
+    RCLCPP_ERROR(logger, "Connectivity Error looking up target frame: %s\n", ex.what());
   } catch (tf2::ExtrapolationException & ex) {
-    RCLCPP_ERROR(
-      logger,
-      "Extrapolation Error looking up target frame: %s\n", ex.what());
+    RCLCPP_ERROR(logger, "Extrapolation Error looking up target frame: %s\n", ex.what());
   } catch (tf2::TimeoutException & ex) {
-    RCLCPP_ERROR(
-      logger,
-      "Transform timeout with tolerance: %.4f", transform_timeout);
+    RCLCPP_ERROR(logger, "Transform timeout with tolerance: %.4f", transform_timeout);
   } catch (tf2::TransformException & ex) {
     RCLCPP_ERROR(
-      logger, "Failed to transform from %s to %s",
-      input_pose.header.frame_id.c_str(), target_frame.c_str());
+      logger, "Failed to transform from %s to %s", input_pose.header.frame_id.c_str(),
+      target_frame.c_str());
   }
 
   return false;
 }
 
 bool getTransform(
-  const std::string & source_frame_id,
-  const std::string & target_frame_id,
-  const tf2::Duration & transform_tolerance,
-  const std::shared_ptr<tf2_ros::Buffer> tf_buffer,
+  const std::string & source_frame_id, const std::string & target_frame_id,
+  const tf2::Duration & transform_tolerance, const std::shared_ptr<tf2_ros::Buffer> tf_buffer,
   tf2::Transform & tf2_transform)
 {
   geometry_msgs::msg::TransformStamped transform;
@@ -94,12 +81,10 @@ bool getTransform(
   try {
     // Obtaining the transform to get data from source to target frame
     transform = tf_buffer->lookupTransform(
-      target_frame_id, source_frame_id,
-      tf2::TimePointZero, transform_tolerance);
+      target_frame_id, source_frame_id, tf2::TimePointZero, transform_tolerance);
   } catch (tf2::TransformException & e) {
     RCLCPP_ERROR(
-      rclcpp::get_logger("getTransform"),
-      "Failed to get \"%s\"->\"%s\" frame transform: %s",
+      rclcpp::get_logger("getTransform"), "Failed to get \"%s\"->\"%s\" frame transform: %s",
       source_frame_id.c_str(), target_frame_id.c_str(), e.what());
     return false;
   }
@@ -110,14 +95,10 @@ bool getTransform(
 }
 
 bool getTransform(
-  const std::string & source_frame_id,
-  const rclcpp::Time & source_time,
-  const std::string & target_frame_id,
-  const rclcpp::Time & target_time,
-  const std::string & fixed_frame_id,
-  const tf2::Duration & transform_tolerance,
-  const std::shared_ptr<tf2_ros::Buffer> tf_buffer,
-  tf2::Transform & tf2_transform)
+  const std::string & source_frame_id, const rclcpp::Time & source_time,
+  const std::string & target_frame_id, const rclcpp::Time & target_time,
+  const std::string & fixed_frame_id, const tf2::Duration & transform_tolerance,
+  const std::shared_ptr<tf2_ros::Buffer> tf_buffer, tf2::Transform & tf2_transform)
 {
   geometry_msgs::msg::TransformStamped transform;
   tf2_transform.setIdentity();  // initialize by identical transform
@@ -126,13 +107,11 @@ bool getTransform(
     // Obtaining the transform to get data from source to target frame.
     // This also considers the time shift between source and target.
     transform = tf_buffer->lookupTransform(
-      target_frame_id, target_time,
-      source_frame_id, source_time,
-      fixed_frame_id, transform_tolerance);
+      target_frame_id, target_time, source_frame_id, source_time, fixed_frame_id,
+      transform_tolerance);
   } catch (tf2::TransformException & ex) {
     RCLCPP_ERROR(
-      rclcpp::get_logger("getTransform"),
-      "Failed to get \"%s\"->\"%s\" frame transform: %s",
+      rclcpp::get_logger("getTransform"), "Failed to get \"%s\"->\"%s\" frame transform: %s",
       source_frame_id.c_str(), target_frame_id.c_str(), ex.what());
     return false;
   }

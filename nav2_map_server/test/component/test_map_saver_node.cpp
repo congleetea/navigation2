@@ -13,31 +13,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #include <gtest/gtest.h>
 
-#include <string>
-#include <memory>
 #include <experimental/filesystem>  // NOLINT
+#include <memory>
+#include <string>
 
 #include "rclcpp/rclcpp.hpp"
 
-#include "test_constants/test_constants.h"
 #include "nav2_map_server/map_saver.hpp"
-#include "nav2_util/lifecycle_service_client.hpp"
 #include "nav2_msgs/srv/save_map.hpp"
+#include "nav2_util/lifecycle_service_client.hpp"
+#include "test_constants/test_constants.h"
 
 #define TEST_DIR TEST_DIRECTORY
 
-using std::experimental::filesystem::path;
 using lifecycle_msgs::msg::Transition;
+using std::experimental::filesystem::path;
 using namespace nav2_map_server;  // NOLINT
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 
 RclCppFixture g_rclcppfixture;
@@ -48,8 +47,7 @@ public:
   static void SetUpTestCase()
   {
     node_ = rclcpp::Node::make_shared("map_client_test");
-    lifecycle_client_ =
-      std::make_shared<nav2_util::LifecycleServiceClient>("map_saver", node_);
+    lifecycle_client_ = std::make_shared<nav2_util::LifecycleServiceClient>("map_saver", node_);
     RCLCPP_INFO(node_->get_logger(), "Creating Test Node");
 
     std::this_thread::sleep_for(std::chrono::seconds(5));  // allow node to start up
@@ -66,11 +64,10 @@ public:
     node_.reset();
   }
 
-  template<class T>
+  template <class T>
   typename T::Response::SharedPtr send_request(
 
-    rclcpp::Node::SharedPtr node,
-    typename rclcpp::Client<T>::SharedPtr client,
+    rclcpp::Node::SharedPtr node, typename rclcpp::Client<T>::SharedPtr client,
     typename T::Request::SharedPtr request)
   {
     auto result = client->async_send_request(request);
@@ -100,10 +97,8 @@ protected:
   static std::shared_ptr<nav2_util::LifecycleServiceClient> lifecycle_client_;
 };
 
-
 rclcpp::Node::SharedPtr MapSaverTestFixture::node_ = nullptr;
-std::shared_ptr<nav2_util::LifecycleServiceClient> MapSaverTestFixture::lifecycle_client_ =
-  nullptr;
+std::shared_ptr<nav2_util::LifecycleServiceClient> MapSaverTestFixture::lifecycle_client_ = nullptr;
 
 // Send map saving service request.
 // Load saved map and verify obtained OccupancyGrid.
@@ -111,8 +106,7 @@ TEST_F(MapSaverTestFixture, SaveMap)
 {
   RCLCPP_INFO(node_->get_logger(), "Testing SaveMap service");
   auto req = std::make_shared<nav2_msgs::srv::SaveMap::Request>();
-  auto client = node_->create_client<nav2_msgs::srv::SaveMap>(
-    "/map_saver/save_map");
+  auto client = node_->create_client<nav2_msgs::srv::SaveMap>("/map_saver/save_map");
 
   RCLCPP_INFO(node_->get_logger(), "Waiting for save_map service");
   ASSERT_TRUE(client->wait_for_service());
@@ -140,8 +134,7 @@ TEST_F(MapSaverTestFixture, SaveMapDefaultParameters)
 {
   RCLCPP_INFO(node_->get_logger(), "Testing SaveMap service");
   auto req = std::make_shared<nav2_msgs::srv::SaveMap::Request>();
-  auto client = node_->create_client<nav2_msgs::srv::SaveMap>(
-    "/map_saver/save_map");
+  auto client = node_->create_client<nav2_msgs::srv::SaveMap>("/map_saver/save_map");
 
   RCLCPP_INFO(node_->get_logger(), "Waiting for save_map service");
   ASSERT_TRUE(client->wait_for_service());
@@ -170,14 +163,13 @@ TEST_F(MapSaverTestFixture, SaveMapInvalidParameters)
 {
   RCLCPP_INFO(node_->get_logger(), "Testing SaveMap service");
   auto req = std::make_shared<nav2_msgs::srv::SaveMap::Request>();
-  auto client = node_->create_client<nav2_msgs::srv::SaveMap>(
-    "/map_saver/save_map");
+  auto client = node_->create_client<nav2_msgs::srv::SaveMap>("/map_saver/save_map");
 
   RCLCPP_INFO(node_->get_logger(), "Waiting for save_map service");
   ASSERT_TRUE(client->wait_for_service());
 
-  // 1. Trying to send save_map serivce request with different sets of parameters
-  // In case of map is expected to be saved correctly, verify it
+  // 1. Trying to send save_map serivce request with different sets of
+  // parameters In case of map is expected to be saved correctly, verify it
   req->map_topic = "invalid_map";
   req->map_url = path(g_tmp_dir) / path(g_valid_map_name);
   req->image_format = "png";

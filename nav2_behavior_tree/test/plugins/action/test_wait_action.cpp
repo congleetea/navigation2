@@ -26,15 +26,14 @@
 class WaitActionServer : public TestActionServer<nav2_msgs::action::Wait>
 {
 public:
-  WaitActionServer()
-  : TestActionServer("wait")
-  {}
+  WaitActionServer() : TestActionServer("wait") {}
 
 protected:
   void execute(
     const typename std::shared_ptr<rclcpp_action::ServerGoalHandle<nav2_msgs::action::Wait>>)
-  override
-  {}
+    override
+  {
+  }
 };
 
 class WaitActionTestFixture : public ::testing::Test
@@ -50,24 +49,17 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
     config_->blackboard->set<std::chrono::milliseconds>(
-      "server_timeout",
-      std::chrono::milliseconds(20));
+      "server_timeout", std::chrono::milliseconds(20));
     config_->blackboard->set<std::chrono::milliseconds>(
-      "bt_loop_duration",
-      std::chrono::milliseconds(10));
+      "bt_loop_duration", std::chrono::milliseconds(10));
     config_->blackboard->set<bool>("initial_pose_received", false);
     config_->blackboard->set<int>("number_recoveries", 0);
 
-    BT::NodeBuilder builder =
-      [](const std::string & name, const BT::NodeConfiguration & config)
-      {
-        return std::make_unique<nav2_behavior_tree::WaitAction>(
-          name, "wait", config);
-      };
+    BT::NodeBuilder builder = [](const std::string & name, const BT::NodeConfiguration & config) {
+      return std::make_unique<nav2_behavior_tree::WaitAction>(name, "wait", config);
+    };
 
     factory_->registerBuilder<nav2_behavior_tree::WaitAction>("Wait", builder);
   }
@@ -81,15 +73,9 @@ public:
     factory_.reset();
   }
 
-  void SetUp() override
-  {
-    config_->blackboard->set("number_recoveries", 0);
-  }
+  void SetUp() override { config_->blackboard->set("number_recoveries", 0); }
 
-  void TearDown() override
-  {
-    tree_.reset();
-  }
+  void TearDown() override { tree_.reset(); }
 
   static std::shared_ptr<WaitActionServer> action_server_;
 
@@ -162,9 +148,7 @@ int main(int argc, char ** argv)
 
   // initialize action server and spin on new thread
   WaitActionTestFixture::action_server_ = std::make_shared<WaitActionServer>();
-  std::thread server_thread([]() {
-      rclcpp::spin(WaitActionTestFixture::action_server_);
-    });
+  std::thread server_thread([]() { rclcpp::spin(WaitActionTestFixture::action_server_); });
 
   int all_successful = RUN_ALL_TESTS();
 

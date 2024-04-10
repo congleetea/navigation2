@@ -32,22 +32,19 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <vector>
 #include <memory>
 #include <string>
+#include <vector>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
-#include "dwb_critics/obstacle_footprint.hpp"
 #include "dwb_core/exceptions.hpp"
+#include "dwb_critics/obstacle_footprint.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 class OpenObstacleFootprintCritic : public dwb_critics::ObstacleFootprintCritic
 {
 public:
-  double pointCost(int x, int y)
-  {
-    return dwb_critics::ObstacleFootprintCritic::pointCost(x, y);
-  }
+  double pointCost(int x, int y) { return dwb_critics::ObstacleFootprintCritic::pointCost(x, y); }
 
   double lineCost(int x0, int x1, int y0, int y1)
   {
@@ -148,7 +145,8 @@ TEST(ObstacleFootprint, Prepare)
 
   double epsilon = 0.01;
   // If the robot footprint goes of the map, it should throw an exception
-  // The following cases put the robot over the edge of the map on the left, bottom, right and top
+  // The following cases put the robot over the edge of the map on the left,
+  // bottom, right and top
 
   pose.x = footprint_size_x_half;  // This gives an error
   pose.y = footprint_size_y_half + epsilon;

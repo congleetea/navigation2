@@ -27,24 +27,22 @@ namespace nav2_collision_monitor
 {
 
 Source::Source(
-  const nav2_util::LifecycleNode::WeakPtr & node,
-  const std::string & source_name,
-  const std::shared_ptr<tf2_ros::Buffer> tf_buffer,
-  const std::string & base_frame_id,
-  const std::string & global_frame_id,
-  const tf2::Duration & transform_tolerance,
-  const rclcpp::Duration & source_timeout,
-  const bool base_shift_correction)
-: node_(node), source_name_(source_name), tf_buffer_(tf_buffer),
-  base_frame_id_(base_frame_id), global_frame_id_(global_frame_id),
-  transform_tolerance_(transform_tolerance), source_timeout_(source_timeout),
+  const nav2_util::LifecycleNode::WeakPtr & node, const std::string & source_name,
+  const std::shared_ptr<tf2_ros::Buffer> tf_buffer, const std::string & base_frame_id,
+  const std::string & global_frame_id, const tf2::Duration & transform_tolerance,
+  const rclcpp::Duration & source_timeout, const bool base_shift_correction)
+: node_(node),
+  source_name_(source_name),
+  tf_buffer_(tf_buffer),
+  base_frame_id_(base_frame_id),
+  global_frame_id_(global_frame_id),
+  transform_tolerance_(transform_tolerance),
+  source_timeout_(source_timeout),
   base_shift_correction_(base_shift_correction)
 {
 }
 
-Source::~Source()
-{
-}
+Source::~Source() {}
 
 void Source::getCommonParameters(std::string & source_topic)
 {
@@ -59,17 +57,16 @@ void Source::getCommonParameters(std::string & source_topic)
   source_topic = node->get_parameter(source_name_ + ".topic").as_string();
 }
 
-bool Source::sourceValid(
-  const rclcpp::Time & source_time,
-  const rclcpp::Time & curr_time) const
+bool Source::sourceValid(const rclcpp::Time & source_time, const rclcpp::Time & curr_time) const
 {
-  // Source is considered as not valid, if latest received data timestamp is earlier
-  // than current time by source_timeout_ interval
+  // Source is considered as not valid, if latest received data timestamp is
+  // earlier than current time by source_timeout_ interval
   const rclcpp::Duration dt = curr_time - source_time;
   if (dt > source_timeout_) {
     RCLCPP_WARN(
       logger_,
-      "[%s]: Latest source and current collision monitor node timestamps differ on %f seconds. "
+      "[%s]: Latest source and current collision monitor node "
+      "timestamps differ on %f seconds. "
       "Ignoring the source.",
       source_name_.c_str(), dt.seconds());
     return false;

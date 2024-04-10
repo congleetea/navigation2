@@ -13,11 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <gtest/gtest.h>
-#include <cmath>
-#include <tuple>
-#include <string>
 #include <algorithm>
+#include <cmath>
+#include <gtest/gtest.h>
+#include <string>
+#include <tuple>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -44,8 +44,7 @@ std::string testNameGenerator(const testing::TestParamInfo<TestParameters> &)
   return name;
 }
 
-class DriveOnHeadingBehaviorTestFixture
-  : public ::testing::TestWithParam<TestParameters>
+class DriveOnHeadingBehaviorTestFixture : public ::testing::TestWithParam<TestParameters>
 {
 public:
   static void SetUpTestCase()
@@ -84,37 +83,27 @@ TEST_P(DriveOnHeadingBehaviorTestFixture, testBackupBehavior)
   }
 
   bool success = false;
-  success = drive_on_heading_behavior_tester->defaultDriveOnHeadingBehaviorTest(
-    goal,
-    tolerance);
+  success = drive_on_heading_behavior_tester->defaultDriveOnHeadingBehaviorTest(goal, tolerance);
 
   float dist_to_obstacle = 2.0f;
-  if ( ((dist_to_obstacle - std::fabs(test_params.x)) < std::fabs(goal.speed)) ||
-    std::fabs(goal.target.y) > 0 ||
-    goal.time_allowance.sec < 2.0 ||
-    !((goal.target.x > 0.0) == (goal.speed > 0.0)))
-  {
+  if (
+    ((dist_to_obstacle - std::fabs(test_params.x)) < std::fabs(goal.speed)) ||
+    std::fabs(goal.target.y) > 0 || goal.time_allowance.sec < 2.0 ||
+    !((goal.target.x > 0.0) == (goal.speed > 0.0))) {
     EXPECT_FALSE(success);
   } else {
     EXPECT_TRUE(success);
   }
 }
 
-std::vector<TestParameters> test_params = {TestParameters{-0.05, 0.0, -0.2, 10.0, 0.01},
-  TestParameters{-0.05, 0.1, -0.2, 10.0, 0.01},
-  TestParameters{-2.0, 0.0, -0.2, 10.0, 0.1},
-  TestParameters{-0.05, 0.0, -0.01, 1.0, 0.01},
+std::vector<TestParameters> test_params = {
+  TestParameters{-0.05, 0.0, -0.2, 10.0, 0.01}, TestParameters{-0.05, 0.1, -0.2, 10.0, 0.01},
+  TestParameters{-2.0, 0.0, -0.2, 10.0, 0.1}, TestParameters{-0.05, 0.0, -0.01, 1.0, 0.01},
   TestParameters{0.05, 0.0, -0.2, 10.0, 0.01}};
 
 INSTANTIATE_TEST_SUITE_P(
-  DriveOnHeadingBehaviorTests,
-  DriveOnHeadingBehaviorTestFixture,
-  ::testing::Values(
-    test_params[0],
-    test_params[1],
-    test_params[2],
-    test_params[3],
-    test_params[4]),
+  DriveOnHeadingBehaviorTests, DriveOnHeadingBehaviorTestFixture,
+  ::testing::Values(test_params[0], test_params[1], test_params[2], test_params[3], test_params[4]),
   testNameGenerator);
 
 int main(int argc, char ** argv)

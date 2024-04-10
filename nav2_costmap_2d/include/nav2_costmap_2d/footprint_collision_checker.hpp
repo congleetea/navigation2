@@ -17,16 +17,16 @@
 #ifndef NAV2_COSTMAP_2D__FOOTPRINT_COLLISION_CHECKER_HPP_
 #define NAV2_COSTMAP_2D__FOOTPRINT_COLLISION_CHECKER_HPP_
 
+#include <algorithm>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
-#include <algorithm>
 
-#include "rclcpp/rclcpp.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/pose2_d.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_util/robot_utils.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_costmap_2d
 {
@@ -36,7 +36,7 @@ typedef std::vector<geometry_msgs::msg::Point> Footprint;
  * @class FootprintCollisionChecker
  * @brief Checker for collision with a footprint on a costmap
  */
-template<typename CostmapT>
+template <typename CostmapT>
 class FootprintCollisionChecker
 {
 public:
@@ -69,16 +69,13 @@ public:
    */
   double pointCost(int x, int y) const;
   /**
-  * @brief Set the current costmap object to use for collision detection
-  */
+   * @brief Set the current costmap object to use for collision detection
+   */
   void setCostmap(CostmapT costmap);
   /**
-  * @brief Get the current costmap object
-  */
-  CostmapT getCostmap()
-  {
-    return costmap_;
-  }
+   * @brief Get the current costmap object
+   */
+  CostmapT getCostmap() { return costmap_; }
 
 protected:
   CostmapT costmap_;

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
 #include <random>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_lifecycle_manager/lifecycle_manager_client.hpp"
@@ -47,9 +47,8 @@ int main(int argc, char ** argv)
   // The system should now be active
   int retries = 0;
   while ((client_nav.is_active() != nav2_lifecycle_manager::SystemStatus::ACTIVE) &&
-    (client_loc.is_active() != nav2_lifecycle_manager::SystemStatus::ACTIVE) &&
-    (retries < 10))
-  {
+         (client_loc.is_active() != nav2_lifecycle_manager::SystemStatus::ACTIVE) &&
+         (retries < 10)) {
     std::this_thread::sleep_for(2s);
     retries++;
   }

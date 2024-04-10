@@ -35,19 +35,19 @@
 #ifndef DWB_CORE__TRAJECTORY_CRITIC_HPP_
 #define DWB_CORE__TRAJECTORY_CRITIC_HPP_
 
-#include <string>
-#include <vector>
 #include <memory>
+#include <string>
 #include <utility>
+#include <vector>
 
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_costmap_2d/costmap_2d_ros.hpp"
-#include "geometry_msgs/msg/pose2_d.hpp"
-#include "nav_2d_msgs/msg/twist2_d.hpp"
-#include "nav_2d_msgs/msg/path2_d.hpp"
 #include "dwb_msgs/msg/trajectory2_d.hpp"
-#include "sensor_msgs/msg/point_cloud.hpp"
+#include "geometry_msgs/msg/pose2_d.hpp"
+#include "nav2_costmap_2d/costmap_2d_ros.hpp"
 #include "nav2_util/lifecycle_node.hpp"
+#include "nav_2d_msgs/msg/path2_d.hpp"
+#include "nav_2d_msgs/msg/twist2_d.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/point_cloud.hpp"
 
 namespace dwb_core
 {
@@ -63,17 +63,18 @@ namespace dwb_core
  *  1) initialize is called once at the beginning which in turn calls onInit.
  *       Derived classes may override onInit to load parameters as needed.
  *  2) prepare is called once before each set of trajectories.
- *       It is presumed that there are multiple trajectories that we want to evaluate,
- *       and there may be some shared work that can be done beforehand to optimize
- *       the scoring of each individual trajectory.
- *  3) scoreTrajectory is called once per trajectory and returns the score.
- *  4) debrief is called after each set of trajectories with the chosen trajectory.
- *       This can be used for stateful critics that monitor the trajectory through time.
+ *       It is presumed that there are multiple trajectories that we want to
+ * evaluate, and there may be some shared work that can be done beforehand to
+ * optimize the scoring of each individual trajectory. 3) scoreTrajectory is
+ * called once per trajectory and returns the score. 4) debrief is called after
+ * each set of trajectories with the chosen trajectory. This can be used for
+ * stateful critics that monitor the trajectory through time.
  *
- *  Optionally, there is also a debugging mechanism for certain types of critics in the
- *  addCriticVisualization method. If the score for a trajectory depends on its relationship to
- *  the costmap, addCriticVisualization can provide that information to the dwb_core
- *  which will publish the grid scores as a PointCloud2.
+ *  Optionally, there is also a debugging mechanism for certain types of critics
+ * in the addCriticVisualization method. If the score for a trajectory depends
+ * on its relationship to the costmap, addCriticVisualization can provide that
+ * information to the dwb_core which will publish the grid scores as a
+ * PointCloud2.
  */
 class TrajectoryCritic
 {
@@ -86,26 +87,23 @@ public:
    * @brief Initialize the critic with appropriate pointers and parameters
    *
    * The name and costmap are stored as member variables.
-   * A NodeHandle is created using the combination of the parent namespace and the critic name
+   * A NodeHandle is created using the combination of the parent namespace and
+   * the critic name
    *
    * @param name The name of this critic
    * @param parent_namespace The namespace of the planner
    * @param costmap_ros Pointer to the costmap
    */
   void initialize(
-    const nav2_util::LifecycleNode::SharedPtr & nh,
-    const std::string & name,
-    const std::string & ns,
-    std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros)
+    const nav2_util::LifecycleNode::SharedPtr & nh, const std::string & name,
+    const std::string & ns, std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros)
   {
     node_ = nh;
     name_ = name;
     costmap_ros_ = costmap_ros;
     dwb_plugin_name_ = ns;
     if (!nh->has_parameter(dwb_plugin_name_ + "." + name_ + ".scale")) {
-      nh->declare_parameter(
-        dwb_plugin_name_ + "." + name_ + ".scale",
-        rclcpp::ParameterValue(1.0));
+      nh->declare_parameter(dwb_plugin_name_ + "." + name_ + ".scale", rclcpp::ParameterValue(1.0));
     }
     nh->get_parameter(dwb_plugin_name_ + "." + name_ + ".scale", scale_);
     onInit();
@@ -121,19 +119,20 @@ public:
   virtual void reset() {}
 
   /**
-   * @brief Prior to evaluating any trajectories, look at contextual information constant across all trajectories
+   * @brief Prior to evaluating any trajectories, look at contextual information
+   * constant across all trajectories
    *
    * Subclasses may overwrite. Return false in case there is any error.
    *
    * @param pose Current pose (costmap frame)
    * @param vel Current velocity
    * @param goal The final goal (costmap frame)
-   * @param global_plan Transformed global plan in costmap frame, possibly cropped to nearby points
+   * @param global_plan Transformed global plan in costmap frame, possibly
+   * cropped to nearby points
    */
   virtual bool prepare(
     const geometry_msgs::msg::Pose2D &, const nav_2d_msgs::msg::Twist2D &,
-    const geometry_msgs::msg::Pose2D &,
-    const nav_2d_msgs::msg::Path2D &)
+    const geometry_msgs::msg::Pose2D &, const nav_2d_msgs::msg::Path2D &)
   {
     return true;
   }
@@ -152,30 +151,29 @@ public:
   virtual void debrief(const nav_2d_msgs::msg::Twist2D &) {}
 
   /**
-   * @brief Add information to the given pointcloud for debugging costmap-grid based scores
+   * @brief Add information to the given pointcloud for debugging costmap-grid
+   * based scores
    *
-   * addCriticVisualization is an optional debugging mechanism for providing rich information
-   * about the cost for certain trajectories. Some critics will have scoring mechanisms
-   * wherein there will be some score for each cell in the costmap. This could be as
-   * straightforward as the cost in the costmap, or it could be the number of cells away
-   * from the goal pose.
+   * addCriticVisualization is an optional debugging mechanism for providing
+   * rich information about the cost for certain trajectories. Some critics will
+   * have scoring mechanisms wherein there will be some score for each cell in
+   * the costmap. This could be as straightforward as the cost in the costmap,
+   * or it could be the number of cells away from the goal pose.
    *
-   * Prior to calling this, dwb_core will load the PointCloud's header and the points
-   * in row-major order. The critic may then add a ChannelFloat to the channels member of the PC
-   * with the same number of values as the points array. This information may then be converted
-   * and published as a PointCloud2.
+   * Prior to calling this, dwb_core will load the PointCloud's header and the
+   * points in row-major order. The critic may then add a ChannelFloat to the
+   * channels member of the PC with the same number of values as the points
+   * array. This information may then be converted and published as a
+   * PointCloud2.
    *
    * @param pc PointCloud to add channels to
    */
   virtual void addCriticVisualization(std::vector<std::pair<std::string, std::vector<float>>> &) {}
 
-  std::string getName()
-  {
-    return name_;
-  }
+  std::string getName() { return name_; }
 
-  virtual double getScale() const {return scale_;}
-  void setScale(const double scale) {scale_ = scale;}
+  virtual double getScale() const { return scale_; }
+  void setScale(const double scale) { scale_ = scale; }
 
 protected:
   std::string name_;

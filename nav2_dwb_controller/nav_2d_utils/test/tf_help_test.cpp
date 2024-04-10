@@ -35,10 +35,11 @@
 #include <memory>
 #include <string>
 
-#include "gtest/gtest.h"
 #include "nav_2d_utils/tf_help.hpp"
+#include "gtest/gtest.h"
 
-TEST(TF_Help, TransformToSelf) {
+TEST(TF_Help, TransformToSelf)
+{
   bool result;
 
   std::shared_ptr<tf2_ros::Buffer> tf;
@@ -71,7 +72,8 @@ TEST(TF_Help, TransformToSelf) {
   EXPECT_EQ(out_pose.pose.orientation.z, qt.z());
 }
 
-TEST(TF_Help, EmptyBuffer) {
+TEST(TF_Help, EmptyBuffer)
+{
   auto clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
   auto buffer = std::make_shared<tf2_ros::Buffer>(clock);
 

@@ -20,11 +20,8 @@
 namespace nav2_behavior_tree
 {
 
-SingleTrigger::SingleTrigger(
-  const std::string & name,
-  const BT::NodeConfiguration & conf)
-: BT::DecoratorNode(name, conf),
-  first_time_(true)
+SingleTrigger::SingleTrigger(const std::string & name, const BT::NodeConfiguration & conf)
+: BT::DecoratorNode(name, conf), first_time_(true)
 {
 }
 

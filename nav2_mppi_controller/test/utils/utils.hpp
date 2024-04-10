@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,20 +15,20 @@
 
 #pragma once
 
-#include <memory>
-#include <string>
-#include <vector>
 #include <iostream>
-#include <string_view>
+#include <memory>
 #include <rclcpp/executors.hpp>
+#include <string>
+#include <string_view>
+#include <vector>
 
 #include "tf2_ros/transform_broadcaster.h"
 
 #include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_costmap_2d/costmap_2d_ros.hpp"
 
-#include "models.hpp"
 #include "factory.hpp"
+#include "models.hpp"
 
 using namespace std::chrono_literals;  // NOLINT
 
@@ -142,8 +143,7 @@ void addObstacle(
 }
 
 void printInfo(
-  TestOptimizerSettings os, TestPathSettings ps,
-  const std::vector<std::string> & critics)
+  TestOptimizerSettings os, TestPathSettings ps, const std::vector<std::string> & critics)
 {
   std::stringstream ss;
   for (auto str : critics) {
@@ -151,15 +151,20 @@ void printInfo(
   }
 
   std::cout <<  //
-    "\n\n--------------------OPTIMIZER OPTIONS-----------------------------\n" <<
-    "Critics: " << ss.str() << "\n" \
-    "Motion model: " << os.motion_model << "\n"
-    "Consider footprint: " << os.consider_footprint << "\n" <<
-    "Iterations: " << os.iteration_count << "\n" <<
-    "Batch size: " << os.batch_size << "\n" <<
-    "Time steps: " << os.time_steps << "\n" <<
-    "Path points: " << ps.poses_count << "\n" <<
-    "\n-------------------------------------------------------------------\n\n";
+    "\n\n--------------------OPTIMIZER OPTIONS-----------------------------\n"
+            << "Critics: " << ss.str()
+            << "\n"
+               "Motion model: "
+            << os.motion_model
+            << "\n"
+               "Consider footprint: "
+            << os.consider_footprint << "\n"
+            << "Iterations: " << os.iteration_count << "\n"
+            << "Batch size: " << os.batch_size << "\n"
+            << "Time steps: " << os.time_steps << "\n"
+            << "Path points: " << ps.poses_count << "\n"
+            << "\n-------------------------------------------------------------"
+               "------\n\n";
 }
 
 void addObstacle(nav2_costmap_2d::Costmap2D * costmap, TestObstaclesSettings s)
@@ -210,27 +215,23 @@ bool isGoalReached(
   costmap.worldToMap(goal.pose.position.x, goal.pose.position.y, goal_j, goal_i);
 
   auto match = [](unsigned int i, unsigned int j, unsigned int i_dst, unsigned int j_dst) {
-      if (i == i_dst && j == j_dst) {
-        return true;
-      }
-      return false;
-    };
+    if (i == i_dst && j == j_dst) {
+      return true;
+    }
+    return false;
+  };
 
   auto match_near = [&](unsigned int i, unsigned int j) {
-      if (match(i, j, goal_i, goal_j) ||
-        match(i, j, goal_i + 1, goal_j) ||
-        match(i, j, goal_i - 1, goal_j) ||
-        match(i, j, goal_i, goal_j + 1) ||
-        match(i, j, goal_i, goal_j - 1) ||
-        match(i, j, goal_i + 1, goal_j + 1) ||
-        match(i, j, goal_i + 1, goal_j - 1) ||
-        match(i, j, goal_i - 1, goal_j + 1) ||
-        match(i, j, goal_i - 1, goal_j - 1))
-      {
-        return true;
-      }
-      return false;
-    };
+    if (
+      match(i, j, goal_i, goal_j) || match(i, j, goal_i + 1, goal_j) ||
+      match(i, j, goal_i - 1, goal_j) || match(i, j, goal_i, goal_j + 1) ||
+      match(i, j, goal_i, goal_j - 1) || match(i, j, goal_i + 1, goal_j + 1) ||
+      match(i, j, goal_i + 1, goal_j - 1) || match(i, j, goal_i - 1, goal_j + 1) ||
+      match(i, j, goal_i - 1, goal_j - 1)) {
+      return true;
+    }
+    return false;
+  };
   // clang-format on
 
   for (size_t i = 0; i < trajectory.shape(0); ++i) {

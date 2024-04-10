@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <string>
-#include <memory>
-#include <vector>
-#include <limits>
 #include <algorithm>
+#include <limits>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "nav2_smac_planner/smac_planner_2d.hpp"
 #include "nav2_util/geometry_utils.hpp"
@@ -40,14 +40,12 @@ SmacPlanner2D::SmacPlanner2D()
 
 SmacPlanner2D::~SmacPlanner2D()
 {
-  RCLCPP_INFO(
-    _logger, "Destroying plugin %s of type SmacPlanner2D",
-    _name.c_str());
+  RCLCPP_INFO(_logger, "Destroying plugin %s of type SmacPlanner2D", _name.c_str());
 }
 
 void SmacPlanner2D::configure(
-  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-  std::string name, std::shared_ptr<tf2_ros::Buffer>/*tf*/,
+  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, std::string name,
+  std::shared_ptr<tf2_ros::Buffer> /*tf*/,
   std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros)
 {
   _node = parent;
@@ -95,14 +93,16 @@ void SmacPlanner2D::configure(
 
   if (_max_on_approach_iterations <= 0) {
     RCLCPP_INFO(
-      _logger, "On approach iteration selected as <= 0, "
+      _logger,
+      "On approach iteration selected as <= 0, "
       "disabling tolerance and on approach iterations.");
     _max_on_approach_iterations = std::numeric_limits<int>::max();
   }
 
   if (_max_iterations <= 0) {
     RCLCPP_INFO(
-      _logger, "maximum iteration selected as <= 0, "
+      _logger,
+      "maximum iteration selected as <= 0, "
       "disabling maximum iterations.");
     _max_iterations = std::numeric_limits<int>::max();
   }
@@ -110,19 +110,14 @@ void SmacPlanner2D::configure(
   // Initialize collision checker
   _collision_checker = GridCollisionChecker(_costmap, 1 /*for 2D, most be 1*/, node);
   _collision_checker.setFootprint(
-    costmap_ros->getRobotFootprint(),
-    true /*for 2D, most use radius*/,
+    costmap_ros->getRobotFootprint(), true /*for 2D, most use radius*/,
     0.0 /*for 2D cost at inscribed isn't relevent*/);
 
   // Initialize A* template
   _a_star = std::make_unique<AStarAlgorithm<Node2D>>(_motion_model, _search_info);
   _a_star->initialize(
-    _allow_unknown,
-    _max_iterations,
-    _max_on_approach_iterations,
-    _max_planning_time,
-    0.0 /*unused for 2D*/,
-    1.0 /*unused for 2D*/);
+    _allow_unknown, _max_iterations, _max_on_approach_iterations, _max_planning_time,
+    0.0 /*unused for 2D*/, 1.0 /*unused for 2D*/);
 
   // Initialize path smoother
   SmootherParams params;
@@ -142,7 +137,8 @@ void SmacPlanner2D::configure(
   _raw_plan_publisher = node->create_publisher<nav_msgs::msg::Path>("unsmoothed_plan", 1);
 
   RCLCPP_INFO(
-    _logger, "Configured plugin %s of type SmacPlanner2D with "
+    _logger,
+    "Configured plugin %s of type SmacPlanner2D with "
     "tolerance %.2f, maximum iterations %i, "
     "max on approach iterations %i, and %s.",
     _name.c_str(), _tolerance, _max_iterations, _max_on_approach_iterations,
@@ -151,9 +147,7 @@ void SmacPlanner2D::configure(
 
 void SmacPlanner2D::activate()
 {
-  RCLCPP_INFO(
-    _logger, "Activating plugin %s of type SmacPlanner2D",
-    _name.c_str());
+  RCLCPP_INFO(_logger, "Activating plugin %s of type SmacPlanner2D", _name.c_str());
   _raw_plan_publisher->on_activate();
   if (_costmap_downsampler) {
     _costmap_downsampler->on_activate();
@@ -166,9 +160,7 @@ void SmacPlanner2D::activate()
 
 void SmacPlanner2D::deactivate()
 {
-  RCLCPP_INFO(
-    _logger, "Deactivating plugin %s of type SmacPlanner2D",
-    _name.c_str());
+  RCLCPP_INFO(_logger, "Deactivating plugin %s of type SmacPlanner2D", _name.c_str());
   _raw_plan_publisher->on_deactivate();
   if (_costmap_downsampler) {
     _costmap_downsampler->on_deactivate();
@@ -178,9 +170,7 @@ void SmacPlanner2D::deactivate()
 
 void SmacPlanner2D::cleanup()
 {
-  RCLCPP_INFO(
-    _logger, "Cleaning up plugin %s of type SmacPlanner2D",
-    _name.c_str());
+  RCLCPP_INFO(_logger, "Cleaning up plugin %s of type SmacPlanner2D", _name.c_str());
   _a_star.reset();
   _smoother.reset();
   if (_costmap_downsampler) {
@@ -191,8 +181,7 @@ void SmacPlanner2D::cleanup()
 }
 
 nav_msgs::msg::Path SmacPlanner2D::createPlan(
-  const geometry_msgs::msg::PoseStamped & start,
-  const geometry_msgs::msg::PoseStamped & goal)
+  const geometry_msgs::msg::PoseStamped & start, const geometry_msgs::msg::PoseStamped & goal)
 {
   std::lock_guard<std::mutex> lock_reinit(_mutex);
   steady_clock::time_point a = steady_clock::now();
@@ -237,9 +226,10 @@ nav_msgs::msg::Path SmacPlanner2D::createPlan(
       return plan;
     }
     pose.pose = start.pose;
-    // if we have a different start and goal orientation, set the unique path pose to the goal
-    // orientation, unless use_final_approach_orientation=true where we need it to be the start
-    // orientation to avoid movement from the local planner
+    // if we have a different start and goal orientation, set the unique path
+    // pose to the goal orientation, unless use_final_approach_orientation=true
+    // where we need it to be the start orientation to avoid movement from the
+    // local planner
     if (start.pose.orientation != goal.pose.orientation && !_use_final_approach_orientation) {
       pose.pose.orientation = goal.pose.orientation;
     }
@@ -253,8 +243,7 @@ nav_msgs::msg::Path SmacPlanner2D::createPlan(
   std::string error;
   try {
     if (!_a_star->createPath(
-        path, num_iterations, _tolerance / static_cast<float>(costmap->getResolution())))
-    {
+          path, num_iterations, _tolerance / static_cast<float>(costmap->getResolution()))) {
       if (num_iterations < _a_star->getMaxIterations()) {
         error = std::string("no valid path found");
       } else {
@@ -267,10 +256,7 @@ nav_msgs::msg::Path SmacPlanner2D::createPlan(
   }
 
   if (!error.empty()) {
-    RCLCPP_WARN(
-      _logger,
-      "%s: failed to create plan, %s.",
-      _name.c_str(), error.c_str());
+    RCLCPP_WARN(_logger, "%s: failed to create plan, %s.", _name.c_str(), error.c_str());
     return plan;
   }
 
@@ -292,18 +278,18 @@ nav_msgs::msg::Path SmacPlanner2D::createPlan(
   double time_remaining = _max_planning_time - static_cast<double>(time_span.count());
 
 #ifdef BENCHMARK_TESTING
-  std::cout << "It took " << time_span.count() * 1000 <<
-    " milliseconds with " << num_iterations << " iterations." << std::endl;
+  std::cout << "It took " << time_span.count() * 1000 << " milliseconds with " << num_iterations
+            << " iterations." << std::endl;
 #endif
 
   // Smooth plan
   _smoother->smooth(plan, costmap, time_remaining);
 
-  // If use_final_approach_orientation=true, interpolate the last pose orientation from the
-  // previous pose to set the orientation to the 'final approach' orientation of the robot so
-  // it does not rotate.
-  // And deal with corner case of plan of length 1
-  // If use_final_approach_orientation=false (default), override last pose orientation to match goal
+  // If use_final_approach_orientation=true, interpolate the last pose
+  // orientation from the previous pose to set the orientation to the 'final
+  // approach' orientation of the robot so it does not rotate. And deal with
+  // corner case of plan of length 1 If use_final_approach_orientation=false
+  // (default), override last pose orientation to match goal
   size_t plan_size = plan.poses.size();
   if (_use_final_approach_orientation) {
     if (plan_size == 1) {
@@ -315,8 +301,7 @@ nav_msgs::msg::Path SmacPlanner2D::createPlan(
       dx = last_pose.x - approach_pose.x;
       dy = last_pose.y - approach_pose.y;
       theta = atan2(dy, dx);
-      plan.poses.back().pose.orientation =
-        nav2_util::geometry_utils::orientationAroundZAxis(theta);
+      plan.poses.back().pose.orientation = nav2_util::geometry_utils::orientationAroundZAxis(theta);
     }
   } else if (plan_size > 0) {
     plan.poses.back().pose.orientation = goal.pose.orientation;
@@ -325,8 +310,8 @@ nav_msgs::msg::Path SmacPlanner2D::createPlan(
   return plan;
 }
 
-rcl_interfaces::msg::SetParametersResult
-SmacPlanner2D::dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters)
+rcl_interfaces::msg::SetParametersResult SmacPlanner2D::dynamicParametersCallback(
+  std::vector<rclcpp::Parameter> parameters)
 {
   rcl_interfaces::msg::SetParametersResult result;
   std::lock_guard<std::mutex> lock_reinit(_mutex);
@@ -367,7 +352,8 @@ SmacPlanner2D::dynamicParametersCallback(std::vector<rclcpp::Parameter> paramete
         _max_iterations = parameter.as_int();
         if (_max_iterations <= 0) {
           RCLCPP_INFO(
-            _logger, "maximum iteration selected as <= 0, "
+            _logger,
+            "maximum iteration selected as <= 0, "
             "disabling maximum iterations.");
           _max_iterations = std::numeric_limits<int>::max();
         }
@@ -376,7 +362,8 @@ SmacPlanner2D::dynamicParametersCallback(std::vector<rclcpp::Parameter> paramete
         _max_on_approach_iterations = parameter.as_int();
         if (_max_on_approach_iterations <= 0) {
           RCLCPP_INFO(
-            _logger, "On approach iteration selected as <= 0, "
+            _logger,
+            "On approach iteration selected as <= 0, "
             "disabling tolerance and on approach iterations.");
           _max_on_approach_iterations = std::numeric_limits<int>::max();
         }
@@ -390,12 +377,8 @@ SmacPlanner2D::dynamicParametersCallback(std::vector<rclcpp::Parameter> paramete
     if (reinit_a_star) {
       _a_star = std::make_unique<AStarAlgorithm<Node2D>>(_motion_model, _search_info);
       _a_star->initialize(
-        _allow_unknown,
-        _max_iterations,
-        _max_on_approach_iterations,
-        _max_planning_time,
-        0.0 /*unused for 2D*/,
-        1.0 /*unused for 2D*/);
+        _allow_unknown, _max_iterations, _max_on_approach_iterations, _max_planning_time,
+        0.0 /*unused for 2D*/, 1.0 /*unused for 2D*/);
     }
 
     // Re-Initialize costmap downsampler

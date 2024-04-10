@@ -50,14 +50,9 @@ public:
   static double angle_diff(double a, double b);
 };
 
-inline double
-angleutils::normalize(double z)
-{
-  return atan2(sin(z), cos(z));
-}
+inline double angleutils::normalize(double z) { return atan2(sin(z), cos(z)); }
 
-inline double
-angleutils::angle_diff(double a, double b)
+inline double angleutils::angle_diff(double a, double b)
 {
   a = normalize(a);
   b = normalize(b);

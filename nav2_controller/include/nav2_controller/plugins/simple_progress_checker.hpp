@@ -15,21 +15,21 @@
 #ifndef NAV2_CONTROLLER__PLUGINS__SIMPLE_PROGRESS_CHECKER_HPP_
 #define NAV2_CONTROLLER__PLUGINS__SIMPLE_PROGRESS_CHECKER_HPP_
 
-#include <string>
-#include <vector>
+#include "geometry_msgs/msg/pose2_d.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav2_core/progress_checker.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
-#include "nav2_core/progress_checker.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/pose2_d.hpp"
+#include <string>
+#include <vector>
 
 namespace nav2_controller
 {
 /**
-* @class SimpleProgressChecker
-* @brief This plugin is used to check the position of the robot to make sure
-* that it is actually progressing towards a goal.
-*/
+ * @class SimpleProgressChecker
+ * @brief This plugin is used to check the position of the robot to make sure
+ * that it is actually progressing towards a goal.
+ */
 
 class SimpleProgressChecker : public nav2_core::ProgressChecker
 {
@@ -54,8 +54,7 @@ protected:
   void resetBaselinePose(const geometry_msgs::msg::Pose2D & pose);
 
   static double pose_distance(
-    const geometry_msgs::msg::Pose2D &,
-    const geometry_msgs::msg::Pose2D &);
+    const geometry_msgs::msg::Pose2D &, const geometry_msgs::msg::Pose2D &);
 
   rclcpp::Clock::SharedPtr clock_;
 
@@ -74,8 +73,8 @@ protected:
    * @brief Callback executed when a paramter change is detected
    * @param parameters list of changed parameters
    */
-  rcl_interfaces::msg::SetParametersResult
-  dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters);
+  rcl_interfaces::msg::SetParametersResult dynamicParametersCallback(
+    std::vector<rclcpp::Parameter> parameters);
 };
 }  // namespace nav2_controller
 

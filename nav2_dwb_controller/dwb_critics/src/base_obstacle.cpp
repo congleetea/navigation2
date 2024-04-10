@@ -31,15 +31,15 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <vector>
 #include <string>
 #include <utility>
+#include <vector>
 
-#include "dwb_critics/base_obstacle.hpp"
 #include "dwb_core/exceptions.hpp"
-#include "pluginlib/class_list_macros.hpp"
+#include "dwb_critics/base_obstacle.hpp"
 #include "nav2_costmap_2d/cost_values.hpp"
 #include "nav2_util/node_utils.hpp"
+#include "pluginlib/class_list_macros.hpp"
 
 PLUGINLIB_EXPORT_CLASS(dwb_critics::BaseObstacleCritic, dwb_core::TrajectoryCritic)
 
@@ -56,8 +56,7 @@ void BaseObstacleCritic::onInit()
   }
 
   nav2_util::declare_parameter_if_not_declared(
-    node,
-    dwb_plugin_name_ + "." + name_ + ".sum_scores", rclcpp::ParameterValue(false));
+    node, dwb_plugin_name_ + "." + name_ + ".sum_scores", rclcpp::ParameterValue(false));
   node->get_parameter(dwb_plugin_name_ + "." + name_ + ".sum_scores", sum_scores_);
 }
 
@@ -77,13 +76,11 @@ double BaseObstacleCritic::scorePose(const geometry_msgs::msg::Pose2D & pose)
 {
   unsigned int cell_x, cell_y;
   if (!costmap_->worldToMap(pose.x, pose.y, cell_x, cell_y)) {
-    throw dwb_core::
-          IllegalTrajectoryException(name_, "Trajectory Goes Off Grid.");
+    throw dwb_core::IllegalTrajectoryException(name_, "Trajectory Goes Off Grid.");
   }
   unsigned char cost = costmap_->getCost(cell_x, cell_y);
   if (!isValidCost(cost)) {
-    throw dwb_core::
-          IllegalTrajectoryException(name_, "Trajectory Hits Obstacle.");
+    throw dwb_core::IllegalTrajectoryException(name_, "Trajectory Hits Obstacle.");
   }
   return cost;
 }

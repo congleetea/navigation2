@@ -18,8 +18,8 @@
 #include <set>
 #include <string>
 
-#include "nav_msgs/msg/path.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav_msgs/msg/path.hpp"
 
 #include "behaviortree_cpp_v3/bt_factory.h"
 
@@ -29,15 +29,12 @@
 class FollowPathActionServer : public TestActionServer<nav2_msgs::action::FollowPath>
 {
 public:
-  FollowPathActionServer()
-  : TestActionServer("follow_path")
-  {}
+  FollowPathActionServer() : TestActionServer("follow_path") {}
 
 protected:
   void execute(
-    const typename std::shared_ptr<
-      rclcpp_action::ServerGoalHandle<nav2_msgs::action::FollowPath>> goal_handle)
-  override
+    const typename std::shared_ptr<rclcpp_action::ServerGoalHandle<nav2_msgs::action::FollowPath>>
+      goal_handle) override
   {
     const auto goal = goal_handle->get_goal();
     auto result = std::make_shared<nav2_msgs::action::FollowPath::Result>();
@@ -58,26 +55,18 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
     config_->blackboard->set<std::chrono::milliseconds>(
-      "server_timeout",
-      std::chrono::milliseconds(20));
+      "server_timeout", std::chrono::milliseconds(20));
     config_->blackboard->set<std::chrono::milliseconds>(
-      "bt_loop_duration",
-      std::chrono::milliseconds(10));
+      "bt_loop_duration", std::chrono::milliseconds(10));
     config_->blackboard->set<bool>("initial_pose_received", false);
 
-    BT::NodeBuilder builder =
-      [](const std::string & name, const BT::NodeConfiguration & config)
-      {
-        return std::make_unique<nav2_behavior_tree::FollowPathAction>(
-          name, "follow_path", config);
-      };
+    BT::NodeBuilder builder = [](const std::string & name, const BT::NodeConfiguration & config) {
+      return std::make_unique<nav2_behavior_tree::FollowPathAction>(name, "follow_path", config);
+    };
 
-    factory_->registerBuilder<nav2_behavior_tree::FollowPathAction>(
-      "FollowPath", builder);
+    factory_->registerBuilder<nav2_behavior_tree::FollowPathAction>("FollowPath", builder);
   }
 
   static void TearDownTestCase()
@@ -89,10 +78,7 @@ public:
     factory_.reset();
   }
 
-  void TearDown() override
-  {
-    tree_.reset();
-  }
+  void TearDown() override { tree_.reset(); }
 
   static std::shared_ptr<FollowPathActionServer> action_server_;
 
@@ -104,8 +90,7 @@ protected:
 };
 
 rclcpp::Node::SharedPtr FollowPathActionTestFixture::node_ = nullptr;
-std::shared_ptr<FollowPathActionServer>
-FollowPathActionTestFixture::action_server_ = nullptr;
+std::shared_ptr<FollowPathActionServer> FollowPathActionTestFixture::action_server_ = nullptr;
 BT::NodeConfiguration * FollowPathActionTestFixture::config_ = nullptr;
 std::shared_ptr<BT::BehaviorTreeFactory> FollowPathActionTestFixture::factory_ = nullptr;
 std::shared_ptr<BT::Tree> FollowPathActionTestFixture::tree_ = nullptr;
@@ -166,12 +151,9 @@ int main(int argc, char ** argv)
   rclcpp::init(argc, argv);
 
   // initialize action server and spin on new thread
-  FollowPathActionTestFixture::action_server_ =
-    std::make_shared<FollowPathActionServer>();
+  FollowPathActionTestFixture::action_server_ = std::make_shared<FollowPathActionServer>();
 
-  std::thread server_thread([]() {
-      rclcpp::spin(FollowPathActionTestFixture::action_server_);
-    });
+  std::thread server_thread([]() { rclcpp::spin(FollowPathActionTestFixture::action_server_); });
 
   int all_successful = RUN_ALL_TESTS();
 

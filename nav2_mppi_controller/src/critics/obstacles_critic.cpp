@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cmath>
 #include "nav2_mppi_controller/critics/obstacles_critic.hpp"
+#include <cmath>
 
 namespace mppi::critics
 {
@@ -35,23 +36,26 @@ void ObstaclesCritic::initialize()
   if (possibly_inscribed_cost_ < 1.0f) {
     RCLCPP_ERROR(
       logger_,
-      "Inflation layer either not found or inflation is not set sufficiently for "
-      "optimized non-circular collision checking capabilities. It is HIGHLY recommended to set"
-      " the inflation radius to be at MINIMUM half of the robot's largest cross-section. See "
-      "github.com/ros-planning/navigation2/tree/main/nav2_smac_planner#potential-fields"
-      " for full instructions. This will substantially impact run-time performance.");
+      "Inflation layer either not found or inflation is "
+      "not set sufficiently for "
+      "optimized non-circular collision checking "
+      "capabilities. It is HIGHLY recommended to set"
+      " the inflation radius to be at MINIMUM half of the "
+      "robot's largest cross-section. See "
+      "github.com/ros-planning/navigation2/tree/main/"
+      "nav2_smac_planner#potential-fields"
+      " for full instructions. This will substantially "
+      "impact run-time performance.");
   }
 
   RCLCPP_INFO(
     logger_,
     "ObstaclesCritic instantiated with %d power and %f / %f weights. "
     "Critic will collision check based on %s cost.",
-    power_, critical_weight_, repulsion_weight_, consider_footprint_ ?
-    "footprint" : "circular");
+    power_, critical_weight_, repulsion_weight_, consider_footprint_ ? "footprint" : "circular");
 }
 
-float ObstaclesCritic::findCircumscribedCost(
-  std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap)
+float ObstaclesCritic::findCircumscribedCost(std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap)
 {
   double result = -1.0;
   bool inflation_layer_found = false;
@@ -64,9 +68,7 @@ float ObstaclesCritic::findCircumscribedCost(
 
   // check if the costmap has an inflation layer
   for (auto layer = costmap->getLayeredCostmap()->getPlugins()->begin();
-    layer != costmap->getLayeredCostmap()->getPlugins()->end();
-    ++layer)
-  {
+       layer != costmap->getLayeredCostmap()->getPlugins()->end(); ++layer) {
     auto inflation_layer = std::dynamic_pointer_cast<nav2_costmap_2d::InflationLayer>(*layer);
     if (!inflation_layer) {
       continue;
@@ -84,10 +86,14 @@ float ObstaclesCritic::findCircumscribedCost(
     RCLCPP_WARN(
       logger_,
       "No inflation layer found in costmap configuration. "
-      "If this is an SE2-collision checking plugin, it cannot use costmap potential "
-      "field to speed up collision checking by only checking the full footprint "
-      "when robot is within possibly-inscribed radius of an obstacle. This may "
-      "significantly slow down planning times and not avoid anything but absolute collisions!");
+      "If this is an SE2-collision checking plugin, it "
+      "cannot use costmap potential "
+      "field to speed up collision checking by only "
+      "checking the full footprint "
+      "when robot is within possibly-inscribed radius of an "
+      "obstacle. This may "
+      "significantly slow down planning times and not avoid "
+      "anything but absolute collisions!");
   }
 
   circumscribed_radius_ = static_cast<float>(circum_radius);
@@ -102,8 +108,9 @@ float ObstaclesCritic::distanceToObstacle(const CollisionCost & cost)
   const float min_radius = costmap_ros_->getLayeredCostmap()->getInscribedRadius();
   float dist_to_obj = (scale_factor * min_radius - log(cost.cost) + log(253.0f)) / scale_factor;
 
-  // If not footprint collision checking, the cost is using the center point cost and
-  // needs the radius subtracted to obtain the closest distance to the object
+  // If not footprint collision checking, the cost is using the center point
+  // cost and needs the radius subtracted to obtain the closest distance to the
+  // object
   if (!cost.using_footprint) {
     dist_to_obj -= min_radius;
   }
@@ -119,11 +126,13 @@ void ObstaclesCritic::score(CriticData & data)
   }
 
   if (consider_footprint_) {
-    // footprint may have changed since initialization if user has dynamic footprints
+    // footprint may have changed since initialization if user has dynamic
+    // footprints
     possibly_inscribed_cost_ = findCircumscribedCost(costmap_ros_);
   }
 
-  // If near the goal, don't apply the preferential term since the goal is near obstacles
+  // If near the goal, don't apply the preferential term since the goal is near
+  // obstacles
   bool near_goal = false;
   if (utils::withinPositionGoalTolerance(near_goal_distance_, data.state.pose.pose, data.path)) {
     near_goal = true;
@@ -144,7 +153,9 @@ void ObstaclesCritic::score(CriticData & data)
 
     for (size_t j = 0; j < traj_len; j++) {
       pose_cost = costAtPose(traj.x(i, j), traj.y(i, j), traj.yaws(i, j));
-      if (pose_cost.cost < 1.0f) {continue;}  // In free space
+      if (pose_cost.cost < 1.0f) {
+        continue;
+      }  // In free space
 
       if (inCollision(pose_cost.cost)) {
         trajectory_collide = true;
@@ -161,34 +172,34 @@ void ObstaclesCritic::score(CriticData & data)
       // Let near-collision trajectory points be punished severely
       if (dist_to_obj < collision_margin_distance_) {
         traj_cost += (collision_margin_distance_ - dist_to_obj);
-      } else if (!near_goal) {  // Generally prefer trajectories further from obstacles
+      } else if (!near_goal) {  // Generally prefer trajectories further from
+                                // obstacles
         repulsive_cost[i] += (inflation_radius_ - dist_to_obj);
       }
     }
 
-    if (!trajectory_collide) {all_trajectories_collide = false;}
+    if (!trajectory_collide) {
+      all_trajectories_collide = false;
+    }
     raw_cost[i] = trajectory_collide ? collision_cost_ : traj_cost;
   }
 
   data.costs += xt::pow(
-    (critical_weight_ * raw_cost) +
-    (repulsion_weight_ * repulsive_cost / traj_len),
-    power_);
+    (critical_weight_ * raw_cost) + (repulsion_weight_ * repulsive_cost / traj_len), power_);
   data.fail_flag = all_trajectories_collide;
 }
 
 /**
-  * @brief Checks if cost represents a collision
-  * @param cost Costmap cost
-  * @return bool if in collision
-  */
+ * @brief Checks if cost represents a collision
+ * @param cost Costmap cost
+ * @return bool if in collision
+ */
 bool ObstaclesCritic::inCollision(float cost) const
 {
-  bool is_tracking_unknown =
-    costmap_ros_->getLayeredCostmap()->isTrackingUnknown();
+  bool is_tracking_unknown = costmap_ros_->getLayeredCostmap()->isTrackingUnknown();
 
   switch (static_cast<unsigned char>(cost)) {
-    using namespace nav2_costmap_2d; // NOLINT
+    using namespace nav2_costmap_2d;  // NOLINT
     case (LETHAL_OBSTACLE):
       return true;
     case (INSCRIBED_INFLATED_OBSTACLE):
@@ -212,11 +223,10 @@ CollisionCost ObstaclesCritic::costAtPose(float x, float y, float theta)
   }
   cost = collision_checker_.pointCost(x_i, y_i);
 
-  if (consider_footprint_ &&
-    (cost >= possibly_inscribed_cost_ || possibly_inscribed_cost_ < 1.0f))
-  {
-    cost = static_cast<float>(collision_checker_.footprintCostAtPose(
-        x, y, theta, costmap_ros_->getRobotFootprint()));
+  if (
+    consider_footprint_ && (cost >= possibly_inscribed_cost_ || possibly_inscribed_cost_ < 1.0f)) {
+    cost = static_cast<float>(
+      collision_checker_.footprintCostAtPose(x, y, theta, costmap_ros_->getRobotFootprint()));
     collision_cost.using_footprint = true;
   }
 
@@ -227,6 +237,4 @@ CollisionCost ObstaclesCritic::costAtPose(float x, float y, float theta)
 
 #include <pluginlib/class_list_macros.hpp>
 
-PLUGINLIB_EXPORT_CLASS(
-  mppi::critics::ObstaclesCritic,
-  mppi::critics::CriticFunction)
+PLUGINLIB_EXPORT_CLASS(mppi::critics::ObstaclesCritic, mppi::critics::CriticFunction)

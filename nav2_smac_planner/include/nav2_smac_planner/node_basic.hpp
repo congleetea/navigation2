@@ -15,24 +15,24 @@
 #ifndef NAV2_SMAC_PLANNER__NODE_BASIC_HPP_
 #define NAV2_SMAC_PLANNER__NODE_BASIC_HPP_
 
-#include <math.h>
-#include <vector>
 #include <cmath>
-#include <iostream>
 #include <functional>
-#include <queue>
-#include <memory>
-#include <utility>
+#include <iostream>
 #include <limits>
+#include <math.h>
+#include <memory>
+#include <queue>
+#include <utility>
+#include <vector>
 
 #include "ompl/base/StateSpace.h"
 
+#include "nav2_smac_planner/collision_checker.hpp"
 #include "nav2_smac_planner/constants.hpp"
+#include "nav2_smac_planner/node_2d.hpp"
 #include "nav2_smac_planner/node_hybrid.hpp"
 #include "nav2_smac_planner/node_lattice.hpp"
-#include "nav2_smac_planner/node_2d.hpp"
 #include "nav2_smac_planner/types.hpp"
-#include "nav2_smac_planner/collision_checker.hpp"
 
 namespace nav2_smac_planner
 {
@@ -41,7 +41,7 @@ namespace nav2_smac_planner
  * @class nav2_smac_planner::NodeBasic
  * @brief NodeBasic implementation for priority queue insertion
  */
-template<typename NodeT>
+template <typename NodeT>
 class NodeBasic
 {
 public:
@@ -50,18 +50,14 @@ public:
    * @param cost_in The costmap cost at this node
    * @param index The index of this node for self-reference
    */
-  explicit NodeBasic(const unsigned int index)
-  : index(index),
-    graph_node_ptr(nullptr)
-  {
-  }
+  explicit NodeBasic(const unsigned int index) : index(index), graph_node_ptr(nullptr) {}
 
   /**
    * @brief Take a NodeBasic and populate it with any necessary state
    * cached in the queue for NodeT.
    * @param node NodeT ptr to populate metadata into NodeBasic
    */
-  void populateSearchNode(NodeT * & node);
+  void populateSearchNode(NodeT *& node);
 
   /**
    * @brief Take a NodeBasic and populate it with any necessary state

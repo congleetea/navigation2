@@ -12,21 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
-#include <memory>
-#include <chrono>
+#include "nav2_lifecycle_manager/lifecycle_manager_client.hpp"
+#include "nav2_util/node_thread.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
-#include "nav2_util/node_thread.hpp"
-#include "nav2_lifecycle_manager/lifecycle_manager_client.hpp"
+#include <chrono>
+#include <gtest/gtest.h>
+#include <memory>
 
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
 class LifecycleNodeTest : public rclcpp_lifecycle::LifecycleNode
 {
 public:
-  LifecycleNodeTest()
-  : rclcpp_lifecycle::LifecycleNode("lifecycle_node_test") {}
+  LifecycleNodeTest() : rclcpp_lifecycle::LifecycleNode("lifecycle_node_test") {}
 
   CallbackReturn on_configure(const rclcpp_lifecycle::State & /*state*/) override
   {
@@ -91,9 +90,7 @@ TEST(LifecycleClientTest, BasicTest)
   EXPECT_EQ(
     nav2_lifecycle_manager::SystemStatus::ACTIVE,
     client.is_active(std::chrono::nanoseconds(1000000000)));
-  EXPECT_EQ(
-    nav2_lifecycle_manager::SystemStatus::ACTIVE,
-    client.is_active());
+  EXPECT_EQ(nav2_lifecycle_manager::SystemStatus::ACTIVE, client.is_active());
   EXPECT_TRUE(client.pause());
   EXPECT_EQ(
     nav2_lifecycle_manager::SystemStatus::INACTIVE,

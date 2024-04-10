@@ -26,7 +26,8 @@ namespace nav2_behavior_tree
 {
 
 /**
- * @brief A nav2_behavior_tree::BtActionNode class that wraps nav2_msgs::action::Wait
+ * @brief A nav2_behavior_tree::BtActionNode class that wraps
+ * nav2_msgs::action::Wait
  */
 class WaitCancel : public BtCancelActionNode<nav2_msgs::action::Wait>
 {
@@ -38,20 +39,14 @@ public:
    * @param conf BT node configuration
    */
   WaitCancel(
-    const std::string & xml_tag_name,
-    const std::string & action_name,
+    const std::string & xml_tag_name, const std::string & action_name,
     const BT::NodeConfiguration & conf);
 
   /**
    * @brief Creates list of BT ports
    * @return BT::PortsList Containing basic ports along with node-specific ports
    */
-  static BT::PortsList providedPorts()
-  {
-    return providedBasicPorts(
-      {
-      });
-  }
+  static BT::PortsList providedPorts() { return providedBasicPorts({}); }
 };
 
 }  // namespace nav2_behavior_tree

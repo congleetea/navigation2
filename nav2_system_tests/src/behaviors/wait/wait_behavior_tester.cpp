@@ -14,14 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <string>
-#include <random>
-#include <tuple>
-#include <memory>
-#include <iostream>
 #include <chrono>
-#include <sstream>
 #include <iomanip>
+#include <iostream>
+#include <memory>
+#include <random>
+#include <sstream>
+#include <string>
+#include <tuple>
 
 #include "wait_behavior_tester.hpp"
 
@@ -31,9 +31,7 @@ using namespace std::chrono;  // NOLINT
 namespace nav2_system_tests
 {
 
-WaitBehaviorTester::WaitBehaviorTester()
-: is_active_(false),
-  initial_pose_received_(false)
+WaitBehaviorTester::WaitBehaviorTester() : is_active_(false), initial_pose_received_(false)
 {
   node_ = rclcpp::Node::make_shared("wait_behavior_test");
 
@@ -41,11 +39,8 @@ WaitBehaviorTester::WaitBehaviorTester()
   tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
   client_ptr_ = rclcpp_action::create_client<Wait>(
-    node_->get_node_base_interface(),
-    node_->get_node_graph_interface(),
-    node_->get_node_logging_interface(),
-    node_->get_node_waitables_interface(),
-    "wait");
+    node_->get_node_base_interface(), node_->get_node_graph_interface(),
+    node_->get_node_logging_interface(), node_->get_node_waitables_interface(), "wait");
 
   publisher_ =
     node_->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", 10);
@@ -103,8 +98,7 @@ void WaitBehaviorTester::deactivate()
   is_active_ = false;
 }
 
-bool WaitBehaviorTester::behaviorTest(
-  const float wait_time)
+bool WaitBehaviorTester::behaviorTest(const float wait_time)
 {
   if (!is_active_) {
     RCLCPP_ERROR(node_->get_logger(), "Not activated");
@@ -122,9 +116,9 @@ bool WaitBehaviorTester::behaviorTest(
 
   auto goal_handle_future = client_ptr_->async_send_goal(goal_msg);
 
-  if (rclcpp::spin_until_future_complete(node_, goal_handle_future) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  if (
+    rclcpp::spin_until_future_complete(node_, goal_handle_future) !=
+    rclcpp::FutureReturnCode::SUCCESS) {
     RCLCPP_ERROR(node_->get_logger(), "send goal call failed :(");
     return false;
   }
@@ -139,9 +133,8 @@ bool WaitBehaviorTester::behaviorTest(
   auto result_future = client_ptr_->async_get_result(goal_handle);
 
   RCLCPP_INFO(node_->get_logger(), "Waiting for result");
-  if (rclcpp::spin_until_future_complete(node_, result_future) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  if (
+    rclcpp::spin_until_future_complete(node_, result_future) != rclcpp::FutureReturnCode::SUCCESS) {
     RCLCPP_ERROR(node_->get_logger(), "get result call failed :(");
     return false;
   }
@@ -149,21 +142,20 @@ bool WaitBehaviorTester::behaviorTest(
   rclcpp_action::ClientGoalHandle<Wait>::WrappedResult wrapped_result = result_future.get();
 
   switch (wrapped_result.code) {
-    case rclcpp_action::ResultCode::SUCCEEDED: break;
-    case rclcpp_action::ResultCode::ABORTED: RCLCPP_ERROR(
-        node_->get_logger(),
-        "Goal was aborted");
+    case rclcpp_action::ResultCode::SUCCEEDED:
+      break;
+    case rclcpp_action::ResultCode::ABORTED:
+      RCLCPP_ERROR(node_->get_logger(), "Goal was aborted");
       return false;
-    case rclcpp_action::ResultCode::CANCELED: RCLCPP_ERROR(
-        node_->get_logger(),
-        "Goal was canceled");
+    case rclcpp_action::ResultCode::CANCELED:
+      RCLCPP_ERROR(node_->get_logger(), "Goal was canceled");
       return false;
-    default: RCLCPP_ERROR(node_->get_logger(), "Unknown result code");
+    default:
+      RCLCPP_ERROR(node_->get_logger(), "Unknown result code");
       return false;
   }
 
   RCLCPP_INFO(node_->get_logger(), "result received");
-
 
   if ((node_->now() - start_time).seconds() < static_cast<double>(wait_time)) {
     return false;
@@ -172,8 +164,7 @@ bool WaitBehaviorTester::behaviorTest(
   return true;
 }
 
-bool WaitBehaviorTester::behaviorTestCancel(
-  const float wait_time)
+bool WaitBehaviorTester::behaviorTestCancel(const float wait_time)
 {
   if (!is_active_) {
     RCLCPP_ERROR(node_->get_logger(), "Not activated");
@@ -191,9 +182,9 @@ bool WaitBehaviorTester::behaviorTestCancel(
 
   auto goal_handle_future = client_ptr_->async_send_goal(goal_msg);
 
-  if (rclcpp::spin_until_future_complete(node_, goal_handle_future) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  if (
+    rclcpp::spin_until_future_complete(node_, goal_handle_future) !=
+    rclcpp::FutureReturnCode::SUCCESS) {
     RCLCPP_ERROR(node_->get_logger(), "send goal call failed :(");
     return false;
   }
@@ -208,9 +199,8 @@ bool WaitBehaviorTester::behaviorTestCancel(
   auto result_future = client_ptr_->async_cancel_all_goals();
 
   RCLCPP_INFO(node_->get_logger(), "Waiting for cancellation");
-  if (rclcpp::spin_until_future_complete(node_, result_future) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  if (
+    rclcpp::spin_until_future_complete(node_, result_future) != rclcpp::FutureReturnCode::SUCCESS) {
     RCLCPP_ERROR(node_->get_logger(), "get cancel result call failed :(");
     return false;
   }
@@ -218,31 +208,26 @@ bool WaitBehaviorTester::behaviorTestCancel(
   auto status = goal_handle_future.get()->get_status();
 
   switch (status) {
-    case rclcpp_action::GoalStatus::STATUS_SUCCEEDED: RCLCPP_ERROR(
-        node_->get_logger(),
-        "Goal succeeded");
+    case rclcpp_action::GoalStatus::STATUS_SUCCEEDED:
+      RCLCPP_ERROR(node_->get_logger(), "Goal succeeded");
       return false;
-    case rclcpp_action::GoalStatus::STATUS_ABORTED: RCLCPP_ERROR(
-        node_->get_logger(),
-        "Goal was aborted");
+    case rclcpp_action::GoalStatus::STATUS_ABORTED:
+      RCLCPP_ERROR(node_->get_logger(), "Goal was aborted");
       return false;
-    case rclcpp_action::GoalStatus::STATUS_CANCELED: RCLCPP_INFO(
-        node_->get_logger(),
-        "Goal was canceled");
+    case rclcpp_action::GoalStatus::STATUS_CANCELED:
+      RCLCPP_INFO(node_->get_logger(), "Goal was canceled");
       return true;
-    case rclcpp_action::GoalStatus::STATUS_CANCELING: RCLCPP_INFO(
-        node_->get_logger(),
-        "Goal is cancelling");
+    case rclcpp_action::GoalStatus::STATUS_CANCELING:
+      RCLCPP_INFO(node_->get_logger(), "Goal is cancelling");
       return true;
-    case rclcpp_action::GoalStatus::STATUS_EXECUTING: RCLCPP_ERROR(
-        node_->get_logger(),
-        "Goal is executing");
+    case rclcpp_action::GoalStatus::STATUS_EXECUTING:
+      RCLCPP_ERROR(node_->get_logger(), "Goal is executing");
       return false;
-    case rclcpp_action::GoalStatus::STATUS_ACCEPTED: RCLCPP_ERROR(
-        node_->get_logger(),
-        "Goal is processing");
+    case rclcpp_action::GoalStatus::STATUS_ACCEPTED:
+      RCLCPP_ERROR(node_->get_logger(), "Goal is processing");
       return false;
-    default: RCLCPP_ERROR(node_->get_logger(), "Unknown result code");
+    default:
+      RCLCPP_ERROR(node_->get_logger(), "Unknown result code");
       return false;
   }
 

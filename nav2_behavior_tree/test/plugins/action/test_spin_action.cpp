@@ -26,15 +26,12 @@
 class SpinActionServer : public TestActionServer<nav2_msgs::action::Spin>
 {
 public:
-  SpinActionServer()
-  : TestActionServer("spin")
-  {}
+  SpinActionServer() : TestActionServer("spin") {}
 
 protected:
   void execute(
     const typename std::shared_ptr<rclcpp_action::ServerGoalHandle<nav2_msgs::action::Spin>>
-    goal_handle)
-  override
+      goal_handle) override
   {
     nav2_msgs::action::Spin::Result::SharedPtr result =
       std::make_shared<nav2_msgs::action::Spin::Result>();
@@ -59,24 +56,17 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
     config_->blackboard->set<std::chrono::milliseconds>(
-      "server_timeout",
-      std::chrono::milliseconds(20));
+      "server_timeout", std::chrono::milliseconds(20));
     config_->blackboard->set<std::chrono::milliseconds>(
-      "bt_loop_duration",
-      std::chrono::milliseconds(10));
+      "bt_loop_duration", std::chrono::milliseconds(10));
     config_->blackboard->set<bool>("initial_pose_received", false);
     config_->blackboard->set<int>("number_recoveries", 0);
 
-    BT::NodeBuilder builder =
-      [](const std::string & name, const BT::NodeConfiguration & config)
-      {
-        return std::make_unique<nav2_behavior_tree::SpinAction>(
-          name, "spin", config);
-      };
+    BT::NodeBuilder builder = [](const std::string & name, const BT::NodeConfiguration & config) {
+      return std::make_unique<nav2_behavior_tree::SpinAction>(name, "spin", config);
+    };
 
     factory_->registerBuilder<nav2_behavior_tree::SpinAction>("Spin", builder);
   }
@@ -90,15 +80,9 @@ public:
     factory_.reset();
   }
 
-  void SetUp() override
-  {
-    config_->blackboard->set("number_recoveries", 0);
-  }
+  void SetUp() override { config_->blackboard->set("number_recoveries", 0); }
 
-  void TearDown() override
-  {
-    tree_.reset();
-  }
+  void TearDown() override { tree_.reset(); }
 
   static std::shared_ptr<SpinActionServer> action_server_;
 
@@ -177,8 +161,7 @@ TEST_F(SpinActionTestFixture, test_failure)
 
   EXPECT_EQ(config_->blackboard->get<int>("number_recoveries"), 0);
   while (tree_->rootNode()->status() != BT::NodeStatus::SUCCESS &&
-    tree_->rootNode()->status() != BT::NodeStatus::FAILURE)
-  {
+         tree_->rootNode()->status() != BT::NodeStatus::FAILURE) {
     tree_->rootNode()->executeTick();
   }
 
@@ -198,9 +181,7 @@ int main(int argc, char ** argv)
 
   // initialize action server and spin on new thread
   SpinActionTestFixture::action_server_ = std::make_shared<SpinActionServer>();
-  std::thread server_thread([]() {
-      rclcpp::spin(SpinActionTestFixture::action_server_);
-    });
+  std::thread server_thread([]() { rclcpp::spin(SpinActionTestFixture::action_server_); });
 
   int all_successful = RUN_ALL_TESTS();
 

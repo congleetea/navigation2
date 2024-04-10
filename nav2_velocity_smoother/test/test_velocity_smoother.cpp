@@ -12,50 +12,48 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <limits>
 #include <math.h>
 #include <memory>
 #include <string>
 #include <vector>
-#include <limits>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
+#include "geometry_msgs/msg/twist.hpp"
 #include "nav2_velocity_smoother/velocity_smoother.hpp"
 #include "nav_msgs/msg/odometry.hpp"
-#include "geometry_msgs/msg/twist.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 using namespace std::chrono_literals;
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
 class VelSmootherShim : public nav2_velocity_smoother::VelocitySmoother
 {
 public:
-  VelSmootherShim()
-  : VelocitySmoother() {}
-  void configure(const rclcpp_lifecycle::State & state) {this->on_configure(state);}
-  void activate(const rclcpp_lifecycle::State & state) {this->on_activate(state);}
-  void deactivate(const rclcpp_lifecycle::State & state) {this->on_deactivate(state);}
-  void cleanup(const rclcpp_lifecycle::State & state) {this->on_cleanup(state);}
-  void shutdown(const rclcpp_lifecycle::State & state) {this->on_shutdown(state);}
+  VelSmootherShim() : VelocitySmoother() {}
+  void configure(const rclcpp_lifecycle::State & state) { this->on_configure(state); }
+  void activate(const rclcpp_lifecycle::State & state) { this->on_activate(state); }
+  void deactivate(const rclcpp_lifecycle::State & state) { this->on_deactivate(state); }
+  void cleanup(const rclcpp_lifecycle::State & state) { this->on_cleanup(state); }
+  void shutdown(const rclcpp_lifecycle::State & state) { this->on_shutdown(state); }
 
-  bool isOdomSmoother() {return odom_smoother_ ? true : false;}
-  bool hasCommandMsg() {return last_command_time_.nanoseconds() != 0;}
-  geometry_msgs::msg::Twist::SharedPtr lastCommandMsg() {return command_;}
+  bool isOdomSmoother() { return odom_smoother_ ? true : false; }
+  bool hasCommandMsg() { return last_command_time_.nanoseconds() != 0; }
+  geometry_msgs::msg::Twist::SharedPtr lastCommandMsg() { return command_; }
 
-  void sendCommandMsg(geometry_msgs::msg::Twist::SharedPtr msg) {inputCommandCallback(msg);}
+  void sendCommandMsg(geometry_msgs::msg::Twist::SharedPtr msg) { inputCommandCallback(msg); }
 };
 
 TEST(VelocitySmootherTest, openLoopTestTimer)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   std::vector<double> deadbands{0.2, 0.0, 0.0};
   smoother->declare_parameter("scale_velocities", rclcpp::ParameterValue(true));
   smoother->set_parameter(rclcpp::Parameter("scale_velocities", true));
@@ -67,11 +65,8 @@ TEST(VelocitySmootherTest, openLoopTestTimer)
 
   std::vector<double> linear_vels;
   auto subscription = smoother->create_subscription<geometry_msgs::msg::Twist>(
-    "cmd_vel_smoothed",
-    1,
-    [&](geometry_msgs::msg::Twist::SharedPtr msg) {
-      linear_vels.push_back(msg->linear.x);
-    });
+    "cmd_vel_smoothed", 1,
+    [&](geometry_msgs::msg::Twist::SharedPtr msg) { linear_vels.push_back(msg->linear.x); });
 
   // Send a velocity command
   auto cmd = std::make_shared<geometry_msgs::msg::Twist>();
@@ -84,7 +79,8 @@ TEST(VelocitySmootherTest, openLoopTestTimer)
     rclcpp::spin_some(smoother->get_node_base_interface());
   }
 
-  // Sanity check we have the approximately right number of messages for the timespan and timeout
+  // Sanity check we have the approximately right number of messages for the
+  // timespan and timeout
   EXPECT_GT(linear_vels.size(), 19u);
   EXPECT_LT(linear_vels.size(), 30u);
 
@@ -108,8 +104,7 @@ TEST(VelocitySmootherTest, openLoopTestTimer)
 
 TEST(VelocitySmootherTest, approxClosedLoopTestTimer)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   smoother->declare_parameter("feedback", rclcpp::ParameterValue(std::string("CLOSED_LOOP")));
   smoother->set_parameter(rclcpp::Parameter("feedback", std::string("CLOSED_LOOP")));
   rclcpp_lifecycle::State state;
@@ -118,11 +113,8 @@ TEST(VelocitySmootherTest, approxClosedLoopTestTimer)
 
   std::vector<double> linear_vels;
   auto subscription = smoother->create_subscription<geometry_msgs::msg::Twist>(
-    "cmd_vel_smoothed",
-    1,
-    [&](geometry_msgs::msg::Twist::SharedPtr msg) {
-      linear_vels.push_back(msg->linear.x);
-    });
+    "cmd_vel_smoothed", 1,
+    [&](geometry_msgs::msg::Twist::SharedPtr msg) { linear_vels.push_back(msg->linear.x); });
 
   auto odom_pub = smoother->create_publisher<nav_msgs::msg::Odometry>("odom", 1);
   odom_pub->on_activate();
@@ -152,7 +144,8 @@ TEST(VelocitySmootherTest, approxClosedLoopTestTimer)
     rclcpp::spin_some(smoother->get_node_base_interface());
   }
 
-  // Sanity check we have the approximately right number of messages for the timespan and timeout
+  // Sanity check we have the approximately right number of messages for the
+  // timespan and timeout
   EXPECT_GT(linear_vels.size(), 19u);
   EXPECT_LT(linear_vels.size(), 30u);
 
@@ -173,13 +166,12 @@ TEST(VelocitySmootherTest, approxClosedLoopTestTimer)
 
 TEST(VelocitySmootherTest, testfindEtaConstraint)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   rclcpp_lifecycle::State state;
   // default frequency is 20.0
   smoother->configure(state);
 
-  double accel = 0.1;    // dv 0.005
+  double accel = 0.1;   // dv 0.005
   double decel = -1.0;  // dv 0.05
 
   // In range
@@ -233,8 +225,7 @@ TEST(VelocitySmootherTest, testfindEtaConstraint)
 
 TEST(VelocitySmootherTest, testapplyConstraints)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   rclcpp_lifecycle::State state;
   // default frequency is 20.0
   smoother->configure(state);
@@ -258,8 +249,7 @@ TEST(VelocitySmootherTest, testapplyConstraints)
 
 TEST(VelocitySmootherTest, testapplyConstraintsPositiveToPositiveAccel)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   rclcpp_lifecycle::State state;
   // default frequency is 20.0
   smoother->configure(state);
@@ -286,8 +276,7 @@ TEST(VelocitySmootherTest, testapplyConstraintsPositiveToPositiveAccel)
 
 TEST(VelocitySmootherTest, testapplyConstraintsZeroToPositiveAccel)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   rclcpp_lifecycle::State state;
   // default frequency is 20.0
   smoother->configure(state);
@@ -314,8 +303,7 @@ TEST(VelocitySmootherTest, testapplyConstraintsZeroToPositiveAccel)
 
 TEST(VelocitySmootherTest, testapplyConstraintsNegativeToPositiveDecelAccel)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   rclcpp_lifecycle::State state;
   // default frequency is 20.0
   smoother->configure(state);
@@ -348,8 +336,7 @@ TEST(VelocitySmootherTest, testapplyConstraintsNegativeToPositiveDecelAccel)
 
 TEST(VelocitySmootherTest, testapplyConstraintsNegativeToNegativeAccel)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   rclcpp_lifecycle::State state;
   // default frequency is 20.0
   smoother->configure(state);
@@ -376,8 +363,7 @@ TEST(VelocitySmootherTest, testapplyConstraintsNegativeToNegativeAccel)
 
 TEST(VelocitySmootherTest, testapplyConstraintsZeroToNegativeAccel)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   rclcpp_lifecycle::State state;
   // default frequency is 20.0
   smoother->configure(state);
@@ -404,8 +390,7 @@ TEST(VelocitySmootherTest, testapplyConstraintsZeroToNegativeAccel)
 
 TEST(VelocitySmootherTest, testapplyConstraintsPositiveToNegativeDecelAccel)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   rclcpp_lifecycle::State state;
   // default frequency is 20.0
   smoother->configure(state);
@@ -438,8 +423,7 @@ TEST(VelocitySmootherTest, testapplyConstraintsPositiveToNegativeDecelAccel)
 
 TEST(VelocitySmootherTest, testapplyConstraintsPositiveToPositiveDecel)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   rclcpp_lifecycle::State state;
   // default frequency is 20.0
   smoother->configure(state);
@@ -468,8 +452,7 @@ TEST(VelocitySmootherTest, testapplyConstraintsPositiveToPositiveDecel)
 
 TEST(VelocitySmootherTest, testapplyConstraintsPositiveToZeroDecel)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   rclcpp_lifecycle::State state;
   // default frequency is 20.0
   smoother->configure(state);
@@ -496,8 +479,7 @@ TEST(VelocitySmootherTest, testapplyConstraintsPositiveToZeroDecel)
 
 TEST(VelocitySmootherTest, testapplyConstraintsNegativeToNegativeDecel)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   rclcpp_lifecycle::State state;
   // default frequency is 20.0
   smoother->configure(state);
@@ -524,8 +506,7 @@ TEST(VelocitySmootherTest, testapplyConstraintsNegativeToNegativeDecel)
 
 TEST(VelocitySmootherTest, testapplyConstraintsNegativeToZeroDecel)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   rclcpp_lifecycle::State state;
   // default frequency is 20.0
   smoother->configure(state);
@@ -552,8 +533,7 @@ TEST(VelocitySmootherTest, testapplyConstraintsNegativeToZeroDecel)
 
 TEST(VelocitySmootherTest, testCommandCallback)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   rclcpp_lifecycle::State state;
   smoother->configure(state);
   smoother->activate(state);
@@ -571,8 +551,7 @@ TEST(VelocitySmootherTest, testCommandCallback)
 
 TEST(VelocitySmootherTest, testClosedLoopSub)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   smoother->declare_parameter("feedback", rclcpp::ParameterValue(std::string("OPEN_LOOP")));
   smoother->set_parameter(rclcpp::Parameter("feedback", std::string("CLOSED_LOOP")));
   rclcpp_lifecycle::State state;
@@ -582,8 +561,7 @@ TEST(VelocitySmootherTest, testClosedLoopSub)
 
 TEST(VelocitySmootherTest, testInvalidParams)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   std::vector<double> max_vels{0.0, 0.0};  // invalid size
   smoother->declare_parameter("max_velocity", rclcpp::ParameterValue(max_vels));
   rclcpp_lifecycle::State state;
@@ -595,8 +573,7 @@ TEST(VelocitySmootherTest, testInvalidParams)
 
 TEST(VelocitySmootherTest, testInvalidParamsAccelDecel)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
 
   std::vector<double> bad_test_accel{-10.0, -10.0, -10.0};
   std::vector<double> bad_test_decel{10.0, 10.0, 10.0};
@@ -617,8 +594,7 @@ TEST(VelocitySmootherTest, testInvalidParamsAccelDecel)
 
 TEST(VelocitySmootherTest, testDynamicParameter)
 {
-  auto smoother =
-    std::make_shared<VelSmootherShim>();
+  auto smoother = std::make_shared<VelSmootherShim>();
   rclcpp_lifecycle::State state;
   smoother->configure(state);
   smoother->activate(state);
@@ -626,8 +602,7 @@ TEST(VelocitySmootherTest, testDynamicParameter)
 
   auto rec_param = std::make_shared<rclcpp::AsyncParametersClient>(
     smoother->get_node_base_interface(), smoother->get_node_topics_interface(),
-    smoother->get_node_graph_interface(),
-    smoother->get_node_services_interface());
+    smoother->get_node_graph_interface(), smoother->get_node_services_interface());
 
   std::vector<double> max_vel{10.0, 10.0, 10.0};
   std::vector<double> min_vel{0.0, 0.0, 0.0};
@@ -640,20 +615,14 @@ TEST(VelocitySmootherTest, testDynamicParameter)
 
   auto results = rec_param->set_parameters_atomically(
     {rclcpp::Parameter("smoothing_frequency", 100.0),
-      rclcpp::Parameter("feedback", std::string("CLOSED_LOOP")),
-      rclcpp::Parameter("scale_velocities", true),
-      rclcpp::Parameter("max_velocity", max_vel),
-      rclcpp::Parameter("min_velocity", min_vel),
-      rclcpp::Parameter("max_accel", max_accel),
-      rclcpp::Parameter("max_decel", min_accel),
-      rclcpp::Parameter("odom_topic", std::string("TEST")),
-      rclcpp::Parameter("odom_duration", 2.0),
-      rclcpp::Parameter("velocity_timeout", 4.0),
-      rclcpp::Parameter("deadband_velocity", deadband)});
+     rclcpp::Parameter("feedback", std::string("CLOSED_LOOP")),
+     rclcpp::Parameter("scale_velocities", true), rclcpp::Parameter("max_velocity", max_vel),
+     rclcpp::Parameter("min_velocity", min_vel), rclcpp::Parameter("max_accel", max_accel),
+     rclcpp::Parameter("max_decel", min_accel),
+     rclcpp::Parameter("odom_topic", std::string("TEST")), rclcpp::Parameter("odom_duration", 2.0),
+     rclcpp::Parameter("velocity_timeout", 4.0), rclcpp::Parameter("deadband_velocity", deadband)});
 
-  rclcpp::spin_until_future_complete(
-    smoother->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(smoother->get_node_base_interface(), results);
 
   EXPECT_EQ(smoother->get_parameter("smoothing_frequency").as_double(), 100.0);
   EXPECT_EQ(smoother->get_parameter("feedback").as_string(), std::string("CLOSED_LOOP"));
@@ -668,31 +637,27 @@ TEST(VelocitySmootherTest, testDynamicParameter)
   EXPECT_EQ(smoother->get_parameter("deadband_velocity").as_double_array(), deadband);
 
   // Test reverting
-  results = rec_param->set_parameters_atomically(
-    {rclcpp::Parameter("feedback", std::string("OPEN_LOOP"))});
-  rclcpp::spin_until_future_complete(
-    smoother->get_node_base_interface(), results);
+  results =
+    rec_param->set_parameters_atomically({rclcpp::Parameter("feedback", std::string("OPEN_LOOP"))});
+  rclcpp::spin_until_future_complete(smoother->get_node_base_interface(), results);
   EXPECT_EQ(smoother->get_parameter("feedback").as_string(), std::string("OPEN_LOOP"));
 
   // Test invalid change
-  results = rec_param->set_parameters_atomically(
-    {rclcpp::Parameter("feedback", std::string("LAWLS"))});
+  results =
+    rec_param->set_parameters_atomically({rclcpp::Parameter("feedback", std::string("LAWLS"))});
   rclcpp::spin_until_future_complete(smoother->get_node_base_interface(), results);
   EXPECT_FALSE(results.get().successful);
 
   // Test invalid size
-  results = rec_param->set_parameters_atomically(
-    {rclcpp::Parameter("max_velocity", bad_test)});
+  results = rec_param->set_parameters_atomically({rclcpp::Parameter("max_velocity", bad_test)});
   rclcpp::spin_until_future_complete(smoother->get_node_base_interface(), results);
   EXPECT_FALSE(results.get().successful);
 
   // Test invalid accel / decel
-  results = rec_param->set_parameters_atomically(
-    {rclcpp::Parameter("max_accel", bad_test_accel)});
+  results = rec_param->set_parameters_atomically({rclcpp::Parameter("max_accel", bad_test_accel)});
   rclcpp::spin_until_future_complete(smoother->get_node_base_interface(), results);
   EXPECT_FALSE(results.get().successful);
-  results = rec_param->set_parameters_atomically(
-    {rclcpp::Parameter("max_decel", bad_test_decel)});
+  results = rec_param->set_parameters_atomically({rclcpp::Parameter("max_decel", bad_test_decel)});
   rclcpp::spin_until_future_complete(smoother->get_node_base_interface(), results);
   EXPECT_FALSE(results.get().successful);
 

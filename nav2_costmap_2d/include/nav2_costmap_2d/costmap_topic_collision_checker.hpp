@@ -17,18 +17,18 @@
 #ifndef NAV2_COSTMAP_2D__COSTMAP_TOPIC_COLLISION_CHECKER_HPP_
 #define NAV2_COSTMAP_2D__COSTMAP_TOPIC_COLLISION_CHECKER_HPP_
 
+#include <algorithm>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
-#include <algorithm>
 
-#include "rclcpp/rclcpp.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/pose2_d.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
-#include "nav2_costmap_2d/footprint_collision_checker.hpp"
 #include "nav2_costmap_2d/costmap_subscriber.hpp"
+#include "nav2_costmap_2d/footprint_collision_checker.hpp"
 #include "nav2_costmap_2d/footprint_subscriber.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_costmap_2d
 {
@@ -44,8 +44,7 @@ public:
    * @brief A constructor
    */
   CostmapTopicCollisionChecker(
-    CostmapSubscriber & costmap_sub,
-    FootprintSubscriber & footprint_sub,
+    CostmapSubscriber & costmap_sub, FootprintSubscriber & footprint_sub,
     std::string name = "collision_checker");
 
   /**
@@ -57,35 +56,35 @@ public:
    * @brief Returns the obstacle footprint score for a particular pose
    *
    * @param pose Pose to get score at
-   * @param fetch_costmap_and_footprint Defaults to true. When checking with multiple poses at once,
-   * data should be fetched in the first check but fetching can be skipped in consequent checks for speedup
+   * @param fetch_costmap_and_footprint Defaults to true. When checking with
+   * multiple poses at once, data should be fetched in the first check but
+   * fetching can be skipped in consequent checks for speedup
    */
   double scorePose(
-    const geometry_msgs::msg::Pose2D & pose,
-    bool fetch_costmap_and_footprint = true);
+    const geometry_msgs::msg::Pose2D & pose, bool fetch_costmap_and_footprint = true);
 
   /**
    * @brief Returns if a pose is collision free
    *
    * @param pose Pose to check collision at
-   * @param fetch_costmap_and_footprint Defaults to true. When checking with multiple poses at once,
-   * data should be fetched in the first check but fetching can be skipped in consequent checks for speedup
+   * @param fetch_costmap_and_footprint Defaults to true. When checking with
+   * multiple poses at once, data should be fetched in the first check but
+   * fetching can be skipped in consequent checks for speedup
    */
   bool isCollisionFree(
-    const geometry_msgs::msg::Pose2D & pose,
-    bool fetch_costmap_and_footprint = true);
+    const geometry_msgs::msg::Pose2D & pose, bool fetch_costmap_and_footprint = true);
 
 protected:
   /**
    * @brief Get a footprint at a set pose
    *
    * @param pose Pose to get footprint at
-   * @param fetch_latest_footprint Defaults to true. When checking with multiple poses at once,
-   * footprint should be fetched in the first check but fetching can be skipped in consequent checks for speedup
+   * @param fetch_latest_footprint Defaults to true. When checking with multiple
+   * poses at once, footprint should be fetched in the first check but fetching
+   * can be skipped in consequent checks for speedup
    */
   Footprint getFootprint(
-    const geometry_msgs::msg::Pose2D & pose,
-    bool fetch_latest_footprint = true);
+    const geometry_msgs::msg::Pose2D & pose, bool fetch_latest_footprint = true);
 
   // Name used for logging
   std::string name_;

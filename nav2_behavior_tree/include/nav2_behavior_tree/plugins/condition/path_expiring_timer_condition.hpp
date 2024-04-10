@@ -17,9 +17,9 @@
 
 #include <string>
 
-#include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp_v3/condition_node.h"
 #include "nav_msgs/msg/path.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_behavior_tree
 {
@@ -37,8 +37,7 @@ public:
    * @param conf BT node configuration
    */
   PathExpiringTimerCondition(
-    const std::string & condition_name,
-    const BT::NodeConfiguration & conf);
+    const std::string & condition_name, const BT::NodeConfiguration & conf);
 
   PathExpiringTimerCondition() = delete;
 
@@ -55,9 +54,7 @@ public:
   static BT::PortsList providedPorts()
   {
     return {
-      BT::InputPort<double>("seconds", 1.0, "Seconds"),
-      BT::InputPort<nav_msgs::msg::Path>("path")
-    };
+      BT::InputPort<double>("seconds", 1.0, "Seconds"), BT::InputPort<nav_msgs::msg::Path>("path")};
   }
 
 private:

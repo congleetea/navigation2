@@ -25,8 +25,7 @@ namespace nav2_map_server
  * status (0-100; -1). Lightness refers to the mean of a given pixel's RGB
  * channels on a scale from 0 to 255.
  */
-enum class MapMode
-{
+enum class MapMode {
   /**
    * Together with associated threshold values (occupied and free):
    *   lightness >= occupied threshold - Occupied (100)

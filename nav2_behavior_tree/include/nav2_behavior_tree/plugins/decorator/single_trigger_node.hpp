@@ -24,8 +24,8 @@ namespace nav2_behavior_tree
 {
 
 /**
- * @brief A BT::DecoratorNode that triggers its child only once and returns FAILURE
- * for every succeeding tick
+ * @brief A BT::DecoratorNode that triggers its child only once and returns
+ * FAILURE for every succeeding tick
  */
 class SingleTrigger : public BT::DecoratorNode
 {
@@ -35,18 +35,13 @@ public:
    * @param name Name for the XML tag for this node
    * @param conf BT node configuration
    */
-  SingleTrigger(
-    const std::string & name,
-    const BT::NodeConfiguration & conf);
+  SingleTrigger(const std::string & name, const BT::NodeConfiguration & conf);
 
   /**
    * @brief Creates list of BT ports
    * @return BT::PortsList Containing node-specific ports
    */
-  static BT::PortsList providedPorts()
-  {
-    return {};
-  }
+  static BT::PortsList providedPorts() { return {}; }
 
 private:
   /**

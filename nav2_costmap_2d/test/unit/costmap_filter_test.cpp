@@ -14,15 +14,15 @@
 
 #include <gtest/gtest.h>
 
-#include <string>
 #include <memory>
+#include <string>
 
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_util/occ_grid_values.hpp"
-#include "nav_msgs/msg/occupancy_grid.hpp"
 #include "geometry_msgs/msg/pose2_d.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_costmap_2d/costmap_filters/costmap_filter.hpp"
+#include "nav2_util/occ_grid_values.hpp"
+#include "nav_msgs/msg/occupancy_grid.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 class CostmapFilterWrapper : public nav2_costmap_2d::CostmapFilter
 {
@@ -30,17 +30,17 @@ public:
   CostmapFilterWrapper() {}
 
   bool worldToMask(
-    nav_msgs::msg::OccupancyGrid::ConstSharedPtr filter_mask,
-    double wx, double wy, unsigned int & mx, unsigned int & my) const
+    nav_msgs::msg::OccupancyGrid::ConstSharedPtr filter_mask, double wx, double wy,
+    unsigned int & mx, unsigned int & my) const
   {
     return nav2_costmap_2d::CostmapFilter::worldToMask(filter_mask, wx, wy, mx, my);
   }
 
   // API coverage
   void initializeFilter(const std::string &) {}
-  void process(
-    nav2_costmap_2d::Costmap2D &, int, int, int, int, const geometry_msgs::msg::Pose2D &)
-  {}
+  void process(nav2_costmap_2d::Costmap2D &, int, int, int, int, const geometry_msgs::msg::Pose2D &)
+  {
+  }
   void resetFilter() {}
 };
 

@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <string>
-#include <memory>
-#include <vector>
 #include <algorithm>
 #include <limits>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "Eigen/Core"
 #include "nav2_smac_planner/smac_planner_hybrid.hpp"
@@ -41,14 +41,12 @@ SmacPlannerHybrid::SmacPlannerHybrid()
 
 SmacPlannerHybrid::~SmacPlannerHybrid()
 {
-  RCLCPP_INFO(
-    _logger, "Destroying plugin %s of type SmacPlannerHybrid",
-    _name.c_str());
+  RCLCPP_INFO(_logger, "Destroying plugin %s of type SmacPlannerHybrid", _name.c_str());
 }
 
 void SmacPlannerHybrid::configure(
-  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-  std::string name, std::shared_ptr<tf2_ros::Buffer>/*tf*/,
+  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, std::string name,
+  std::shared_ptr<tf2_ros::Buffer> /*tf*/,
   std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros)
 {
   _node = parent;
@@ -141,20 +139,23 @@ void SmacPlannerHybrid::configure(
     RCLCPP_WARN(
       _logger,
       "Unable to get MotionModel search type. Given '%s', "
-      "valid options are MOORE, VON_NEUMANN, DUBIN, REEDS_SHEPP, STATE_LATTICE.",
+      "valid options are MOORE, VON_NEUMANN, DUBIN, REEDS_SHEPP, "
+      "STATE_LATTICE.",
       _motion_model_for_search.c_str());
   }
 
   if (_max_on_approach_iterations <= 0) {
     RCLCPP_INFO(
-      _logger, "On approach iteration selected as <= 0, "
+      _logger,
+      "On approach iteration selected as <= 0, "
       "disabling tolerance and on approach iterations.");
     _max_on_approach_iterations = std::numeric_limits<int>::max();
   }
 
   if (_max_iterations <= 0) {
     RCLCPP_INFO(
-      _logger, "maximum iteration selected as <= 0, "
+      _logger,
+      "maximum iteration selected as <= 0, "
       "disabling maximum iterations.");
     _max_iterations = std::numeric_limits<int>::max();
   }
@@ -165,9 +166,8 @@ void SmacPlannerHybrid::configure(
   }
   _search_info.minimum_turning_radius =
     _minimum_turning_radius_global_coords / (_costmap->getResolution() * _downsampling_factor);
-  _lookup_table_dim =
-    static_cast<float>(_lookup_table_size) /
-    static_cast<float>(_costmap->getResolution() * _downsampling_factor);
+  _lookup_table_dim = static_cast<float>(_lookup_table_size) /
+                      static_cast<float>(_costmap->getResolution() * _downsampling_factor);
 
   // Make sure its a whole number
   _lookup_table_dim = static_cast<float>(static_cast<int>(_lookup_table_dim));
@@ -176,7 +176,8 @@ void SmacPlannerHybrid::configure(
   if (static_cast<int>(_lookup_table_dim) % 2 == 0) {
     RCLCPP_INFO(
       _logger,
-      "Even sized heuristic lookup table size set %f, increasing size by 1 to make odd",
+      "Even sized heuristic lookup table size set %f, increasing "
+      "size by 1 to make odd",
       _lookup_table_dim);
     _lookup_table_dim += 1.0;
   }
@@ -184,19 +185,14 @@ void SmacPlannerHybrid::configure(
   // Initialize collision checker
   _collision_checker = GridCollisionChecker(_costmap, _angle_quantizations, node);
   _collision_checker.setFootprint(
-    _costmap_ros->getRobotFootprint(),
-    _costmap_ros->getUseRadius(),
+    _costmap_ros->getRobotFootprint(), _costmap_ros->getUseRadius(),
     findCircumscribedCost(_costmap_ros));
 
   // Initialize A* template
   _a_star = std::make_unique<AStarAlgorithm<NodeHybrid>>(_motion_model, _search_info);
   _a_star->initialize(
-    _allow_unknown,
-    _max_iterations,
-    _max_on_approach_iterations,
-    _max_planning_time,
-    _lookup_table_dim,
-    _angle_quantizations);
+    _allow_unknown, _max_iterations, _max_on_approach_iterations, _max_planning_time,
+    _lookup_table_dim, _angle_quantizations);
 
   // Initialize path smoother
   if (smooth_path) {
@@ -217,19 +213,19 @@ void SmacPlannerHybrid::configure(
   _raw_plan_publisher = node->create_publisher<nav_msgs::msg::Path>("unsmoothed_plan", 1);
 
   RCLCPP_INFO(
-    _logger, "Configured plugin %s of type SmacPlannerHybrid with "
-    "maximum iterations %i, max on approach iterations %i, and %s. Tolerance %.2f."
+    _logger,
+    "Configured plugin %s of type SmacPlannerHybrid with "
+    "maximum iterations %i, max on approach iterations %i, and %s. "
+    "Tolerance %.2f."
     "Using motion model: %s.",
     _name.c_str(), _max_iterations, _max_on_approach_iterations,
-    _allow_unknown ? "allowing unknown traversal" : "not allowing unknown traversal",
-    _tolerance, toString(_motion_model).c_str());
+    _allow_unknown ? "allowing unknown traversal" : "not allowing unknown traversal", _tolerance,
+    toString(_motion_model).c_str());
 }
 
 void SmacPlannerHybrid::activate()
 {
-  RCLCPP_INFO(
-    _logger, "Activating plugin %s of type SmacPlannerHybrid",
-    _name.c_str());
+  RCLCPP_INFO(_logger, "Activating plugin %s of type SmacPlannerHybrid", _name.c_str());
   _raw_plan_publisher->on_activate();
   if (_costmap_downsampler) {
     _costmap_downsampler->on_activate();
@@ -242,9 +238,7 @@ void SmacPlannerHybrid::activate()
 
 void SmacPlannerHybrid::deactivate()
 {
-  RCLCPP_INFO(
-    _logger, "Deactivating plugin %s of type SmacPlannerHybrid",
-    _name.c_str());
+  RCLCPP_INFO(_logger, "Deactivating plugin %s of type SmacPlannerHybrid", _name.c_str());
   _raw_plan_publisher->on_deactivate();
   if (_costmap_downsampler) {
     _costmap_downsampler->on_deactivate();
@@ -254,9 +248,7 @@ void SmacPlannerHybrid::deactivate()
 
 void SmacPlannerHybrid::cleanup()
 {
-  RCLCPP_INFO(
-    _logger, "Cleaning up plugin %s of type SmacPlannerHybrid",
-    _name.c_str());
+  RCLCPP_INFO(_logger, "Cleaning up plugin %s of type SmacPlannerHybrid", _name.c_str());
   _a_star.reset();
   _smoother.reset();
   if (_costmap_downsampler) {
@@ -267,8 +259,7 @@ void SmacPlannerHybrid::cleanup()
 }
 
 nav_msgs::msg::Path SmacPlannerHybrid::createPlan(
-  const geometry_msgs::msg::PoseStamped & start,
-  const geometry_msgs::msg::PoseStamped & goal)
+  const geometry_msgs::msg::PoseStamped & start, const geometry_msgs::msg::PoseStamped & goal)
 {
   std::lock_guard<std::mutex> lock_reinit(_mutex);
   steady_clock::time_point a = steady_clock::now();
@@ -330,8 +321,7 @@ nav_msgs::msg::Path SmacPlannerHybrid::createPlan(
   std::string error;
   try {
     if (!_a_star->createPath(
-        path, num_iterations, _tolerance / static_cast<float>(costmap->getResolution())))
-    {
+          path, num_iterations, _tolerance / static_cast<float>(costmap->getResolution()))) {
       if (num_iterations < _a_star->getMaxIterations()) {
         error = std::string("no valid path found");
       } else {
@@ -344,10 +334,7 @@ nav_msgs::msg::Path SmacPlannerHybrid::createPlan(
   }
 
   if (!error.empty()) {
-    RCLCPP_WARN(
-      _logger,
-      "%s: failed to create plan, %s.",
-      _name.c_str(), error.c_str());
+    RCLCPP_WARN(_logger, "%s: failed to create plan, %s.", _name.c_str(), error.c_str());
     return plan;
   }
 
@@ -370,8 +357,8 @@ nav_msgs::msg::Path SmacPlannerHybrid::createPlan(
   double time_remaining = _max_planning_time - static_cast<double>(time_span.count());
 
 #ifdef BENCHMARK_TESTING
-  std::cout << "It took " << time_span.count() * 1000 <<
-    " milliseconds with " << num_iterations << " iterations." << std::endl;
+  std::cout << "It took " << time_span.count() * 1000 << " milliseconds with " << num_iterations
+            << " iterations." << std::endl;
 #endif
 
   // Smooth plan
@@ -382,15 +369,15 @@ nav_msgs::msg::Path SmacPlannerHybrid::createPlan(
 #ifdef BENCHMARK_TESTING
   steady_clock::time_point c = steady_clock::now();
   duration<double> time_span2 = duration_cast<duration<double>>(c - b);
-  std::cout << "It took " << time_span2.count() * 1000 <<
-    " milliseconds to smooth path." << std::endl;
+  std::cout << "It took " << time_span2.count() * 1000 << " milliseconds to smooth path."
+            << std::endl;
 #endif
 
   return plan;
 }
 
-rcl_interfaces::msg::SetParametersResult
-SmacPlannerHybrid::dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters)
+rcl_interfaces::msg::SetParametersResult SmacPlannerHybrid::dynamicParametersCallback(
+  std::vector<rclcpp::Parameter> parameters)
 {
   rcl_interfaces::msg::SetParametersResult result;
   std::lock_guard<std::mutex> lock_reinit(_mutex);
@@ -466,7 +453,8 @@ SmacPlannerHybrid::dynamicParametersCallback(std::vector<rclcpp::Parameter> para
         _max_iterations = parameter.as_int();
         if (_max_iterations <= 0) {
           RCLCPP_INFO(
-            _logger, "maximum iteration selected as <= 0, "
+            _logger,
+            "maximum iteration selected as <= 0, "
             "disabling maximum iterations.");
           _max_iterations = std::numeric_limits<int>::max();
         }
@@ -475,7 +463,8 @@ SmacPlannerHybrid::dynamicParametersCallback(std::vector<rclcpp::Parameter> para
         _max_on_approach_iterations = parameter.as_int();
         if (_max_on_approach_iterations <= 0) {
           RCLCPP_INFO(
-            _logger, "On approach iteration selected as <= 0, "
+            _logger,
+            "On approach iteration selected as <= 0, "
             "disabling tolerance and on approach iterations.");
           _max_on_approach_iterations = std::numeric_limits<int>::max();
         }
@@ -509,9 +498,8 @@ SmacPlannerHybrid::dynamicParametersCallback(std::vector<rclcpp::Parameter> para
     }
     _search_info.minimum_turning_radius =
       _minimum_turning_radius_global_coords / (_costmap->getResolution() * _downsampling_factor);
-    _lookup_table_dim =
-      static_cast<float>(_lookup_table_size) /
-      static_cast<float>(_costmap->getResolution() * _downsampling_factor);
+    _lookup_table_dim = static_cast<float>(_lookup_table_size) /
+                        static_cast<float>(_costmap->getResolution() * _downsampling_factor);
 
     // Make sure its a whole number
     _lookup_table_dim = static_cast<float>(static_cast<int>(_lookup_table_dim));
@@ -520,7 +508,8 @@ SmacPlannerHybrid::dynamicParametersCallback(std::vector<rclcpp::Parameter> para
     if (static_cast<int>(_lookup_table_dim) % 2 == 0) {
       RCLCPP_INFO(
         _logger,
-        "Even sized heuristic lookup table size set %f, increasing size by 1 to make odd",
+        "Even sized heuristic lookup table size set %f, increasing "
+        "size by 1 to make odd",
         _lookup_table_dim);
       _lookup_table_dim += 1.0;
     }
@@ -531,12 +520,8 @@ SmacPlannerHybrid::dynamicParametersCallback(std::vector<rclcpp::Parameter> para
     if (reinit_a_star) {
       _a_star = std::make_unique<AStarAlgorithm<NodeHybrid>>(_motion_model, _search_info);
       _a_star->initialize(
-        _allow_unknown,
-        _max_iterations,
-        _max_on_approach_iterations,
-        _max_planning_time,
-        _lookup_table_dim,
-        _angle_quantizations);
+        _allow_unknown, _max_iterations, _max_on_approach_iterations, _max_planning_time,
+        _lookup_table_dim, _angle_quantizations);
     }
 
     // Re-Initialize costmap downsampler
@@ -553,8 +538,7 @@ SmacPlannerHybrid::dynamicParametersCallback(std::vector<rclcpp::Parameter> para
     if (reinit_collision_checker) {
       _collision_checker = GridCollisionChecker(_costmap, _angle_quantizations, node);
       _collision_checker.setFootprint(
-        _costmap_ros->getRobotFootprint(),
-        _costmap_ros->getUseRadius(),
+        _costmap_ros->getRobotFootprint(), _costmap_ros->getUseRadius(),
         findCircumscribedCost(_costmap_ros));
     }
 

@@ -15,17 +15,17 @@
 #include <memory>
 #include <vector>
 
-#include "gtest/gtest.h"
+#include "nav2_costmap_2d/costmap_2d_ros.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
-#include "nav2_costmap_2d/costmap_2d_ros.hpp"
 #include "tf2_ros/transform_broadcaster.h"
+#include "gtest/gtest.h"
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -42,7 +42,8 @@ TEST(DynParamTestNode, testDynParamsSet)
   auto costmap = std::make_shared<nav2_costmap_2d::Costmap2DROS>("test_costmap");
   costmap->on_configure(rclcpp_lifecycle::State());
 
-  // Set tf between default global_frame and robot_base_frame in order not to block in on_activate
+  // Set tf between default global_frame and robot_base_frame in order not to
+  // block in on_activate
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_ =
     std::make_unique<tf2_ros::TransformBroadcaster>(node);
   geometry_msgs::msg::TransformStamped t;
@@ -57,11 +58,8 @@ TEST(DynParamTestNode, testDynParamsSet)
   costmap->on_activate(rclcpp_lifecycle::State());
 
   auto parameter_client = std::make_shared<rclcpp::AsyncParametersClient>(
-    node->shared_from_this(),
-    "/test_costmap/test_costmap",
-    rmw_qos_profile_parameters);
-  auto results1 = parameter_client->set_parameters_atomically(
-  {
+    node->shared_from_this(), "/test_costmap/test_costmap", rmw_qos_profile_parameters);
+  auto results1 = parameter_client->set_parameters_atomically({
     rclcpp::Parameter("robot_radius", 1.234),
     rclcpp::Parameter("footprint_padding", 2.345),
     rclcpp::Parameter("transform_tolerance", 3.456),
@@ -73,13 +71,13 @@ TEST(DynParamTestNode, testDynParamsSet)
     rclcpp::Parameter("height", 3),
     rclcpp::Parameter(
       "footprint",
-      "[[-0.325, -0.325], [-0.325, 0.325], [0.325, 0.325], [0.46, 0.0], [0.325, -0.325]]"),
+      "[[-0.325, -0.325], [-0.325, 0.325], [0.325, 0.325], "
+      "[0.46, 0.0], [0.325, -0.325]]"),
     rclcpp::Parameter("robot_base_frame", "test_frame"),
   });
 
   // Try setting robot_base_frame to an invalid frame, should be rejected
-  auto results2 = parameter_client->set_parameters_atomically(
-  {
+  auto results2 = parameter_client->set_parameters_atomically({
     rclcpp::Parameter("robot_base_frame", "wrong_test_frame"),
   });
 
@@ -96,7 +94,8 @@ TEST(DynParamTestNode, testDynParamsSet)
   EXPECT_EQ(costmap->get_parameter("height").as_int(), 3);
   EXPECT_EQ(
     costmap->get_parameter("footprint").as_string(),
-    "[[-0.325, -0.325], [-0.325, 0.325], [0.325, 0.325], [0.46, 0.0], [0.325, -0.325]]");
+    "[[-0.325, -0.325], [-0.325, 0.325], [0.325, 0.325], [0.46, 0.0], "
+    "[0.325, -0.325]]");
   EXPECT_EQ(costmap->get_parameter("robot_base_frame").as_string(), "test_frame");
 
   costmap->on_deactivate(rclcpp_lifecycle::State());

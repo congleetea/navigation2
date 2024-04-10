@@ -13,14 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <string>
-#include <random>
-#include <tuple>
-#include <memory>
-#include <iostream>
 #include <chrono>
-#include <sstream>
 #include <iomanip>
+#include <iostream>
+#include <memory>
+#include <random>
+#include <sstream>
+#include <string>
+#include <tuple>
 
 #include "assisted_teleop_behavior_tester.hpp"
 #include "nav2_util/geometry_utils.hpp"
@@ -32,8 +32,7 @@ namespace nav2_system_tests
 {
 
 AssistedTeleopBehaviorTester::AssistedTeleopBehaviorTester()
-: is_active_(false),
-  initial_pose_received_(false)
+: is_active_(false), initial_pose_received_(false)
 {
   node_ = rclcpp::Node::make_shared("assisted_teleop_behavior_test");
 
@@ -41,46 +40,34 @@ AssistedTeleopBehaviorTester::AssistedTeleopBehaviorTester()
   tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
   client_ptr_ = rclcpp_action::create_client<AssistedTeleop>(
-    node_->get_node_base_interface(),
-    node_->get_node_graph_interface(),
-    node_->get_node_logging_interface(),
-    node_->get_node_waitables_interface(),
-    "assisted_teleop");
+    node_->get_node_base_interface(), node_->get_node_graph_interface(),
+    node_->get_node_logging_interface(), node_->get_node_waitables_interface(), "assisted_teleop");
 
   initial_pose_pub_ =
     node_->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", 10);
 
-  preempt_pub_ =
-    node_->create_publisher<std_msgs::msg::Empty>("preempt_teleop", 10);
+  preempt_pub_ = node_->create_publisher<std_msgs::msg::Empty>("preempt_teleop", 10);
 
-  cmd_vel_pub_ =
-    node_->create_publisher<geometry_msgs::msg::Twist>("cmd_vel_teleop", 10);
+  cmd_vel_pub_ = node_->create_publisher<geometry_msgs::msg::Twist>("cmd_vel_teleop", 10);
 
   subscription_ = node_->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
     "amcl_pose", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
     std::bind(&AssistedTeleopBehaviorTester::amclPoseCallback, this, std::placeholders::_1));
 
   filtered_vel_sub_ = node_->create_subscription<geometry_msgs::msg::Twist>(
-    "cmd_vel",
-    rclcpp::SystemDefaultsQoS(),
+    "cmd_vel", rclcpp::SystemDefaultsQoS(),
     std::bind(&AssistedTeleopBehaviorTester::filteredVelCallback, this, std::placeholders::_1));
 
   std::string costmap_topic = "/local_costmap/costmap_raw";
   std::string footprint_topic = "/local_costmap/published_footprint";
 
-  costmap_sub_ = std::make_shared<nav2_costmap_2d::CostmapSubscriber>(
-    node_,
-    costmap_topic);
+  costmap_sub_ = std::make_shared<nav2_costmap_2d::CostmapSubscriber>(node_, costmap_topic);
 
-  footprint_sub_ = std::make_shared<nav2_costmap_2d::FootprintSubscriber>(
-    node_,
-    footprint_topic,
-    *tf_buffer_);
+  footprint_sub_ =
+    std::make_shared<nav2_costmap_2d::FootprintSubscriber>(node_, footprint_topic, *tf_buffer_);
 
-  collision_checker_ = std::make_unique<nav2_costmap_2d::CostmapTopicCollisionChecker>(
-    *costmap_sub_,
-    *footprint_sub_
-  );
+  collision_checker_ =
+    std::make_unique<nav2_costmap_2d::CostmapTopicCollisionChecker>(*costmap_sub_, *footprint_sub_);
 
   stamp_ = node_->now();
 }
@@ -134,8 +121,7 @@ void AssistedTeleopBehaviorTester::deactivate()
 }
 
 bool AssistedTeleopBehaviorTester::defaultAssistedTeleopTest(
-  const float lin_vel,
-  const float ang_vel)
+  const float lin_vel, const float ang_vel)
 {
   if (!is_active_) {
     RCLCPP_ERROR(node_->get_logger(), "Not activated");
@@ -146,9 +132,9 @@ bool AssistedTeleopBehaviorTester::defaultAssistedTeleopTest(
 
   auto goal_handle_future = client_ptr_->async_send_goal(nav2_msgs::action::AssistedTeleop::Goal());
 
-  if (rclcpp::spin_until_future_complete(node_, goal_handle_future) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  if (
+    rclcpp::spin_until_future_complete(node_, goal_handle_future) !=
+    rclcpp::FutureReturnCode::SUCCESS) {
     RCLCPP_ERROR(node_->get_logger(), "send goal call failed :(");
     return false;
   }
@@ -190,27 +176,26 @@ bool AssistedTeleopBehaviorTester::defaultAssistedTeleopTest(
   preempt_pub_->publish(preempt_msg);
 
   RCLCPP_INFO(node_->get_logger(), "Waiting for result");
-  if (rclcpp::spin_until_future_complete(node_, result_future) !=
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  if (
+    rclcpp::spin_until_future_complete(node_, result_future) != rclcpp::FutureReturnCode::SUCCESS) {
     RCLCPP_ERROR(node_->get_logger(), "get result call failed :(");
     return false;
   }
 
-  rclcpp_action::ClientGoalHandle<AssistedTeleop>::WrappedResult
-    wrapped_result = result_future.get();
+  rclcpp_action::ClientGoalHandle<AssistedTeleop>::WrappedResult wrapped_result =
+    result_future.get();
 
   switch (wrapped_result.code) {
-    case rclcpp_action::ResultCode::SUCCEEDED: break;
-    case rclcpp_action::ResultCode::ABORTED: RCLCPP_ERROR(
-        node_->get_logger(),
-        "Goal was aborted");
+    case rclcpp_action::ResultCode::SUCCEEDED:
+      break;
+    case rclcpp_action::ResultCode::ABORTED:
+      RCLCPP_ERROR(node_->get_logger(), "Goal was aborted");
       return false;
-    case rclcpp_action::ResultCode::CANCELED: RCLCPP_ERROR(
-        node_->get_logger(),
-        "Goal was canceled");
+    case rclcpp_action::ResultCode::CANCELED:
+      RCLCPP_ERROR(node_->get_logger(), "Goal was canceled");
       return false;
-    default: RCLCPP_ERROR(node_->get_logger(), "Unknown result code");
+    default:
+      RCLCPP_ERROR(node_->get_logger(), "Unknown result code");
       return false;
   }
 
@@ -264,8 +249,7 @@ void AssistedTeleopBehaviorTester::amclPoseCallback(
   initial_pose_received_ = true;
 }
 
-void AssistedTeleopBehaviorTester::filteredVelCallback(
-  geometry_msgs::msg::Twist::SharedPtr msg)
+void AssistedTeleopBehaviorTester::filteredVelCallback(geometry_msgs::msg::Twist::SharedPtr msg)
 {
   if (msg->linear.x == 0.0f) {
     counter_++;

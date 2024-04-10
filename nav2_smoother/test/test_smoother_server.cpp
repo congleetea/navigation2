@@ -12,23 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <string>
-#include <memory>
-#include <chrono>
-#include <iostream>
-#include <future>
-#include <thread>
 #include <algorithm>
+#include <chrono>
+#include <future>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <thread>
 #include <vector>
 
-#include "gtest/gtest.h"
 #include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
-#include "rclcpp_action/rclcpp_action.hpp"
-#include "nav2_core/smoother.hpp"
 #include "nav2_core/exceptions.hpp"
+#include "nav2_core/smoother.hpp"
 #include "nav2_msgs/action/smooth_path.hpp"
 #include "nav2_smoother/nav2_smoother.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
 #include "tf2_ros/create_timer_ros.h"
 
 using SmoothAction = nav2_msgs::action::SmoothPath;
@@ -41,16 +41,16 @@ using namespace std::chrono_literals;
 class DummySmoother : public nav2_core::Smoother
 {
 public:
-  DummySmoother()
-  : initialized_(false) {}
+  DummySmoother() : initialized_(false) {}
 
   ~DummySmoother() {}
 
   virtual void configure(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr &,
-    std::string, std::shared_ptr<tf2_ros::Buffer>,
+    const rclcpp_lifecycle::LifecycleNode::WeakPtr &, std::string, std::shared_ptr<tf2_ros::Buffer>,
     std::shared_ptr<nav2_costmap_2d::CostmapSubscriber>,
-    std::shared_ptr<nav2_costmap_2d::FootprintSubscriber>) {}
+    std::shared_ptr<nav2_costmap_2d::FootprintSubscriber>)
+  {
+  }
 
   virtual void cleanup() {}
 
@@ -58,9 +58,7 @@ public:
 
   virtual void deactivate() {}
 
-  virtual bool smooth(
-    nav_msgs::msg::Path & path,
-    const rclcpp::Duration & max_time)
+  virtual bool smooth(nav_msgs::msg::Path & path, const rclcpp::Duration & max_time)
   {
     assert(path.poses.size() == 2);
 
@@ -97,9 +95,9 @@ void onPluginDeletion(nav2_core::Smoother * obj)
   }
 }
 
-template<>
-pluginlib::UniquePtr<nav2_core::Smoother> pluginlib::ClassLoader<nav2_core::Smoother>::
-createUniqueInstance(const std::string & lookup_name)
+template <>
+pluginlib::UniquePtr<nav2_core::Smoother>
+pluginlib::ClassLoader<nav2_core::Smoother>::createUniqueInstance(const std::string & lookup_name)
 {
   if (lookup_name != "DummySmoother") {
     // original method body
@@ -117,18 +115,15 @@ createUniqueInstance(const std::string & lookup_name)
   }
 
   // mocked plugin creation
-  return std::unique_ptr<nav2_core::Smoother,
-           class_loader::ClassLoader::DeleterType<nav2_core::Smoother>>(
-    new DummySmoother(),
-    onPluginDeletion);
+  return std::unique_ptr<
+    nav2_core::Smoother, class_loader::ClassLoader::DeleterType<nav2_core::Smoother>>(
+    new DummySmoother(), onPluginDeletion);
 }
 
 class DummyCostmapSubscriber : public nav2_costmap_2d::CostmapSubscriber
 {
 public:
-  DummyCostmapSubscriber(
-    nav2_util::LifecycleNode::SharedPtr node,
-    const std::string & topic_name)
+  DummyCostmapSubscriber(nav2_util::LifecycleNode::SharedPtr node, const std::string & topic_name)
   : CostmapSubscriber(node, topic_name)
   {
     auto costmap = std::make_shared<nav2_msgs::msg::Costmap>();
@@ -159,9 +154,7 @@ class DummyFootprintSubscriber : public nav2_costmap_2d::FootprintSubscriber
 {
 public:
   DummyFootprintSubscriber(
-    nav2_util::LifecycleNode::SharedPtr node,
-    const std::string & topic_name,
-    tf2_ros::Buffer & tf_)
+    nav2_util::LifecycleNode::SharedPtr node, const std::string & topic_name, tf2_ros::Buffer & tf_)
   : FootprintSubscriber(node, topic_name, tf_)
   {
     auto footprint = std::make_shared<geometry_msgs::msg::PolygonStamped>();
@@ -200,8 +193,7 @@ public:
     default_types_.resize(1, "DummySmoother");
   }
 
-  nav2_util::CallbackReturn
-  on_configure(const rclcpp_lifecycle::State & state)
+  nav2_util::CallbackReturn on_configure(const rclcpp_lifecycle::State & state)
   {
     auto result = SmootherServer::on_configure(state);
     if (result != nav2_util::CallbackReturn::SUCCESS) {
@@ -210,16 +202,10 @@ public:
 
     // Create dummy subscribers and collision checker
     auto node = shared_from_this();
-    costmap_sub_ =
-      std::make_shared<DummyCostmapSubscriber>(
-      node, "costmap_topic");
-    footprint_sub_ =
-      std::make_shared<DummyFootprintSubscriber>(
-      node, "footprint_topic", *tf_);
-    collision_checker_ =
-      std::make_shared<nav2_costmap_2d::CostmapTopicCollisionChecker>(
-      *costmap_sub_, *footprint_sub_,
-      node->get_name());
+    costmap_sub_ = std::make_shared<DummyCostmapSubscriber>(node, "costmap_topic");
+    footprint_sub_ = std::make_shared<DummyFootprintSubscriber>(node, "footprint_topic", *tf_);
+    collision_checker_ = std::make_shared<nav2_costmap_2d::CostmapTopicCollisionChecker>(
+      *costmap_sub_, *footprint_sub_, node->get_name());
 
     return result;
   }
@@ -234,26 +220,19 @@ public:
 
   void SetUp() override
   {
-    node_ =
-      std::make_shared<rclcpp::Node>(
-      "LifecycleSmootherTestNode", rclcpp::NodeOptions());
+    node_ = std::make_shared<rclcpp::Node>("LifecycleSmootherTestNode", rclcpp::NodeOptions());
 
     smoother_server_ = std::make_shared<DummySmootherServer>();
-    smoother_server_->set_parameter(
-      rclcpp::Parameter(
-        "smoother_plugins",
-        rclcpp::ParameterValue(std::vector<std::string>(1, "DummySmoothPath"))));
+    smoother_server_->set_parameter(rclcpp::Parameter(
+      "smoother_plugins", rclcpp::ParameterValue(std::vector<std::string>(1, "DummySmoothPath"))));
     smoother_server_->declare_parameter(
-      "DummySmoothPath.plugin",
-      rclcpp::ParameterValue(std::string("DummySmoother")));
+      "DummySmoothPath.plugin", rclcpp::ParameterValue(std::string("DummySmoother")));
     smoother_server_->configure();
     smoother_server_->activate();
 
     client_ = rclcpp_action::create_client<SmoothAction>(
-      node_->get_node_base_interface(),
-      node_->get_node_graph_interface(),
-      node_->get_node_logging_interface(),
-      node_->get_node_waitables_interface(), "smooth_path");
+      node_->get_node_base_interface(), node_->get_node_graph_interface(),
+      node_->get_node_logging_interface(), node_->get_node_waitables_interface(), "smooth_path");
     std::cout << "Setup complete." << std::endl;
   }
 
@@ -268,8 +247,8 @@ public:
   }
 
   bool sendGoal(
-    std::string smoother_id, double x_start, double y_start, double x_goal,
-    double y_goal, std::chrono::milliseconds max_time, bool check_for_collisions)
+    std::string smoother_id, double x_start, double y_start, double x_goal, double y_goal,
+    std::chrono::milliseconds max_time, bool check_for_collisions)
   {
     if (!client_->wait_for_action_server(4s)) {
       std::cout << "Server not up" << std::endl;
@@ -292,9 +271,8 @@ public:
 
     auto future_goal = client_->async_send_goal(goal);
 
-    if (rclcpp::spin_until_future_complete(node_, future_goal) !=
-      rclcpp::FutureReturnCode::SUCCESS)
-    {
+    if (
+      rclcpp::spin_until_future_complete(node_, future_goal) != rclcpp::FutureReturnCode::SUCCESS) {
       std::cout << "failed sending goal" << std::endl;
       // failed sending the goal
       return false;
@@ -391,13 +369,10 @@ TEST_F(SmootherTest, testingCollisionCheckDisabled)
 TEST(SmootherConfigTest, testingConfigureSuccessWithValidSmootherPlugin)
 {
   auto smoother_server = std::make_shared<DummySmootherServer>();
-  smoother_server->set_parameter(
-    rclcpp::Parameter(
-      "smoother_plugins",
-      rclcpp::ParameterValue(std::vector<std::string>(1, "DummySmoothPath"))));
+  smoother_server->set_parameter(rclcpp::Parameter(
+    "smoother_plugins", rclcpp::ParameterValue(std::vector<std::string>(1, "DummySmoothPath"))));
   smoother_server->declare_parameter(
-    "DummySmoothPath.plugin",
-    rclcpp::ParameterValue(std::string("DummySmoother")));
+    "DummySmoothPath.plugin", rclcpp::ParameterValue(std::string("DummySmoother")));
   auto state = smoother_server->configure();
   EXPECT_EQ(state.id(), 2);  // 1 on failure, 2 on success
   SUCCEED();
@@ -406,13 +381,10 @@ TEST(SmootherConfigTest, testingConfigureSuccessWithValidSmootherPlugin)
 TEST(SmootherConfigTest, testingConfigureFailureWithInvalidSmootherPlugin)
 {
   auto smoother_server = std::make_shared<DummySmootherServer>();
-  smoother_server->set_parameter(
-    rclcpp::Parameter(
-      "smoother_plugins",
-      rclcpp::ParameterValue(std::vector<std::string>(1, "DummySmoothPath"))));
+  smoother_server->set_parameter(rclcpp::Parameter(
+    "smoother_plugins", rclcpp::ParameterValue(std::vector<std::string>(1, "DummySmoothPath"))));
   smoother_server->declare_parameter(
-    "DummySmoothPath.plugin",
-    rclcpp::ParameterValue(std::string("InvalidSmootherPlugin")));
+    "DummySmoothPath.plugin", rclcpp::ParameterValue(std::string("InvalidSmootherPlugin")));
   auto state = smoother_server->configure();
   EXPECT_EQ(state.id(), 1);  // 1 on failure, 2 on success
   SUCCEED();

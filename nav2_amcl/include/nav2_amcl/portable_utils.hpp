@@ -25,10 +25,10 @@ extern "C" {
 // Use rand, and srand for such system.
 static double drand48(void)
 {
-  return ((double)rand()) / RAND_MAX;// NOLINT
+  return ((double)rand()) / RAND_MAX;  // NOLINT
 }
 
-static void srand48(long int seedval)// NOLINT
+static void srand48(long int seedval)  // NOLINT
 {
   srand(seedval);
 }

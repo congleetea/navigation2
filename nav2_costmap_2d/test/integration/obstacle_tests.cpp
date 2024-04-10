@@ -32,22 +32,22 @@
  * Test harness for ObstacleLayer for Costmap2D
  */
 
+#include <algorithm>
 #include <memory>
 #include <string>
-#include <algorithm>
 #include <utility>
 
-#include "gtest/gtest.h"
+#include "../testing_helper.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
+#include "nav2_costmap_2d/costmap_2d_ros.hpp"
 #include "nav2_costmap_2d/layered_costmap.hpp"
 #include "nav2_costmap_2d/observation_buffer.hpp"
-#include "../testing_helper.hpp"
-#include "nav2_costmap_2d/costmap_2d_ros.hpp"
+#include "gtest/gtest.h"
 
+using std::all_of;
 using std::begin;
 using std::end;
 using std::for_each;
-using std::all_of;
 using std::none_of;
 using std::pair;
 using std::string;
@@ -55,18 +55,15 @@ using std::string;
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
 class TestLifecycleNode : public nav2_util::LifecycleNode
 {
 public:
-  explicit TestLifecycleNode(const string & name)
-  : nav2_util::LifecycleNode(name)
-  {
-  }
+  explicit TestLifecycleNode(const string & name) : nav2_util::LifecycleNode(name) {}
 
   nav2_util::CallbackReturn on_configure(const rclcpp_lifecycle::State &)
   {
@@ -110,8 +107,7 @@ public:
     node_->declare_parameter("use_maximum", rclcpp::ParameterValue(false));
     node_->declare_parameter("lethal_cost_threshold", rclcpp::ParameterValue(100));
     node_->declare_parameter(
-      "unknown_cost_value",
-      rclcpp::ParameterValue(static_cast<unsigned char>(0xff)));
+      "unknown_cost_value", rclcpp::ParameterValue(static_cast<unsigned char>(0xff)));
     node_->declare_parameter("trinary_costmap", rclcpp::ParameterValue(true));
     node_->declare_parameter("transform_tolerance", rclcpp::ParameterValue(0.3));
     node_->declare_parameter("observation_sources", rclcpp::ParameterValue(std::string("")));
@@ -153,7 +149,8 @@ protected:
 /**
  * Test for ray tracing free space
  */
-TEST_F(TestNode, testRaytracing) {
+TEST_F(TestNode, testRaytracing)
+{
   tf2_ros::Buffer tf(node_->get_clock());
 
   nav2_costmap_2d::LayeredCostmap layers("frame", false, false);
@@ -176,7 +173,8 @@ TEST_F(TestNode, testRaytracing) {
 /**
  * Test for ray tracing free space
  */
-TEST_F(TestNode, testRaytracing2) {
+TEST_F(TestNode, testRaytracing2)
+{
   tf2_ros::Buffer tf(node_->get_clock());
   nav2_costmap_2d::LayeredCostmap layers("frame", false, false);
   addStaticLayer(layers, tf, node_);
@@ -231,7 +229,8 @@ TEST_F(TestNode, testRaytracing2) {
 /**
  * Test for wave interference
  */
-TEST_F(TestNode, testWaveInterference) {
+TEST_F(TestNode, testWaveInterference)
+{
   tf2_ros::Buffer tf(node_->get_clock());
   node_->set_parameter(rclcpp::Parameter("track_unknown_space", true));
   // Start with an empty map, no rolling window, tracking unknown
@@ -260,7 +259,8 @@ TEST_F(TestNode, testWaveInterference) {
 /**
  * Make sure we ignore points outside of our z threshold
  */
-TEST_F(TestNode, testZThreshold) {
+TEST_F(TestNode, testZThreshold)
+{
   tf2_ros::Buffer tf(node_->get_clock());
   // Start with an empty map
   nav2_costmap_2d::LayeredCostmap layers("frame", false, true);
@@ -281,14 +281,16 @@ TEST_F(TestNode, testZThreshold) {
 /**
  * Verify that dynamic obstacles are added
  */
-TEST_F(TestNode, testDynamicObstacles) {
+TEST_F(TestNode, testDynamicObstacles)
+{
   tf2_ros::Buffer tf(node_->get_clock());
   nav2_costmap_2d::LayeredCostmap layers("frame", false, false);
   addStaticLayer(layers, tf, node_);
 
   auto olayer = addObstacleLayer(layers, tf, node_);
 
-  // Add a point cloud and verify its insertion. There should be only one new one
+  // Add a point cloud and verify its insertion. There should be only one new
+  // one
   addObservation(olayer, 0.0, 0.0);
   addObservation(olayer, 0.0, 0.0);
   addObservation(olayer, 0.0, 0.0);
@@ -304,9 +306,11 @@ TEST_F(TestNode, testDynamicObstacles) {
 }
 
 /**
- * Verify that if we add a point that is already a static obstacle we do not end up with a new ostacle
+ * Verify that if we add a point that is already a static obstacle we do not end
+ * up with a new ostacle
  */
-TEST_F(TestNode, testMultipleAdditions) {
+TEST_F(TestNode, testMultipleAdditions)
+{
   tf2_ros::Buffer tf(node_->get_clock());
   nav2_costmap_2d::LayeredCostmap layers("frame", false, false);
   addStaticLayer(layers, tf, node_);
@@ -325,7 +329,8 @@ TEST_F(TestNode, testMultipleAdditions) {
 /**
  * Verify correct init/reset cycling of layer
  */
-TEST_F(TestNode, testRepeatedResets) {
+TEST_F(TestNode, testRepeatedResets)
+{
   tf2_ros::Buffer tf(node_->get_clock());
   nav2_costmap_2d::LayeredCostmap layers("frame", false, false);
 
@@ -343,39 +348,34 @@ TEST_F(TestNode, testRepeatedResets) {
 
   // Set parameters
   auto plugins = layers.getPlugins();
-  for_each(
-    begin(*plugins), end(*plugins), [&layer_dummy](const auto & plugin) {
-      string layer_param = layer_dummy.first + "_" + plugin->getName();
+  for_each(begin(*plugins), end(*plugins), [&layer_dummy](const auto & plugin) {
+    string layer_param = layer_dummy.first + "_" + plugin->getName();
 
-      // Notice we are using Layer::declareParameter
-      plugin->declareParameter(layer_param, rclcpp::ParameterValue(layer_dummy.second));
-    });
+    // Notice we are using Layer::declareParameter
+    plugin->declareParameter(layer_param, rclcpp::ParameterValue(layer_dummy.second));
+  });
 
   // Check that all parameters have been set
   // node-level param
   ASSERT_TRUE(node_->has_parameter(node_dummy.first));
 
   // layer-level param
-  ASSERT_TRUE(
-    all_of(
-      begin(*plugins), end(*plugins), [&layer_dummy](const auto & plugin) {
-        string layer_param = layer_dummy.first + "_" + plugin->getName();
-        return plugin->hasParameter(layer_param);
-      }));
+  ASSERT_TRUE(all_of(begin(*plugins), end(*plugins), [&layer_dummy](const auto & plugin) {
+    string layer_param = layer_dummy.first + "_" + plugin->getName();
+    return plugin->hasParameter(layer_param);
+  }));
 
-  // Reset all layers. Parameters should be declared if not declared, otherwise skipped.
+  // Reset all layers. Parameters should be declared if not declared, otherwise
+  // skipped.
   ASSERT_NO_THROW(
-    for_each(
-      begin(*plugins), end(*plugins), [](const auto & plugin) {
-        plugin->reset();
-      }));
+    for_each(begin(*plugins), end(*plugins), [](const auto & plugin) { plugin->reset(); }));
 }
-
 
 /**
  * Test for ray tracing free space
  */
-TEST_F(TestNode, testRaytracing) {
+TEST_F(TestNode, testRaytracing)
+{
   tf2_ros::Buffer tf(node_->get_clock());
 
   nav2_costmap_2d::LayeredCostmap layers("frame", false, false);
@@ -402,7 +402,8 @@ TEST_F(TestNode, testRaytracing) {
   layers.updateMap(0, 0, 0);  // 0, 0, 0 is robot pose
   // printMap(*(layers.getCostmap()));
 
-  // New observation should not be recorded as min_range is higher than obstacle range
+  // New observation should not be recorded as min_range is higher than obstacle
+  // range
   lethal_count = countValues(*(layers.getCostmap()), nav2_costmap_2d::LETHAL_OBSTACLE);
 
   ASSERT_EQ(lethal_count, 1);
@@ -420,8 +421,7 @@ TEST_F(TestNode, testDynParamsSetObstacle)
   plugins_str.push_back("obstacle_layer");
   costmap->set_parameter(rclcpp::Parameter("plugins", plugins_str));
   costmap->declare_parameter(
-    "obstacle_layer.plugin",
-    rclcpp::ParameterValue(std::string("nav2_costmap_2d::ObstacleLayer")));
+    "obstacle_layer.plugin", rclcpp::ParameterValue(std::string("nav2_costmap_2d::ObstacleLayer")));
 
   costmap->set_parameter(rclcpp::Parameter("global_frame", std::string("base_link")));
   costmap->on_configure(rclcpp_lifecycle::State());
@@ -430,20 +430,15 @@ TEST_F(TestNode, testDynParamsSetObstacle)
 
   auto parameter_client = std::make_shared<rclcpp::AsyncParametersClient>(
     costmap->get_node_base_interface(), costmap->get_node_topics_interface(),
-    costmap->get_node_graph_interface(),
-    costmap->get_node_services_interface());
+    costmap->get_node_graph_interface(), costmap->get_node_services_interface());
 
   auto results = parameter_client->set_parameters_atomically(
-  {
-    rclcpp::Parameter("obstacle_layer.combination_method", 5),
-    rclcpp::Parameter("obstacle_layer.max_obstacle_height", 4.0),
-    rclcpp::Parameter("obstacle_layer.enabled", false),
-    rclcpp::Parameter("obstacle_layer.footprint_clearing_enabled", false)
-  });
+    {rclcpp::Parameter("obstacle_layer.combination_method", 5),
+     rclcpp::Parameter("obstacle_layer.max_obstacle_height", 4.0),
+     rclcpp::Parameter("obstacle_layer.enabled", false),
+     rclcpp::Parameter("obstacle_layer.footprint_clearing_enabled", false)});
 
-  rclcpp::spin_until_future_complete(
-    costmap->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(costmap->get_node_base_interface(), results);
 
   EXPECT_EQ(costmap->get_parameter("obstacle_layer.combination_method").as_int(), 5);
   EXPECT_EQ(costmap->get_parameter("obstacle_layer.max_obstacle_height").as_double(), 4.0);
@@ -467,8 +462,7 @@ TEST_F(TestNode, testDynParamsSetVoxel)
   plugins_str.push_back("voxel_layer");
   costmap->set_parameter(rclcpp::Parameter("plugins", plugins_str));
   costmap->declare_parameter(
-    "voxel_layer.plugin",
-    rclcpp::ParameterValue(std::string("nav2_costmap_2d::VoxelLayer")));
+    "voxel_layer.plugin", rclcpp::ParameterValue(std::string("nav2_costmap_2d::VoxelLayer")));
 
   costmap->set_parameter(rclcpp::Parameter("global_frame", std::string("base_link")));
   costmap->on_configure(rclcpp_lifecycle::State());
@@ -477,26 +471,20 @@ TEST_F(TestNode, testDynParamsSetVoxel)
 
   auto parameter_client = std::make_shared<rclcpp::AsyncParametersClient>(
     costmap->get_node_base_interface(), costmap->get_node_topics_interface(),
-    costmap->get_node_graph_interface(),
-    costmap->get_node_services_interface());
+    costmap->get_node_graph_interface(), costmap->get_node_services_interface());
 
   auto results = parameter_client->set_parameters_atomically(
-  {
-    rclcpp::Parameter("voxel_layer.combination_method", 0),
-    rclcpp::Parameter("voxel_layer.mark_threshold", 1),
-    rclcpp::Parameter("voxel_layer.unknown_threshold", 10),
-    rclcpp::Parameter("voxel_layer.z_resolution", 0.4),
-    rclcpp::Parameter("voxel_layer.origin_z", 1.0),
-    rclcpp::Parameter("voxel_layer.z_voxels", 14),
-    rclcpp::Parameter("voxel_layer.max_obstacle_height", 4.0),
-    rclcpp::Parameter("voxel_layer.footprint_clearing_enabled", false),
-    rclcpp::Parameter("voxel_layer.enabled", false),
-    rclcpp::Parameter("voxel_layer.publish_voxel_map", true)
-  });
+    {rclcpp::Parameter("voxel_layer.combination_method", 0),
+     rclcpp::Parameter("voxel_layer.mark_threshold", 1),
+     rclcpp::Parameter("voxel_layer.unknown_threshold", 10),
+     rclcpp::Parameter("voxel_layer.z_resolution", 0.4),
+     rclcpp::Parameter("voxel_layer.origin_z", 1.0), rclcpp::Parameter("voxel_layer.z_voxels", 14),
+     rclcpp::Parameter("voxel_layer.max_obstacle_height", 4.0),
+     rclcpp::Parameter("voxel_layer.footprint_clearing_enabled", false),
+     rclcpp::Parameter("voxel_layer.enabled", false),
+     rclcpp::Parameter("voxel_layer.publish_voxel_map", true)});
 
-  rclcpp::spin_until_future_complete(
-    costmap->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(costmap->get_node_base_interface(), results);
 
   EXPECT_EQ(costmap->get_parameter("voxel_layer.combination_method").as_int(), 0);
   EXPECT_EQ(costmap->get_parameter("voxel_layer.mark_threshold").as_int(), 1);
@@ -528,21 +516,16 @@ TEST_F(TestNode, testDynParamsSetStatic)
 
   auto parameter_client = std::make_shared<rclcpp::AsyncParametersClient>(
     costmap->get_node_base_interface(), costmap->get_node_topics_interface(),
-    costmap->get_node_graph_interface(),
-    costmap->get_node_services_interface());
+    costmap->get_node_graph_interface(), costmap->get_node_services_interface());
 
   auto results = parameter_client->set_parameters_atomically(
-  {
-    rclcpp::Parameter("static_layer.transform_tolerance", 1.0),
-    rclcpp::Parameter("static_layer.enabled", false),
-    rclcpp::Parameter("static_layer.map_subscribe_transient_local", false),
-    rclcpp::Parameter("static_layer.map_topic", "dynamic_topic"),
-    rclcpp::Parameter("static_layer.subscribe_to_updates", true)
-  });
+    {rclcpp::Parameter("static_layer.transform_tolerance", 1.0),
+     rclcpp::Parameter("static_layer.enabled", false),
+     rclcpp::Parameter("static_layer.map_subscribe_transient_local", false),
+     rclcpp::Parameter("static_layer.map_topic", "dynamic_topic"),
+     rclcpp::Parameter("static_layer.subscribe_to_updates", true)});
 
-  rclcpp::spin_until_future_complete(
-    costmap->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(costmap->get_node_base_interface(), results);
 
   EXPECT_EQ(costmap->get_parameter("static_layer.transform_tolerance").as_double(), 1.0);
   EXPECT_EQ(costmap->get_parameter("static_layer.enabled").as_bool(), false);

@@ -14,16 +14,16 @@
 
 #include <gtest/gtest.h>
 
-#include <math.h>
-#include <cmath>
 #include <chrono>
-#include <vector>
+#include <cmath>
 #include <limits>
+#include <math.h>
+#include <vector>
 
 #include "rclcpp/rclcpp.hpp"
 
-#include "nav2_collision_monitor/types.hpp"
 #include "nav2_collision_monitor/kinematics.hpp"
+#include "nav2_collision_monitor/types.hpp"
 
 using namespace std::chrono_literals;
 
@@ -32,8 +32,8 @@ static constexpr double EPSILON = std::numeric_limits<float>::epsilon();
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 

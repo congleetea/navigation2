@@ -13,21 +13,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
-#include "gtest/gtest.h"
 #include "nav2_smac_planner/collision_checker.hpp"
 #include "nav2_util/lifecycle_node.hpp"
+#include "gtest/gtest.h"
 
 using namespace nav2_costmap_2d;  // NOLINT
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -146,8 +146,8 @@ TEST(collision_footprint, test_footprint_at_pose_with_movement)
 TEST(collision_footprint, test_point_and_line_cost)
 {
   auto node = std::make_shared<rclcpp_lifecycle::LifecycleNode>("testE");
-  nav2_costmap_2d::Costmap2D * costmap_ = new nav2_costmap_2d::Costmap2D(
-    100, 100, 0.10000, 0, 0.0, 128.0);
+  nav2_costmap_2d::Costmap2D * costmap_ =
+    new nav2_costmap_2d::Costmap2D(100, 100, 0.10000, 0, 0.0, 128.0);
 
   costmap_->setCost(62, 50, 254);
   costmap_->setCost(39, 60, 254);

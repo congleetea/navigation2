@@ -15,8 +15,8 @@
 
 #include "nav2_smac_planner/node_2d.hpp"
 
-#include <vector>
 #include <limits>
+#include <vector>
 
 namespace nav2_smac_planner
 {
@@ -35,10 +35,7 @@ Node2D::Node2D(const unsigned int index)
 {
 }
 
-Node2D::~Node2D()
-{
-  parent = nullptr;
-}
+Node2D::~Node2D() { parent = nullptr; }
 
 void Node2D::reset()
 {
@@ -49,9 +46,7 @@ void Node2D::reset()
   _is_queued = false;
 }
 
-bool Node2D::isNodeValid(
-  const bool & traverse_unknown,
-  GridCollisionChecker * collision_checker)
+bool Node2D::isNodeValid(const bool & traverse_unknown, GridCollisionChecker * collision_checker)
 {
   if (collision_checker->inCollision(this->getIndex(), traverse_unknown)) {
     return false;
@@ -80,8 +75,7 @@ float Node2D::getTraversalCost(const NodePtr & child)
 }
 
 float Node2D::getHeuristicCost(
-  const Coordinates & node_coords,
-  const Coordinates & goal_coordinates,
+  const Coordinates & node_coords, const Coordinates & goal_coordinates,
   const nav2_costmap_2d::Costmap2D * /*costmap*/)
 {
   // Using Moore distance as it more accurately represents the distances
@@ -92,11 +86,8 @@ float Node2D::getHeuristicCost(
 }
 
 void Node2D::initMotionModel(
-  const MotionModel & motion_model,
-  unsigned int & x_size_uint,
-  unsigned int & /*size_y*/,
-  unsigned int & /*num_angle_quantization*/,
-  SearchInfo & search_info)
+  const MotionModel & motion_model, unsigned int & x_size_uint, unsigned int & /*size_y*/,
+  unsigned int & /*num_angle_quantization*/, SearchInfo & search_info)
 {
   if (motion_model != MotionModel::TWOD) {
     throw std::runtime_error("Invalid motion model for 2D node.");
@@ -104,27 +95,24 @@ void Node2D::initMotionModel(
 
   int x_size = static_cast<int>(x_size_uint);
   cost_travel_multiplier = search_info.cost_penalty;
-  _neighbors_grid_offsets = {-1, +1, -x_size, +x_size, -x_size - 1,
-    -x_size + 1, +x_size - 1, +x_size + 1};
+  _neighbors_grid_offsets = {-1,          +1,          -x_size,     +x_size,
+                             -x_size - 1, -x_size + 1, +x_size - 1, +x_size + 1};
 }
 
 void Node2D::getNeighbors(
-  std::function<bool(const unsigned int &, nav2_smac_planner::Node2D * &)> & NeighborGetter,
-  GridCollisionChecker * collision_checker,
-  const bool & traverse_unknown,
-  NodeVector & neighbors)
+  std::function<bool(const unsigned int &, nav2_smac_planner::Node2D *&)> & NeighborGetter,
+  GridCollisionChecker * collision_checker, const bool & traverse_unknown, NodeVector & neighbors)
 {
-  // NOTE(stevemacenski): Irritatingly, the order here matters. If you start in free
-  // space and then expand 8-connected, the first set of neighbors will be all cost
-  // 1.0. Then its expansion will all be 2 * 1.0 but now multiple
-  // nodes are touching that node so the last cell to update the back pointer wins.
-  // Thusly, the ordering ends with the cardinal directions for both sets such that
-  // behavior is consistent in large free spaces between them.
-  // 100  50   0
+  // NOTE(stevemacenski): Irritatingly, the order here matters. If you start in
+  // free space and then expand 8-connected, the first set of neighbors will be
+  // all cost 1.0. Then its expansion will all be 2 * 1.0 but now multiple nodes
+  // are touching that node so the last cell to update the back pointer wins.
+  // Thusly, the ordering ends with the cardinal directions for both sets such
+  // that behavior is consistent in large free spaces between them. 100  50   0
   // 100  50  50
-  // 100 100 100   where lower-middle '100' is visited with same cost by both bottom '50' nodes
-  // Therefore, it is valuable to have some low-potential across the entire map
-  // rather than a small inflation around the obstacles
+  // 100 100 100   where lower-middle '100' is visited with same cost by both
+  // bottom '50' nodes Therefore, it is valuable to have some low-potential
+  // across the entire map rather than a small inflation around the obstacles
   int index;
   NodePtr neighbor;
   int node_i = this->getIndex();
@@ -157,8 +145,7 @@ bool Node2D::backtracePath(CoordinateVector & path)
   NodePtr current_node = this;
 
   while (current_node->parent) {
-    path.push_back(
-      Node2D::getCoords(current_node->getIndex()));
+    path.push_back(Node2D::getCoords(current_node->getIndex()));
     current_node = current_node->parent;
   }
 

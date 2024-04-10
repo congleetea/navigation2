@@ -14,17 +14,17 @@
 
 #include "nav2_util/lifecycle_service_client.hpp"
 
-#include <string>
 #include <chrono>
 #include <memory>
+#include <string>
 
 #include "lifecycle_msgs/srv/change_state.hpp"
 #include "lifecycle_msgs/srv/get_state.hpp"
 
 using nav2_util::generate_internal_node;
-using std::chrono::seconds;
 using std::make_shared;
 using std::string;
+using std::chrono::seconds;
 using namespace std::chrono_literals;
 
 namespace nav2_util
@@ -45,8 +45,7 @@ LifecycleServiceClient::LifecycleServiceClient(const string & lifecycle_node_nam
 }
 
 LifecycleServiceClient::LifecycleServiceClient(
-  const string & lifecycle_node_name,
-  rclcpp::Node::SharedPtr parent_node)
+  const string & lifecycle_node_name, rclcpp::Node::SharedPtr parent_node)
 : node_(parent_node),
   change_state_(lifecycle_node_name + "/change_state", node_),
   get_state_(lifecycle_node_name + "/get_state", node_)
@@ -60,9 +59,7 @@ LifecycleServiceClient::LifecycleServiceClient(
   }
 }
 
-bool LifecycleServiceClient::change_state(
-  const uint8_t transition,
-  const seconds timeout)
+bool LifecycleServiceClient::change_state(const uint8_t transition, const seconds timeout)
 {
   if (!change_state_.wait_for_service(timeout)) {
     throw std::runtime_error("change_state service is not available!");
@@ -74,8 +71,7 @@ bool LifecycleServiceClient::change_state(
   return response.get();
 }
 
-bool LifecycleServiceClient::change_state(
-  std::uint8_t transition)
+bool LifecycleServiceClient::change_state(std::uint8_t transition)
 {
   if (!change_state_.wait_for_service(5s)) {
     throw std::runtime_error("change_state service is not available!");
@@ -87,8 +83,7 @@ bool LifecycleServiceClient::change_state(
   return change_state_.invoke(request, response);
 }
 
-uint8_t LifecycleServiceClient::get_state(
-  const seconds timeout)
+uint8_t LifecycleServiceClient::get_state(const seconds timeout)
 {
   if (!get_state_.wait_for_service(timeout)) {
     throw std::runtime_error("get_state service is not available!");

@@ -16,19 +16,19 @@
 #include <string>
 #include <vector>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_costmap_2d/costmap_subscriber.hpp"
-#include "nav2_util/lifecycle_node.hpp"
-#include "nav2_smac_planner/node_2d.hpp"
 #include "nav2_smac_planner/collision_checker.hpp"
+#include "nav2_smac_planner/node_2d.hpp"
+#include "nav2_util/lifecycle_node.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -110,8 +110,7 @@ TEST(Node2DTest, test_node_2d_neighbors)
   // test neighborhood computation
   size_x = 100u;
   nav2_smac_planner::Node2D::initMotionModel(
-    nav2_smac_planner::MotionModel::TWOD, size_x, size_y,
-    quant, info);
+    nav2_smac_planner::MotionModel::TWOD, size_x, size_y, quant, info);
   EXPECT_EQ(nav2_smac_planner::Node2D::_neighbors_grid_offsets.size(), 8u);
   EXPECT_EQ(nav2_smac_planner::Node2D::_neighbors_grid_offsets[0], -1);
   EXPECT_EQ(nav2_smac_planner::Node2D::_neighbors_grid_offsets[1], 1);
@@ -128,11 +127,10 @@ TEST(Node2DTest, test_node_2d_neighbors)
   unsigned char cost = static_cast<unsigned int>(1);
   nav2_smac_planner::Node2D * node = new nav2_smac_planner::Node2D(1);
   node->setCost(cost);
-  std::function<bool(const unsigned int &, nav2_smac_planner::Node2D * &)> neighborGetter =
-    [&, this](const unsigned int & index, nav2_smac_planner::Node2D * & neighbor_rtn) -> bool
-    {
-      return false;
-    };
+  std::function<bool(const unsigned int &, nav2_smac_planner::Node2D *&)> neighborGetter =
+    [&, this](const unsigned int & index, nav2_smac_planner::Node2D *& neighbor_rtn) -> bool {
+    return false;
+  };
 
   nav2_smac_planner::Node2D::NodeVector neighbors;
   node->getNeighbors(neighborGetter, checker.get(), false, neighbors);

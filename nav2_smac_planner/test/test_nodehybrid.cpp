@@ -17,19 +17,19 @@
 #include <string>
 #include <vector>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_costmap_2d/costmap_subscriber.hpp"
-#include "nav2_util/lifecycle_node.hpp"
-#include "nav2_smac_planner/node_hybrid.hpp"
 #include "nav2_smac_planner/collision_checker.hpp"
+#include "nav2_smac_planner/node_hybrid.hpp"
+#include "nav2_util/lifecycle_node.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -54,8 +54,7 @@ TEST(NodeHybridTest, test_node_hybrid)
   nav2_smac_planner::NodeHybrid::initMotionModel(
     nav2_smac_planner::MotionModel::DUBIN, size_x, size_y, size_theta, info);
 
-  nav2_costmap_2d::Costmap2D * costmapA = new nav2_costmap_2d::Costmap2D(
-    10, 10, 0.05, 0.0, 0.0, 0);
+  nav2_costmap_2d::Costmap2D * costmapA = new nav2_costmap_2d::Costmap2D(10, 10, 0.05, 0.0, 0.0, 0);
   std::unique_ptr<nav2_smac_planner::GridCollisionChecker> checker =
     std::make_unique<nav2_smac_planner::GridCollisionChecker>(costmapA, 72, node);
   checker->setFootprint(nav2_costmap_2d::Footprint(), true, 0.0);
@@ -151,8 +150,8 @@ TEST(NodeHybridTest, test_obstacle_heuristic)
   nav2_smac_planner::NodeHybrid::initMotionModel(
     nav2_smac_planner::MotionModel::DUBIN, size_x, size_y, size_theta, info);
 
-  nav2_costmap_2d::Costmap2D * costmapA = new nav2_costmap_2d::Costmap2D(
-    100, 100, 0.1, 0.0, 0.0, 0);
+  nav2_costmap_2d::Costmap2D * costmapA =
+    new nav2_costmap_2d::Costmap2D(100, 100, 0.1, 0.0, 0.0, 0);
   // island in the middle of lethal cost to cross
   for (unsigned int i = 20; i <= 80; ++i) {
     for (unsigned int j = 40; j <= 60; ++j) {
@@ -184,32 +183,29 @@ TEST(NodeHybridTest, test_obstacle_heuristic)
   testB.pose.y = 51;  // goal is a bit closer to the high-cost passage
   testB.pose.theta = 0;
 
-  // first block the high-cost passage to make sure the cost spreads through the better path
+  // first block the high-cost passage to make sure the cost spreads through the
+  // better path
   for (unsigned int j = 61; j <= 70; ++j) {
     costmapA->setCost(50, j, 254);
   }
   nav2_smac_planner::NodeHybrid::resetObstacleHeuristic(
     costmapA, testA.pose.x, testA.pose.y, testB.pose.x, testB.pose.y);
-  float wide_passage_cost = nav2_smac_planner::NodeHybrid::getObstacleHeuristic(
-    testA.pose,
-    testB.pose,
-    info.cost_penalty);
+  float wide_passage_cost =
+    nav2_smac_planner::NodeHybrid::getObstacleHeuristic(testA.pose, testB.pose, info.cost_penalty);
 
   EXPECT_NEAR(wide_passage_cost, 91.1f, 0.1f);
 
   // then unblock it to check if cost remains the same
-  // (it should, since the unblocked narrow path will have higher cost than the wide one
+  // (it should, since the unblocked narrow path will have higher cost than the
+  // wide one
   //  and thus lower bound of the path cost should be unchanged)
   for (unsigned int j = 61; j <= 70; ++j) {
     costmapA->setCost(50, j, 250);
   }
   nav2_smac_planner::NodeHybrid::resetObstacleHeuristic(
-    costmapA,
-    testA.pose.x, testA.pose.y, testB.pose.x, testB.pose.y);
-  float two_passages_cost = nav2_smac_planner::NodeHybrid::getObstacleHeuristic(
-    testA.pose,
-    testB.pose,
-    info.cost_penalty);
+    costmapA, testA.pose.x, testA.pose.y, testB.pose.x, testB.pose.y);
+  float two_passages_cost =
+    nav2_smac_planner::NodeHybrid::getObstacleHeuristic(testA.pose, testB.pose, info.cost_penalty);
 
   EXPECT_EQ(wide_passage_cost, two_passages_cost);
 
@@ -290,12 +286,11 @@ TEST(NodeHybridTest, test_node_reeds_neighbors)
     std::make_unique<nav2_smac_planner::GridCollisionChecker>(&costmapA, 72, lnode);
   checker->setFootprint(nav2_costmap_2d::Footprint(), true, 0.0);
   nav2_smac_planner::NodeHybrid * node = new nav2_smac_planner::NodeHybrid(49);
-  std::function<bool(const unsigned int &, nav2_smac_planner::NodeHybrid * &)> neighborGetter =
-    [&, this](const unsigned int & index, nav2_smac_planner::NodeHybrid * & neighbor_rtn) -> bool
-    {
-      // because we don't return a real object
-      return false;
-    };
+  std::function<bool(const unsigned int &, nav2_smac_planner::NodeHybrid *&)> neighborGetter =
+    [&, this](const unsigned int & index, nav2_smac_planner::NodeHybrid *& neighbor_rtn) -> bool {
+    // because we don't return a real object
+    return false;
+  };
 
   nav2_smac_planner::NodeHybrid::NodeVector neighbors;
   node->getNeighbors(neighborGetter, checker.get(), false, neighbors);

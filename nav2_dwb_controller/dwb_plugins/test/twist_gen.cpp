@@ -32,20 +32,20 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cmath>
-#include <vector>
 #include <algorithm>
+#include <cmath>
 #include <string>
+#include <vector>
 
-#include "gtest/gtest.h"
-#include "dwb_plugins/standard_traj_generator.hpp"
-#include "dwb_plugins/limited_accel_generator.hpp"
 #include "dwb_core/exceptions.hpp"
+#include "dwb_plugins/limited_accel_generator.hpp"
+#include "dwb_plugins/standard_traj_generator.hpp"
 #include "nav2_util/node_utils.hpp"
+#include "gtest/gtest.h"
 
-using std::hypot;
-using std::fabs;
 using dwb_plugins::StandardTrajectoryGenerator;
+using std::fabs;
+using std::hypot;
 
 geometry_msgs::msg::Pose2D origin;
 nav_2d_msgs::msg::Twist2D zero;
@@ -54,10 +54,7 @@ nav_2d_msgs::msg::Twist2D forward;
 class LimitedAccelGeneratorTest : public dwb_plugins::LimitedAccelGenerator
 {
 public:
-  double getAccelerationTime()
-  {
-    return acceleration_time_;
-  }
+  double getAccelerationTime() { return acceleration_time_; }
 };
 
 std::vector<rclcpp::Parameter> getDefaultKinematicParameters()
@@ -84,8 +81,7 @@ std::vector<rclcpp::Parameter> getDefaultKinematicParameters()
 }
 
 rclcpp_lifecycle::LifecycleNode::SharedPtr makeTestNode(
-  const std::string & name,
-  const std::vector<rclcpp::Parameter> & overrides = {})
+  const std::string & name, const std::vector<rclcpp::Parameter> & overrides = {})
 {
   rclcpp::NodeOptions node_options;
   node_options.parameter_overrides(getDefaultKinematicParameters());
@@ -100,11 +96,9 @@ rclcpp_lifecycle::LifecycleNode::SharedPtr makeTestNode(
 }
 
 void checkLimits(
-  const std::vector<nav_2d_msgs::msg::Twist2D> & twists,
-  double exp_min_x, double exp_max_x, double exp_min_y, double exp_max_y,
-  double exp_min_theta, double exp_max_theta,
-  double exp_max_xy = -1.0,
-  double exp_min_xy = -1.0, double exp_min_speed_theta = -1.0)
+  const std::vector<nav_2d_msgs::msg::Twist2D> & twists, double exp_min_x, double exp_max_x,
+  double exp_min_y, double exp_max_y, double exp_min_theta, double exp_max_theta,
+  double exp_max_xy = -1.0, double exp_min_xy = -1.0, double exp_min_speed_theta = -1.0)
 {
   ASSERT_GT(twists.size(), 0u);
   nav_2d_msgs::msg::Twist2D first = twists[0];
@@ -138,10 +132,7 @@ void checkLimits(
   }
 }
 
-double durationToSec(builtin_interfaces::msg::Duration d)
-{
-  return d.sec + d.nanosec * 1e-9;
-}
+double durationToSec(builtin_interfaces::msg::Duration d) { return d.sec + d.nanosec * 1e-9; }
 
 TEST(VelocityIterator, standard_gen)
 {
@@ -190,14 +181,14 @@ TEST(VelocityIterator, min_theta)
 TEST(VelocityIterator, no_limits)
 {
   auto nh = makeTestNode(
-    "no_limits", {
-    rclcpp::Parameter("dwb.max_speed_xy", -1.0),
-    rclcpp::Parameter("dwb.min_speed_xy", -1.0),
-    rclcpp::Parameter("dwb.min_speed_theta", -1.0)});
+    "no_limits",
+    {rclcpp::Parameter("dwb.max_speed_xy", -1.0), rclcpp::Parameter("dwb.min_speed_xy", -1.0),
+     rclcpp::Parameter("dwb.min_speed_theta", -1.0)});
   StandardTrajectoryGenerator gen;
   gen.initialize(nh, "dwb");
   std::vector<nav_2d_msgs::msg::Twist2D> twists = gen.getTwists(zero);
-  // vx_samples * vtheta_samples * vy_samples + added zero theta samples - (0,0,0)
+  // vx_samples * vtheta_samples * vy_samples + added zero theta samples -
+  // (0,0,0)
   EXPECT_EQ(twists.size(), 20u * 20u * 5u + 100u - 1u);
   checkLimits(twists, 0.0, 0.55, -0.1, 0.1, -1.0, 1.0, hypot(0.55, 0.1), 0.0, 0.0);
 }
@@ -206,13 +197,11 @@ TEST(VelocityIterator, no_limits_samples)
 {
   const int x_samples = 10, y_samples = 3, theta_samples = 5;
   auto nh = makeTestNode(
-    "no_limits_samples", {
-    rclcpp::Parameter("dwb.max_speed_xy", -1.0),
-    rclcpp::Parameter("dwb.min_speed_xy", -1.0),
-    rclcpp::Parameter("dwb.min_speed_theta", -1.0),
-    rclcpp::Parameter("dwb.vx_samples", x_samples),
-    rclcpp::Parameter("dwb.vy_samples", y_samples),
-    rclcpp::Parameter("dwb.vtheta_samples", theta_samples)});
+    "no_limits_samples",
+    {rclcpp::Parameter("dwb.max_speed_xy", -1.0), rclcpp::Parameter("dwb.min_speed_xy", -1.0),
+     rclcpp::Parameter("dwb.min_speed_theta", -1.0), rclcpp::Parameter("dwb.vx_samples", x_samples),
+     rclcpp::Parameter("dwb.vy_samples", y_samples),
+     rclcpp::Parameter("dwb.vtheta_samples", theta_samples)});
   StandardTrajectoryGenerator gen;
   gen.initialize(nh, "dwb");
   std::vector<nav_2d_msgs::msg::Twist2D> twists = gen.getTwists(zero);
@@ -289,8 +278,7 @@ TEST(VelocityIterator, nonzero)
   std::vector<nav_2d_msgs::msg::Twist2D> twists = gen.getTwists(initial);
   EXPECT_EQ(twists.size(), 2519u);
   checkLimits(
-    twists, 0.0, 0.225, -0.1, 0.045, -0.11000000000000003, 0.21,
-    0.24622144504490268, 0.0, 0.1);
+    twists, 0.0, 0.225, -0.1, 0.045, -0.11000000000000003, 0.21, 0.24622144504490268, 0.0, 0.1);
 }
 
 void matchPose(const geometry_msgs::msg::Pose2D & a, const geometry_msgs::msg::Pose2D & b)
@@ -301,8 +289,7 @@ void matchPose(const geometry_msgs::msg::Pose2D & a, const geometry_msgs::msg::P
 }
 
 void matchPose(
-  const geometry_msgs::msg::Pose2D & a, const double x, const double y,
-  const double theta)
+  const geometry_msgs::msg::Pose2D & a, const double x, const double y, const double theta)
 {
   EXPECT_DOUBLE_EQ(a.x, x);
   EXPECT_DOUBLE_EQ(a.y, y);
@@ -317,8 +304,7 @@ void matchTwist(const nav_2d_msgs::msg::Twist2D & a, const nav_2d_msgs::msg::Twi
 }
 
 void matchTwist(
-  const nav_2d_msgs::msg::Twist2D & a, const double x, const double y,
-  const double theta)
+  const nav_2d_msgs::msg::Twist2D & a, const double x, const double y, const double theta)
 {
   EXPECT_DOUBLE_EQ(a.x, x);
   EXPECT_DOUBLE_EQ(a.y, y);
@@ -346,9 +332,8 @@ TEST(TrajectoryGenerator, basic)
 TEST(TrajectoryGenerator, basic_no_last_point)
 {
   auto nh = makeTestNode(
-    "basic_no_last_point", {
-    rclcpp::Parameter("dwb.include_last_point", false),
-    rclcpp::Parameter("dwb.linear_granularity", 0.5)});
+    "basic_no_last_point", {rclcpp::Parameter("dwb.include_last_point", false),
+                            rclcpp::Parameter("dwb.linear_granularity", 0.5)});
   StandardTrajectoryGenerator gen;
   gen.initialize(nh, "dwb");
   dwb_msgs::msg::Trajectory2D res = gen.generateTrajectory(origin, forward, forward);
@@ -401,9 +386,8 @@ TEST(TrajectoryGenerator, holonomic)
 TEST(TrajectoryGenerator, twisty)
 {
   auto nh = makeTestNode(
-    "twisty", {
-    rclcpp::Parameter("dwb.linear_granularity", 0.5),
-    rclcpp::Parameter("dwb.angular_granularity", 0.025)});
+    "twisty", {rclcpp::Parameter("dwb.linear_granularity", 0.5),
+               rclcpp::Parameter("dwb.angular_granularity", 0.025)});
   StandardTrajectoryGenerator gen;
   gen.initialize(nh, "dwb");
   nav_2d_msgs::msg::Twist2D cmd;
@@ -419,17 +403,15 @@ TEST(TrajectoryGenerator, twisty)
 
   matchPose(res.poses[0], origin);
   matchPose(
-    res.poses[n - 1], 0.5355173615993063, -0.29635287789821596,
-    cmd.theta * DEFAULT_SIM_TIME);
+    res.poses[n - 1], 0.5355173615993063, -0.29635287789821596, cmd.theta * DEFAULT_SIM_TIME);
 }
 
 TEST(TrajectoryGenerator, sim_time)
 {
   const double sim_time = 2.5;
   auto nh = makeTestNode(
-    "sim_time", {
-    rclcpp::Parameter("dwb.sim_time", sim_time),
-    rclcpp::Parameter("dwb.linear_granularity", 0.5)});
+    "sim_time", {rclcpp::Parameter("dwb.sim_time", sim_time),
+                 rclcpp::Parameter("dwb.linear_granularity", 0.5)});
   StandardTrajectoryGenerator gen;
   gen.initialize(nh, "dwb");
   dwb_msgs::msg::Trajectory2D res = gen.generateTrajectory(origin, forward, forward);
@@ -446,12 +428,10 @@ TEST(TrajectoryGenerator, sim_time)
 TEST(TrajectoryGenerator, accel)
 {
   auto nh = makeTestNode(
-    "accel", {
-    rclcpp::Parameter("dwb.sim_time", 5.0),
-    rclcpp::Parameter("dwb.discretize_by_time", true),
-    rclcpp::Parameter("dwb.time_granularity", 1.0),
-    rclcpp::Parameter("dwb.acc_lim_x", 0.1),
-    rclcpp::Parameter("dwb.min_speed_xy", -1.0)});
+    "accel",
+    {rclcpp::Parameter("dwb.sim_time", 5.0), rclcpp::Parameter("dwb.discretize_by_time", true),
+     rclcpp::Parameter("dwb.time_granularity", 1.0), rclcpp::Parameter("dwb.acc_lim_x", 0.1),
+     rclcpp::Parameter("dwb.min_speed_xy", -1.0)});
   StandardTrajectoryGenerator gen;
   gen.initialize(nh, "dwb");
 
@@ -470,13 +450,10 @@ TEST(TrajectoryGenerator, accel)
 TEST(TrajectoryGenerator, dwa)
 {
   auto nh = makeTestNode(
-    "dwa", {
-    rclcpp::Parameter("dwb.sim_period", 1.0),
-    rclcpp::Parameter("dwb.sim_time", 5.0),
-    rclcpp::Parameter("dwb.discretize_by_time", true),
-    rclcpp::Parameter("dwb.time_granularity", 1.0),
-    rclcpp::Parameter("dwb.acc_lim_x", 0.1),
-    rclcpp::Parameter("dwb.min_speed_xy", -1.0)});
+    "dwa", {rclcpp::Parameter("dwb.sim_period", 1.0), rclcpp::Parameter("dwb.sim_time", 5.0),
+            rclcpp::Parameter("dwb.discretize_by_time", true),
+            rclcpp::Parameter("dwb.time_granularity", 1.0), rclcpp::Parameter("dwb.acc_lim_x", 0.1),
+            rclcpp::Parameter("dwb.min_speed_xy", -1.0)});
   dwb_plugins::LimitedAccelGenerator gen;
   gen.initialize(nh, "dwb");
 

@@ -58,7 +58,6 @@ typedef struct
   // gsl_rng *rng;
 } pf_pdf_gaussian_t;
 
-
 // Create a gaussian pdf
 pf_pdf_gaussian_t * pf_pdf_gaussian_alloc(pf_vector_t x, pf_matrix_t cx);
 

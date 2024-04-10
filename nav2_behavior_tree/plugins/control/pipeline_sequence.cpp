@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 
 #include "nav2_behavior_tree/plugins/control/pipeline_sequence.hpp"
@@ -21,14 +21,9 @@
 namespace nav2_behavior_tree
 {
 
-PipelineSequence::PipelineSequence(const std::string & name)
-: BT::ControlNode(name, {})
-{
-}
+PipelineSequence::PipelineSequence(const std::string & name) : BT::ControlNode(name, {}) {}
 
-PipelineSequence::PipelineSequence(
-  const std::string & name,
-  const BT::NodeConfiguration & config)
+PipelineSequence::PipelineSequence(const std::string & name, const BT::NodeConfiguration & config)
 : BT::ControlNode(name, config)
 {
 }
@@ -55,8 +50,8 @@ BT::NodeStatus PipelineSequence::tick()
         break;
       default:
         std::stringstream error_msg;
-        error_msg << "Invalid node status. Received status " << status <<
-          "from child " << children_nodes_[i]->name();
+        error_msg << "Invalid node status. Received status " << status << "from child "
+                  << children_nodes_[i]->name();
         throw std::runtime_error(error_msg.str());
     }
   }

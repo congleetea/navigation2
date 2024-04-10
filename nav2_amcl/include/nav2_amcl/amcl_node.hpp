@@ -30,17 +30,17 @@
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "message_filters/subscriber.h"
-#include "nav2_util/lifecycle_node.hpp"
 #include "nav2_amcl/motion_model/motion_model.hpp"
 #include "nav2_amcl/sensors/laser/laser.hpp"
 #include "nav2_msgs/msg/particle.hpp"
 #include "nav2_msgs/msg/particle_cloud.hpp"
+#include "nav2_util/lifecycle_node.hpp"
 #include "nav_msgs/srv/set_map.hpp"
+#include "pluginlib/class_loader.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
 #include "std_srvs/srv/empty.hpp"
 #include "tf2_ros/transform_broadcaster.h"
 #include "tf2_ros/transform_listener.h"
-#include "pluginlib/class_loader.hpp"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -95,18 +95,18 @@ protected:
    * @brief Callback executed when a parameter change is detected
    * @param event ParameterEvent message
    */
-  rcl_interfaces::msg::SetParametersResult
-  dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters);
+  rcl_interfaces::msg::SetParametersResult dynamicParametersCallback(
+    std::vector<rclcpp::Parameter> parameters);
 
   // Dynamic parameters handler
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr dyn_params_handler_;
 
-  // Since the sensor data from gazebo or the robot is not lifecycle enabled, we won't
-  // respond until we're in the active state
+  // Since the sensor data from gazebo or the robot is not lifecycle enabled, we
+  // won't respond until we're in the active state
   std::atomic<bool> active_{false};
 
-  // Dedicated callback group and executor for services and subscriptions in AmclNode,
-  // in order to isolate TF timer used in message filter.
+  // Dedicated callback group and executor for services and subscriptions in
+  // AmclNode, in order to isolate TF timer used in message filter.
   rclcpp::CallbackGroup::SharedPtr callback_group_;
   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
   std::unique_ptr<nav2_util::NodeThread> executor_thread_;
@@ -171,8 +171,9 @@ protected:
    * @brief Initialize incoming data message subscribers and filters
    */
   void initMessageFilters();
-  std::unique_ptr<message_filters::Subscriber<sensor_msgs::msg::LaserScan,
-    rclcpp_lifecycle::LifecycleNode>> laser_scan_sub_;
+  std::unique_ptr<
+    message_filters::Subscriber<sensor_msgs::msg::LaserScan, rclcpp_lifecycle::LifecycleNode>>
+    laser_scan_sub_;
   std::unique_ptr<tf2_ros::MessageFilter<sensor_msgs::msg::LaserScan>> laser_scan_filter_;
   message_filters::Connection laser_scan_connection_;
 
@@ -220,7 +221,8 @@ protected:
     const std::shared_ptr<std_srvs::srv::Empty::Request> request,
     std::shared_ptr<std_srvs::srv::Empty::Response> response);
 
-  // Nomotion update control. Used to temporarily let amcl update samples even when no motion occurs
+  // Nomotion update control. Used to temporarily let amcl update samples even
+  // when no motion occurs
   std::atomic<bool> force_update_{false};
 
   // Odometry
@@ -233,15 +235,14 @@ protected:
   geometry_msgs::msg::PoseWithCovarianceStamped last_published_pose_;
   double init_pose_[3];  // Initial robot pose
   double init_cov_[3];
-  pluginlib::ClassLoader<nav2_amcl::MotionModel> plugin_loader_{"nav2_amcl",
-    "nav2_amcl::MotionModel"};
+  pluginlib::ClassLoader<nav2_amcl::MotionModel> plugin_loader_{
+    "nav2_amcl", "nav2_amcl::MotionModel"};
   /*
    * @brief Get robot pose in odom frame using TF
    */
   bool getOdomPose(
     // Helper to get odometric pose from transform system
-    geometry_msgs::msg::PoseStamped & pose,
-    double & x, double & y, double & yaw,
+    geometry_msgs::msg::PoseStamped & pose, double & x, double & y, double & yaw,
     const rclcpp::Time & sensor_timestamp, const std::string & frame_id);
   std::atomic<bool> first_pose_sent_;
 
@@ -251,7 +252,8 @@ protected:
    */
   void initParticleFilter();
   /*
-   * @brief Pose-generating function used to uniformly distribute particles over the map
+   * @brief Pose-generating function used to uniformly distribute particles over
+   * the map
    */
   static pf_vector_t uniformPoseGenerator(void * arg);
   pf_t * pf_{nullptr};
@@ -280,13 +282,12 @@ protected:
   bool checkElapsedTime(std::chrono::seconds check_interval, rclcpp::Time last_time);
   rclcpp::Time last_time_printed_msg_;
   /*
-   * @brief Add a new laser scanner if a new one is received in the laser scallbacks
+   * @brief Add a new laser scanner if a new one is received in the laser
+   * scallbacks
    */
   bool addNewScanner(
-    int & laser_index,
-    const sensor_msgs::msg::LaserScan::ConstSharedPtr & laser_scan,
-    const std::string & laser_scan_frame_id,
-    geometry_msgs::msg::PoseStamped & laser_pose);
+    int & laser_index, const sensor_msgs::msg::LaserScan::ConstSharedPtr & laser_scan,
+    const std::string & laser_scan_frame_id, geometry_msgs::msg::PoseStamped & laser_pose);
   /*
    * @brief Whether the pf needs to be updated
    */
@@ -295,8 +296,7 @@ protected:
    * @brief Update the PF
    */
   bool updateFilter(
-    const int & laser_index,
-    const sensor_msgs::msg::LaserScan::ConstSharedPtr & laser_scan,
+    const int & laser_index, const sensor_msgs::msg::LaserScan::ConstSharedPtr & laser_scan,
     const pf_vector_t & pose);
   /*
    * @brief Publish particle cloud
@@ -306,8 +306,7 @@ protected:
    * @brief Get the current state estimat hypothesis from the particle cloud
    */
   bool getMaxWeightHyp(
-    std::vector<amcl_hyp_t> & hyps, amcl_hyp_t & max_weight_hyps,
-    int & max_weight_hyp);
+    std::vector<amcl_hyp_t> & hyps, amcl_hyp_t & max_weight_hyps, int & max_weight_hyp);
   /*
    * @brief Publish robot pose in map frame from AMCL
    */
@@ -319,8 +318,7 @@ protected:
    */
   void calculateMaptoOdomTransform(
     const sensor_msgs::msg::LaserScan::ConstSharedPtr & laser_scan,
-    const std::vector<amcl_hyp_t> & hyps,
-    const int & max_weight_hyp);
+    const std::vector<amcl_hyp_t> & hyps, const int & max_weight_hyp);
   /*
    * @brief Publish TF transformation from map to odom
    */

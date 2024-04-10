@@ -28,14 +28,17 @@ namespace nav2_collision_monitor
 {
 
 Polygon::Polygon(
-  const nav2_util::LifecycleNode::WeakPtr & node,
-  const std::string & polygon_name,
-  const std::shared_ptr<tf2_ros::Buffer> tf_buffer,
-  const std::string & base_frame_id,
+  const nav2_util::LifecycleNode::WeakPtr & node, const std::string & polygon_name,
+  const std::shared_ptr<tf2_ros::Buffer> tf_buffer, const std::string & base_frame_id,
   const tf2::Duration & transform_tolerance)
-: node_(node), polygon_name_(polygon_name), action_type_(DO_NOTHING),
-  slowdown_ratio_(0.0), footprint_sub_(nullptr), tf_buffer_(tf_buffer),
-  base_frame_id_(base_frame_id), transform_tolerance_(transform_tolerance)
+: node_(node),
+  polygon_name_(polygon_name),
+  action_type_(DO_NOTHING),
+  slowdown_ratio_(0.0),
+  footprint_sub_(nullptr),
+  tf_buffer_(tf_buffer),
+  base_frame_id_(base_frame_id),
+  transform_tolerance_(transform_tolerance)
 {
   RCLCPP_INFO(logger_, "[%s]: Creating Polygon", polygon_name_.c_str());
 }
@@ -61,8 +64,7 @@ bool Polygon::configure()
 
   if (!footprint_topic.empty()) {
     footprint_sub_ = std::make_unique<nav2_costmap_2d::FootprintSubscriber>(
-      node, footprint_topic, *tf_buffer_,
-      base_frame_id_, tf2::durationToSec(transform_tolerance_));
+      node, footprint_topic, *tf_buffer_, base_frame_id_, tf2::durationToSec(transform_tolerance_));
   }
 
   if (visualize_) {
@@ -78,8 +80,8 @@ bool Polygon::configure()
     }
 
     rclcpp::QoS polygon_qos = rclcpp::SystemDefaultsQoS();  // set to default
-    polygon_pub_ = node->create_publisher<geometry_msgs::msg::PolygonStamped>(
-      polygon_pub_topic, polygon_qos);
+    polygon_pub_ =
+      node->create_publisher<geometry_msgs::msg::PolygonStamped>(polygon_pub_topic, polygon_qos);
   }
 
   return true;
@@ -99,35 +101,17 @@ void Polygon::deactivate()
   }
 }
 
-std::string Polygon::getName() const
-{
-  return polygon_name_;
-}
+std::string Polygon::getName() const { return polygon_name_; }
 
-ActionType Polygon::getActionType() const
-{
-  return action_type_;
-}
+ActionType Polygon::getActionType() const { return action_type_; }
 
-int Polygon::getMaxPoints() const
-{
-  return max_points_;
-}
+int Polygon::getMaxPoints() const { return max_points_; }
 
-double Polygon::getSlowdownRatio() const
-{
-  return slowdown_ratio_;
-}
+double Polygon::getSlowdownRatio() const { return slowdown_ratio_; }
 
-double Polygon::getTimeBeforeCollision() const
-{
-  return time_before_collision_;
-}
+double Polygon::getTimeBeforeCollision() const { return time_before_collision_; }
 
-void Polygon::getPolygon(std::vector<Point> & poly) const
-{
-  poly = poly_;
-}
+void Polygon::getPolygon(std::vector<Point> & poly) const { poly = poly_; }
 
 void Polygon::updatePolygon()
 {
@@ -163,26 +147,26 @@ int Polygon::getPointsInside(const std::vector<Point> & points) const
 }
 
 double Polygon::getCollisionTime(
-  const std::vector<Point> & collision_points,
-  const Velocity & velocity) const
+  const std::vector<Point> & collision_points, const Velocity & velocity) const
 {
   // Initial robot pose is {0,0} in base_footprint coordinates
   Pose pose = {0.0, 0.0, 0.0};
   Velocity vel = velocity;
 
-  // Array of points transformed to the frame concerned with pose on each simulation step
+  // Array of points transformed to the frame concerned with pose on each
+  // simulation step
   std::vector<Point> points_transformed;
 
   // Robot movement simulation
   for (double time = 0.0; time <= time_before_collision_; time += simulation_time_step_) {
-    // Shift the robot pose towards to the vel during simulation_time_step_ time interval
-    // NOTE: vel is changing during the simulation
+    // Shift the robot pose towards to the vel during simulation_time_step_ time
+    // interval NOTE: vel is changing during the simulation
     projectState(simulation_time_step_, pose, vel);
     // Transform collision_points to the frame concerned with current robot pose
     points_transformed = collision_points;
     transformPoints(pose, points_transformed);
-    // If the collision occurred on this stage, return the actual time before a collision
-    // as if robot was moved with given velocity
+    // If the collision occurred on this stage, return the actual time before a
+    // collision as if robot was moved with given velocity
     if (getPointsInside(points_transformed) > max_points_) {
       return time;
     }
@@ -226,8 +210,7 @@ bool Polygon::getCommonParameters(std::string & polygon_pub_topic)
     // Leave it not initialized: the will cause an error if it will not set.
     nav2_util::declare_parameter_if_not_declared(
       node, polygon_name_ + ".action_type", rclcpp::PARAMETER_STRING);
-    const std::string at_str =
-      node->get_parameter(polygon_name_ + ".action_type").as_string();
+    const std::string at_str = node->get_parameter(polygon_name_ + ".action_type").as_string();
     if (at_str == "stop") {
       action_type_ = STOP;
     } else if (at_str == "slowdown") {
@@ -271,9 +254,8 @@ bool Polygon::getCommonParameters(std::string & polygon_pub_topic)
     }
   } catch (const std::exception & ex) {
     RCLCPP_ERROR(
-      logger_,
-      "[%s]: Error while getting common polygon parameters: %s",
-      polygon_name_.c_str(), ex.what());
+      logger_, "[%s]: Error while getting common polygon parameters: %s", polygon_name_.c_str(),
+      ex.what());
     return false;
   }
 
@@ -293,15 +275,15 @@ bool Polygon::getParameters(std::string & polygon_pub_topic, std::string & footp
 
   try {
     if (action_type_ == APPROACH) {
-      // Obtain the footprint topic to make a footprint subscription for approach polygon
+      // Obtain the footprint topic to make a footprint subscription for
+      // approach polygon
       nav2_util::declare_parameter_if_not_declared(
         node, polygon_name_ + ".footprint_topic",
         rclcpp::ParameterValue("local_costmap/published_footprint"));
-      footprint_topic =
-        node->get_parameter(polygon_name_ + ".footprint_topic").as_string();
+      footprint_topic = node->get_parameter(polygon_name_ + ".footprint_topic").as_string();
 
-      // This is robot footprint: do not need to get polygon points from ROS parameters.
-      // It will be set dynamically later.
+      // This is robot footprint: do not need to get polygon points from ROS
+      // parameters. It will be set dynamically later.
       return true;
     } else {
       // Make it empty otherwise
@@ -311,14 +293,11 @@ bool Polygon::getParameters(std::string & polygon_pub_topic, std::string & footp
     // Leave it not initialized: the will cause an error if it will not set
     nav2_util::declare_parameter_if_not_declared(
       node, polygon_name_ + ".points", rclcpp::PARAMETER_DOUBLE_ARRAY);
-    std::vector<double> poly_row =
-      node->get_parameter(polygon_name_ + ".points").as_double_array();
+    std::vector<double> poly_row = node->get_parameter(polygon_name_ + ".points").as_double_array();
     // Check for points format correctness
     if (poly_row.size() <= 6 || poly_row.size() % 2 != 0) {
       RCLCPP_ERROR(
-        logger_,
-        "[%s]: Polygon has incorrect points description",
-        polygon_name_.c_str());
+        logger_, "[%s]: Polygon has incorrect points description", polygon_name_.c_str());
       return false;
     }
 
@@ -336,9 +315,8 @@ bool Polygon::getParameters(std::string & polygon_pub_topic, std::string & footp
     }
   } catch (const std::exception & ex) {
     RCLCPP_ERROR(
-      logger_,
-      "[%s]: Error while getting polygon parameters: %s",
-      polygon_name_.c_str(), ex.what());
+      logger_, "[%s]: Error while getting polygon parameters: %s", polygon_name_.c_str(),
+      ex.what());
     return false;
   }
 
@@ -347,27 +325,28 @@ bool Polygon::getParameters(std::string & polygon_pub_topic, std::string & footp
 
 inline bool Polygon::isPointInside(const Point & point) const
 {
-  // Adaptation of Shimrat, Moshe. "Algorithm 112: position of point relative to polygon."
-  // Communications of the ACM 5.8 (1962): 434.
-  // Implementation of ray crossings algorithm for point in polygon task solving.
-  // Y coordinate is fixed. Moving the ray on X+ axis starting from given point.
-  // Odd number of intersections with polygon boundaries means the point is inside polygon.
+  // Adaptation of Shimrat, Moshe. "Algorithm 112: position of point relative to
+  // polygon." Communications of the ACM 5.8 (1962): 434. Implementation of ray
+  // crossings algorithm for point in polygon task solving. Y coordinate is
+  // fixed. Moving the ray on X+ axis starting from given point. Odd number of
+  // intersections with polygon boundaries means the point is inside polygon.
   const int poly_size = poly_.size();
-  int i, j;  // Polygon vertex iterators
+  int i, j;          // Polygon vertex iterators
   bool res = false;  // Final result, initialized with already inverted value
 
-  // Starting from the edge where the last point of polygon is connected to the first
+  // Starting from the edge where the last point of polygon is connected to the
+  // first
   i = poly_size - 1;
   for (j = 0; j < poly_size; j++) {
-    // Checking the edge only if given point is between edge boundaries by Y coordinates.
-    // One of the condition should contain equality in order to exclude the edges
-    // parallel to X+ ray.
+    // Checking the edge only if given point is between edge boundaries by Y
+    // coordinates. One of the condition should contain equality in order to
+    // exclude the edges parallel to X+ ray.
     if ((point.y <= poly_[i].y) == (point.y > poly_[j].y)) {
       // Calculating the intersection coordinate of X+ ray
-      const double x_inter = poly_[i].x +
-        (point.y - poly_[i].y) * (poly_[j].x - poly_[i].x) /
-        (poly_[j].y - poly_[i].y);
-      // If intersection with checked edge is greater than point.x coordinate, inverting the result
+      const double x_inter =
+        poly_[i].x + (point.y - poly_[i].y) * (poly_[j].x - poly_[i].x) / (poly_[j].y - poly_[i].y);
+      // If intersection with checked edge is greater than point.x coordinate,
+      // inverting the result
       if (x_inter > point.x) {
         res = !res;
       }

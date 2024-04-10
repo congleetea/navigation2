@@ -18,15 +18,16 @@
 #include <string>
 
 #include "nav2_behavior_tree/bt_service_node.hpp"
-#include "nav2_msgs/srv/clear_entire_costmap.hpp"
 #include "nav2_msgs/srv/clear_costmap_around_robot.hpp"
 #include "nav2_msgs/srv/clear_costmap_except_region.hpp"
+#include "nav2_msgs/srv/clear_entire_costmap.hpp"
 
 namespace nav2_behavior_tree
 {
 
 /**
- * @brief A nav2_behavior_tree::BtServiceNode class that wraps nav2_msgs::srv::ClearEntireCostmap
+ * @brief A nav2_behavior_tree::BtServiceNode class that wraps
+ * nav2_msgs::srv::ClearEntireCostmap
  */
 class ClearEntireCostmapService : public BtServiceNode<nav2_msgs::srv::ClearEntireCostmap>
 {
@@ -37,8 +38,7 @@ public:
    * @param conf BT node configuration
    */
   ClearEntireCostmapService(
-    const std::string & service_node_name,
-    const BT::NodeConfiguration & conf);
+    const std::string & service_node_name, const BT::NodeConfiguration & conf);
 
   /**
    * @brief The main override required by a BT service
@@ -52,17 +52,17 @@ public:
  * wraps nav2_msgs::srv::ClearCostmapExceptRegion
  */
 class ClearCostmapExceptRegionService
-  : public BtServiceNode<nav2_msgs::srv::ClearCostmapExceptRegion>
+: public BtServiceNode<nav2_msgs::srv::ClearCostmapExceptRegion>
 {
 public:
   /**
-   * @brief A constructor for nav2_behavior_tree::ClearCostmapExceptRegionService
+   * @brief A constructor for
+   * nav2_behavior_tree::ClearCostmapExceptRegionService
    * @param service_node_name Service name this node creates a client for
    * @param conf BT node configuration
    */
   ClearCostmapExceptRegionService(
-    const std::string & service_node_name,
-    const BT::NodeConfiguration & conf);
+    const std::string & service_node_name, const BT::NodeConfiguration & conf);
 
   /**
    * @brief The main override required by a BT service
@@ -76,12 +76,8 @@ public:
    */
   static BT::PortsList providedPorts()
   {
-    return providedBasicPorts(
-      {
-        BT::InputPort<double>(
-          "reset_distance", 1,
-          "Distance from the robot above which obstacles are cleared")
-      });
+    return providedBasicPorts({BT::InputPort<double>(
+      "reset_distance", 1, "Distance from the robot above which obstacles are cleared")});
   }
 };
 
@@ -98,8 +94,7 @@ public:
    * @param conf BT node configuration
    */
   ClearCostmapAroundRobotService(
-    const std::string & service_node_name,
-    const BT::NodeConfiguration & conf);
+    const std::string & service_node_name, const BT::NodeConfiguration & conf);
 
   /**
    * @brief The main override required by a BT service
@@ -113,12 +108,8 @@ public:
    */
   static BT::PortsList providedPorts()
   {
-    return providedBasicPorts(
-      {
-        BT::InputPort<double>(
-          "reset_distance", 1,
-          "Distance from the robot under which obstacles are cleared")
-      });
+    return providedBasicPorts({BT::InputPort<double>(
+      "reset_distance", 1, "Distance from the robot under which obstacles are cleared")});
   }
 };
 

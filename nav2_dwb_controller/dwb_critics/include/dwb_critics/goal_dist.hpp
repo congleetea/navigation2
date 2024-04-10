@@ -34,18 +34,20 @@
 #ifndef DWB_CRITICS__GOAL_DIST_HPP_
 #define DWB_CRITICS__GOAL_DIST_HPP_
 
-#include <vector>
 #include "dwb_critics/map_grid.hpp"
+#include <vector>
 
 namespace dwb_critics
 {
 /**
  * @class GoalDistCritic
- * @brief Scores trajectories based on how far along the global path they end up.
+ * @brief Scores trajectories based on how far along the global path they end
+ * up.
  *
- * This trajectory critic helps ensure progress along the global path. It finds the pose from the
- * global path farthest from the robot that is still on the costmap, and aims for that point by
- * assigning the lowest cost to the cell corresponding with that farthest pose.
+ * This trajectory critic helps ensure progress along the global path. It finds
+ * the pose from the global path farthest from the robot that is still on the
+ * costmap, and aims for that point by assigning the lowest cost to the cell
+ * corresponding with that farthest pose.
  */
 class GoalDistCritic : public MapGridCritic
 {
@@ -56,8 +58,7 @@ public:
 
 protected:
   bool getLastPoseOnCostmap(
-    const nav_2d_msgs::msg::Path2D & global_plan, unsigned int & x,
-    unsigned int & y);
+    const nav_2d_msgs::msg::Path2D & global_plan, unsigned int & x, unsigned int & y);
 };
 
 }  // namespace dwb_critics

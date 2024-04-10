@@ -21,22 +21,20 @@
  */
 #define _LIBCPP_NO_EXPERIMENTAL_DEPRECATION_WARNING_FILESYSTEM
 
-
+#include <exception>
 #include <experimental/filesystem>
 #include <mutex>
 #include <string>
-#include <exception>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
 
-#include "sensor_msgs/msg/image.hpp"
+#include "cv_bridge/cv_bridge.h"
+#include "image_transport/image_transport.hpp"
 #include "nav2_core/waypoint_task_executor.hpp"
 #include "opencv4/opencv2/core.hpp"
 #include "opencv4/opencv2/opencv.hpp"
-#include "cv_bridge/cv_bridge.h"
-#include "image_transport/image_transport.hpp"
-
+#include "sensor_msgs/msg/image.hpp"
 
 namespace nav2_waypoint_follower
 {
@@ -45,9 +43,9 @@ class PhotoAtWaypoint : public nav2_core::WaypointTaskExecutor
 {
 public:
   /**
-  * @brief Construct a new Photo At Waypoint object
-  *
-  */
+   * @brief Construct a new Photo At Waypoint object
+   *
+   */
   PhotoAtWaypoint();
 
   /**
@@ -60,15 +58,15 @@ public:
    * @brief declares and loads parameters used
    *
    * @param parent parent node that plugin will be created within
-   * @param plugin_name should be provided in nav2_params.yaml==> waypoint_follower
+   * @param plugin_name should be provided in nav2_params.yaml==>
+   * waypoint_follower
    */
   void initialize(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-    const std::string & plugin_name);
-
+    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, const std::string & plugin_name);
 
   /**
-   * @brief Override this to define the body of your task that you would like to execute once the robot arrived to waypoint
+   * @brief Override this to define the body of your task that you would like to
+   * execute once the robot arrived to waypoint
    *
    * @param curr_pose current pose of the robot
    * @param curr_waypoint_index current waypoint, that robot just arrived
@@ -86,7 +84,8 @@ public:
   void imageCallback(const sensor_msgs::msg::Image::SharedPtr msg);
 
   /**
-   * @brief given a shared pointer to sensor::msg::Image type, make a deep copy to inputted cv Mat
+   * @brief given a shared pointer to sensor::msg::Image type, make a deep copy
+   * to inputted cv Mat
    *
    * @param msg
    * @param mat

@@ -17,8 +17,8 @@
 
 #include <memory>
 
-#include "nav2_behavior_tree/follow_path_task.hpp"
 #include "geometry_msgs/msg/twist.hpp"
+#include "nav2_behavior_tree/follow_path_task.hpp"
 
 namespace nav2_system_tests
 {

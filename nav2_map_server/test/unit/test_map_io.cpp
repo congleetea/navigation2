@@ -31,32 +31,32 @@
 
 /* Author: Brian Gerkey */
 
-#include <gtest/gtest.h>
 #include <experimental/filesystem>
+#include <fstream>
+#include <gtest/gtest.h>
+#include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <memory>
-#include <iostream>
-#include <fstream>
 
-#include "yaml-cpp/yaml.h"
 #include "nav2_map_server/map_io.hpp"
 #include "nav2_map_server/map_server.hpp"
 #include "nav2_util/lifecycle_node.hpp"
 #include "test_constants/test_constants.h"
+#include "yaml-cpp/yaml.h"
 
 #define TEST_DIR TEST_DIRECTORY
 
-using namespace std;  // NOLINT
+using namespace std;              // NOLINT
 using namespace nav2_map_server;  // NOLINT
 using std::experimental::filesystem::path;
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 
 RclCppFixture g_rclcppfixture;
@@ -67,9 +67,7 @@ protected:
   // Fill LoadParameters with standard for testing values
   // Input: image_file_name
   // Output: load_parameters
-  void fillLoadParameters(
-    const std::string & image_file_name,
-    LoadParameters & load_parameters)
+  void fillLoadParameters(const std::string & image_file_name, LoadParameters & load_parameters)
   {
     load_parameters.image_file_name = image_file_name;
     load_parameters.resolution = g_valid_image_res;
@@ -84,8 +82,7 @@ protected:
   // Input: map_file_name, image_format
   // Output: save_parameters
   void fillSaveParameters(
-    const std::string & map_file_name,
-    const std::string & image_format,
+    const std::string & map_file_name, const std::string & image_format,
     SaveParameters & save_parameters)
   {
     save_parameters.map_file_name = map_file_name;
@@ -108,11 +105,11 @@ protected:
   }
 };
 
-// Load a valid reference PGM file. Check obtained OccupancyGrid message for consistency:
-// loaded image should match the known dimensions and content of the file.
-// Save obtained OccupancyGrid message into a tmp PGM file. Then load back saved tmp file
-// and check for consistency.
-// Succeeds all steps were passed without a problem or expection.
+// Load a valid reference PGM file. Check obtained OccupancyGrid message for
+// consistency: loaded image should match the known dimensions and content of
+// the file. Save obtained OccupancyGrid message into a tmp PGM file. Then load
+// back saved tmp file and check for consistency. Succeeds all steps were passed
+// without a problem or expection.
 TEST_F(MapIOTester, loadSaveValidPGM)
 {
   // 1. Load reference map file and verify obtained OccupancyGrid
@@ -137,11 +134,11 @@ TEST_F(MapIOTester, loadSaveValidPGM)
   verifyMapMsg(map_msg);
 }
 
-// Load a valid reference PNG file. Check obtained OccupancyGrid message for consistency:
-// loaded image should match the known dimensions and content of the file.
-// Save obtained OccupancyGrid message into a tmp PNG file. Then load back saved tmp file
-// and check for consistency.
-// Succeeds all steps were passed without a problem or expection.
+// Load a valid reference PNG file. Check obtained OccupancyGrid message for
+// consistency: loaded image should match the known dimensions and content of
+// the file. Save obtained OccupancyGrid message into a tmp PNG file. Then load
+// back saved tmp file and check for consistency. Succeeds all steps were passed
+// without a problem or expection.
 TEST_F(MapIOTester, loadSaveValidPNG)
 {
   // 1. Load reference map file and verify obtained OccupancyGrid
@@ -166,11 +163,11 @@ TEST_F(MapIOTester, loadSaveValidPNG)
   verifyMapMsg(map_msg);
 }
 
-// Load a valid reference BMP file. Check obtained OccupancyGrid message for consistency:
-// loaded image should match the known dimensions and content of the file.
-// Save obtained OccupancyGrid message into a tmp BMP file. Then load back saved tmp file
-// and check for consistency.
-// Succeeds all steps were passed without a problem or expection.
+// Load a valid reference BMP file. Check obtained OccupancyGrid message for
+// consistency: loaded image should match the known dimensions and content of
+// the file. Save obtained OccupancyGrid message into a tmp BMP file. Then load
+// back saved tmp file and check for consistency. Succeeds all steps were passed
+// without a problem or expection.
 TEST_F(MapIOTester, loadSaveValidBMP)
 {
   // 1. Load reference map file and verify obtained OccupancyGrid
@@ -253,8 +250,8 @@ TEST_F(MapIOTester, loadInvalidFile)
   ASSERT_EQ(status, INVALID_MAP_METADATA);
 }
 
-// Load map from a valid file. Trying to save map with different sets of parameters.
-// Succeeds if all cases got expected behaviours.
+// Load map from a valid file. Trying to save map with different sets of
+// parameters. Succeeds if all cases got expected behaviours.
 TEST_F(MapIOTester, saveInvalidParameters)
 {
   // 1. Load map from YAML file

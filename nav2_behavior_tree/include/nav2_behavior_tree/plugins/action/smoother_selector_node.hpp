@@ -30,10 +30,10 @@ namespace nav2_behavior_tree
 
 /**
  * @brief The SmootherSelector behavior is used to switch the smoother
- * that will be used by the smoother server. It subscribes to a topic "smoother_selector"
- * to get the decision about what smoother must be used. It is usually used before of
- * the FollowPath. The selected_smoother output port is passed to smoother_id
- * input port of the FollowPath
+ * that will be used by the smoother server. It subscribes to a topic
+ * "smoother_selector" to get the decision about what smoother must be used. It
+ * is usually used before of the FollowPath. The selected_smoother output port
+ * is passed to smoother_id input port of the FollowPath
  */
 class SmootherSelector : public BT::SyncActionNode
 {
@@ -44,9 +44,7 @@ public:
    * @param xml_tag_name Name for the XML tag for this node
    * @param conf  BT node configuration
    */
-  SmootherSelector(
-    const std::string & xml_tag_name,
-    const BT::NodeConfiguration & conf);
+  SmootherSelector(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
 
   /**
    * @brief Creates list of BT ports
@@ -57,17 +55,13 @@ public:
     return {
       BT::InputPort<std::string>(
         "default_smoother",
-        "the default smoother to use if there is not any external topic message received."),
+        "the default smoother to use if there is "
+        "not any external topic message received."),
 
       BT::InputPort<std::string>(
-        "topic_name",
-        "smoother_selector",
-        "the input topic name to select the smoother"),
+        "topic_name", "smoother_selector", "the input topic name to select the smoother"),
 
-      BT::OutputPort<std::string>(
-        "selected_smoother",
-        "Selected smoother by subscription")
-    };
+      BT::OutputPort<std::string>("selected_smoother", "Selected smoother by subscription")};
   }
 
 private:

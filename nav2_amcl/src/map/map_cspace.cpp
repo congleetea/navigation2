@@ -19,11 +19,11 @@
  *
  */
 
+#include "nav2_amcl/map/map.hpp"
 #include <math.h>
+#include <queue>
 #include <stdlib.h>
 #include <string.h>
-#include <queue>
-#include "nav2_amcl/map/map.hpp"
 
 /*
  * @class CellData
@@ -83,9 +83,8 @@ public:
  */
 bool operator<(const CellData & a, const CellData & b)
 {
-  return a.map_->cells[MAP_INDEX(
-             a.map_, a.i_,
-             a.j_)].occ_dist > a.map_->cells[MAP_INDEX(b.map_, b.i_, b.j_)].occ_dist;
+  return a.map_->cells[MAP_INDEX(a.map_, a.i_, a.j_)].occ_dist >
+         a.map_->cells[MAP_INDEX(b.map_, b.i_, b.j_)].occ_dist;
 }
 
 /*
@@ -94,8 +93,7 @@ bool operator<(const CellData & a, const CellData & b)
  * @param max_dist Maximum distance to cache from occupied information
  * @return Pointer to cached distance map
  */
-CachedDistanceMap *
-get_distance_map(double scale, double max_dist)
+CachedDistanceMap * get_distance_map(double scale, double max_dist)
 {
   static CachedDistanceMap * cdm = NULL;
 
@@ -113,11 +111,8 @@ get_distance_map(double scale, double max_dist)
  * @brief enqueue cell data for caching
  */
 void enqueue(
-  map_t * map, int i, int j,
-  int src_i, int src_j,
-  std::priority_queue<CellData> & Q,
-  CachedDistanceMap * cdm,
-  unsigned char * marked)
+  map_t * map, int i, int j, int src_i, int src_j, std::priority_queue<CellData> & Q,
+  CachedDistanceMap * cdm, unsigned char * marked)
 {
   if (marked[MAP_INDEX(map, i, j)]) {
     return;
@@ -183,27 +178,23 @@ void map_update_cspace(map_t * map, double max_occ_dist)
     CellData current_cell = Q.top();
     if (current_cell.i_ > 0) {
       enqueue(
-        map, current_cell.i_ - 1, current_cell.j_,
-        current_cell.src_i_, current_cell.src_j_,
-        Q, cdm, marked);
+        map, current_cell.i_ - 1, current_cell.j_, current_cell.src_i_, current_cell.src_j_, Q, cdm,
+        marked);
     }
     if (current_cell.j_ > 0) {
       enqueue(
-        map, current_cell.i_, current_cell.j_ - 1,
-        current_cell.src_i_, current_cell.src_j_,
-        Q, cdm, marked);
+        map, current_cell.i_, current_cell.j_ - 1, current_cell.src_i_, current_cell.src_j_, Q, cdm,
+        marked);
     }
     if (static_cast<int>(current_cell.i_) < map->size_x - 1) {
       enqueue(
-        map, current_cell.i_ + 1, current_cell.j_,
-        current_cell.src_i_, current_cell.src_j_,
-        Q, cdm, marked);
+        map, current_cell.i_ + 1, current_cell.j_, current_cell.src_i_, current_cell.src_j_, Q, cdm,
+        marked);
     }
     if (static_cast<int>(current_cell.j_) < map->size_y - 1) {
       enqueue(
-        map, current_cell.i_, current_cell.j_ + 1,
-        current_cell.src_i_, current_cell.src_j_,
-        Q, cdm, marked);
+        map, current_cell.i_, current_cell.j_ + 1, current_cell.src_i_, current_cell.src_j_, Q, cdm,
+        marked);
     }
 
     Q.pop();

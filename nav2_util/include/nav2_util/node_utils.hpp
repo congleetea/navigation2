@@ -15,10 +15,10 @@
 #ifndef NAV2_UTIL__NODE_UTILS_HPP_
 #define NAV2_UTIL__NODE_UTILS_HPP_
 
-#include <vector>
-#include <string>
-#include "rclcpp/rclcpp.hpp"
 #include "rcl_interfaces/srv/list_parameters.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include <string>
+#include <vector>
 
 namespace nav2_util
 {
@@ -30,8 +30,9 @@ namespace nav2_util
  * purpose. However, only alphanumeric characters and '_' are allowed in node
  * names. This function replaces any invalid character with a '_'
  *
- * \param[in] potential_node_name Potential name but possibly with invalid charaters.
- * \return A copy of the input string but with non-alphanumeric characters replaced with '_'
+ * \param[in] potential_node_name Potential name but possibly with invalid
+ * charaters. \return A copy of the input string but with non-alphanumeric
+ * characters replaced with '_'
  */
 std::string sanitize_node_name(const std::string & potential_node_name);
 
@@ -40,10 +41,11 @@ std::string sanitize_node_name(const std::string & potential_node_name);
  * \param[in] top_ns The namespace to place first
  * \param[in] sub_ns The namespace to place after top_ns
  * \return An absolute namespace starting with "/"
-*/
+ */
 std::string add_namespaces(const std::string & top_ns, const std::string & sub_ns = "");
 
-/// Add some random characters to a node name to ensure it is unique in the system
+/// Add some random characters to a node name to ensure it is unique in the
+/// system
 /**
  * There are utility classes that create an internal private node to interact
  * with the system. These private nodes are given a generated name. If multiple
@@ -79,7 +81,8 @@ rclcpp::Node::SharedPtr generate_internal_node(const std::string & prefix = "");
  */
 std::string time_to_string(size_t len);
 
-/// Declares static ROS2 parameter and sets it to a given value if it was not already declared
+/// Declares static ROS2 parameter and sets it to a given value if it was not
+/// already declared
 /* Declares static ROS2 parameter and sets it to a given value
  * if it was not already declared.
  *
@@ -88,34 +91,32 @@ std::string time_to_string(size_t len);
  * \param[in] default_value Parameter value to initialize with
  * \param[in] parameter_descriptor Parameter descriptor (optional)
  */
-template<typename NodeT>
+template <typename NodeT>
 void declare_parameter_if_not_declared(
-  NodeT node,
-  const std::string & param_name,
-  const rclcpp::ParameterValue & default_value,
+  NodeT node, const std::string & param_name, const rclcpp::ParameterValue & default_value,
   const rcl_interfaces::msg::ParameterDescriptor & parameter_descriptor =
-  rcl_interfaces::msg::ParameterDescriptor())
+    rcl_interfaces::msg::ParameterDescriptor())
 {
   if (!node->has_parameter(param_name)) {
     node->declare_parameter(param_name, default_value, parameter_descriptor);
   }
 }
 
-/// Declares static ROS2 parameter with given type if it was not already declared
-/* Declares static ROS2 parameter with given type if it was not already declared.
+/// Declares static ROS2 parameter with given type if it was not already
+/// declared
+/* Declares static ROS2 parameter with given type if it was not already
+ * declared.
  *
  * \param[in] node A node in which given parameter to be declared
  * \param[in] param_type The type of parameter
  * \param[in] default_value Parameter value to initialize with
  * \param[in] parameter_descriptor Parameter descriptor (optional)
  */
-template<typename NodeT>
+template <typename NodeT>
 void declare_parameter_if_not_declared(
-  NodeT node,
-  const std::string & param_name,
-  const rclcpp::ParameterType & param_type,
+  NodeT node, const std::string & param_name, const rclcpp::ParameterType & param_type,
   const rcl_interfaces::msg::ParameterDescriptor & parameter_descriptor =
-  rcl_interfaces::msg::ParameterDescriptor())
+    rcl_interfaces::msg::ParameterDescriptor())
 {
   if (!node->has_parameter(param_name)) {
     node->declare_parameter(param_name, param_type, parameter_descriptor);
@@ -128,13 +129,12 @@ void declare_parameter_if_not_declared(
  * Actually seeks for the value of "<plugin_name>.plugin" parameter.
  *
  * \param[in] node Selected node
- * \param[in] plugin_name The name of plugin the type of which is being searched for
- * \return A string containing the type of plugin (the value of "<plugin_name>.plugin" parameter)
+ * \param[in] plugin_name The name of plugin the type of which is being searched
+ * for \return A string containing the type of plugin (the value of
+ * "<plugin_name>.plugin" parameter)
  */
-template<typename NodeT>
-std::string get_plugin_type_param(
-  NodeT node,
-  const std::string & plugin_name)
+template <typename NodeT>
+std::string get_plugin_type_param(NodeT node, const std::string & plugin_name)
 {
   declare_parameter_if_not_declared(node, plugin_name + ".plugin", rclcpp::PARAMETER_STRING);
   std::string plugin_type;
@@ -153,12 +153,12 @@ std::string get_plugin_type_param(
 }
 
 /**
- * @brief A method to copy all parameters from one node (parent) to another (child).
- * May throw parameter exceptions in error conditions
+ * @brief A method to copy all parameters from one node (parent) to another
+ * (child). May throw parameter exceptions in error conditions
  * @param parent Node to copy parameters from
  * @param child Node to copy parameters to
  */
-template<typename NodeT1, typename NodeT2>
+template <typename NodeT1, typename NodeT2>
 void copy_all_parameters(const NodeT1 & parent, const NodeT2 & child)
 {
   using Parameters = std::vector<rclcpp::Parameter>;

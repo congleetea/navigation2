@@ -16,29 +16,29 @@
 #define NAV2_PLANNER__PLANNER_SERVER_HPP_
 
 #include <chrono>
-#include <string>
 #include <memory>
-#include <vector>
-#include <unordered_map>
 #include <mutex>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "nav_msgs/msg/path.hpp"
-#include "nav2_util/lifecycle_node.hpp"
-#include "nav2_msgs/action/compute_path_to_pose.hpp"
+#include "nav2_core/global_planner.hpp"
+#include "nav2_costmap_2d/costmap_2d_ros.hpp"
 #include "nav2_msgs/action/compute_path_through_poses.hpp"
+#include "nav2_msgs/action/compute_path_to_pose.hpp"
 #include "nav2_msgs/msg/costmap.hpp"
+#include "nav2_msgs/srv/is_path_valid.hpp"
+#include "nav2_util/lifecycle_node.hpp"
 #include "nav2_util/robot_utils.hpp"
 #include "nav2_util/simple_action_server.hpp"
-#include "visualization_msgs/msg/marker.hpp"
-#include "tf2_ros/transform_listener.h"
-#include "tf2_ros/create_timer_ros.h"
-#include "nav2_costmap_2d/costmap_2d_ros.hpp"
-#include "pluginlib/class_loader.hpp"
+#include "nav_msgs/msg/path.hpp"
 #include "pluginlib/class_list_macros.hpp"
-#include "nav2_core/global_planner.hpp"
-#include "nav2_msgs/srv/is_path_valid.hpp"
+#include "pluginlib/class_loader.hpp"
+#include "tf2_ros/create_timer_ros.h"
+#include "tf2_ros/transform_listener.h"
+#include "visualization_msgs/msg/marker.hpp"
 
 namespace nav2_planner
 {
@@ -69,8 +69,7 @@ public:
    * @return Path
    */
   nav_msgs::msg::Path getPlan(
-    const geometry_msgs::msg::PoseStamped & start,
-    const geometry_msgs::msg::PoseStamped & goal,
+    const geometry_msgs::msg::PoseStamped & start, const geometry_msgs::msg::PoseStamped & goal,
     const std::string & planner_id);
 
 protected:
@@ -115,7 +114,7 @@ protected:
    * @param action_server Action server to test
    * @return SUCCESS or FAILURE
    */
-  template<typename T>
+  template <typename T>
   bool isServerInactive(std::unique_ptr<nav2_util::SimpleActionServer<T>> & action_server);
 
   /**
@@ -123,22 +122,22 @@ protected:
    * @param action_server Action server to test
    * @return SUCCESS or FAILURE
    */
-  template<typename T>
+  template <typename T>
   bool isCancelRequested(std::unique_ptr<nav2_util::SimpleActionServer<T>> & action_server);
 
   /**
-   * @brief Wait for costmap to be valid with updated sensor data or repopulate after a
-   * clearing recovery. Blocks until true without timeout.
+   * @brief Wait for costmap to be valid with updated sensor data or repopulate
+   * after a clearing recovery. Blocks until true without timeout.
    */
   void waitForCostmap();
 
   /**
-   * @brief Check if an action server has a preemption request and replaces the goal
-   * with the new preemption goal.
+   * @brief Check if an action server has a preemption request and replaces the
+   * goal with the new preemption goal.
    * @param action_server Action server to get updated goal if required
    * @param goal Goal to overwrite
    */
-  template<typename T>
+  template <typename T>
   void getPreemptedGoalIfRequested(
     std::unique_ptr<nav2_util::SimpleActionServer<T>> & action_server,
     typename std::shared_ptr<const typename T::Goal> goal);
@@ -150,11 +149,10 @@ protected:
    * @param start The starting pose to use
    * @return bool If successful in finding a valid starting pose
    */
-  template<typename T>
+  template <typename T>
   bool getStartPose(
     std::unique_ptr<nav2_util::SimpleActionServer<T>> & action_server,
-    typename std::shared_ptr<const typename T::Goal> goal,
-    geometry_msgs::msg::PoseStamped & start);
+    typename std::shared_ptr<const typename T::Goal> goal, geometry_msgs::msg::PoseStamped & start);
 
   /**
    * @brief Transform start and goal poses into the costmap
@@ -164,11 +162,10 @@ protected:
    * @param goal Goal pose to transform
    * @return bool If successful in transforming poses
    */
-  template<typename T>
+  template <typename T>
   bool transformPosesToGlobalFrame(
     std::unique_ptr<nav2_util::SimpleActionServer<T>> & action_server,
-    geometry_msgs::msg::PoseStamped & curr_start,
-    geometry_msgs::msg::PoseStamped & curr_goal);
+    geometry_msgs::msg::PoseStamped & curr_start, geometry_msgs::msg::PoseStamped & curr_goal);
 
   /**
    * @brief Validate that the path contains a meaningful path
@@ -178,11 +175,10 @@ protected:
    * @param planner_id The planner ID used to generate the path
    * @return bool If path is valid
    */
-  template<typename T>
+  template <typename T>
   bool validatePath(
     std::unique_ptr<nav2_util::SimpleActionServer<T>> & action_server,
-    const geometry_msgs::msg::PoseStamped & curr_goal,
-    const nav_msgs::msg::Path & path,
+    const geometry_msgs::msg::PoseStamped & curr_goal, const nav_msgs::msg::Path & path,
     const std::string & planner_id);
 
   // Our action server implements the ComputePathToPose action
@@ -220,8 +216,8 @@ protected:
    * @brief Callback executed when a parameter change is detected
    * @param event ParameterEvent message
    */
-  rcl_interfaces::msg::SetParametersResult
-  dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters);
+  rcl_interfaces::msg::SetParametersResult dynamicParametersCallback(
+    std::vector<rclcpp::Parameter> parameters);
 
   // Dynamic parameters handler
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr dyn_params_handler_;

@@ -19,7 +19,6 @@
 #include <vector>
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "gtest/gtest.h"
 #include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_costmap_2d/costmap_subscriber.hpp"
 #include "nav2_smac_planner/a_star.hpp"
@@ -29,12 +28,13 @@
 #include "nav2_smac_planner/smac_planner_hybrid.hpp"
 #include "nav2_util/lifecycle_node.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -42,7 +42,8 @@ RclCppFixture g_rclcppfixture;
 // (covered by more extensively testing in other files)
 // System tests in nav2_system_tests will actually plan with this work
 
-TEST(SmacTest, test_smac_2d) {
+TEST(SmacTest, test_smac_2d)
+{
   rclcpp_lifecycle::LifecycleNode::SharedPtr node2D =
     std::make_shared<rclcpp_lifecycle::LifecycleNode>("Smac2DTest");
 
@@ -82,7 +83,8 @@ TEST(SmacTest, test_smac_2d) {
   costmap_ros.reset();
 }
 
-TEST(SmacTest, test_smac_2d_reconfigure) {
+TEST(SmacTest, test_smac_2d_reconfigure)
+{
   rclcpp_lifecycle::LifecycleNode::SharedPtr node2D =
     std::make_shared<rclcpp_lifecycle::LifecycleNode>("Smac2DTest");
 
@@ -96,42 +98,32 @@ TEST(SmacTest, test_smac_2d_reconfigure) {
 
   auto rec_param = std::make_shared<rclcpp::AsyncParametersClient>(
     node2D->get_node_base_interface(), node2D->get_node_topics_interface(),
-    node2D->get_node_graph_interface(),
-    node2D->get_node_services_interface());
+    node2D->get_node_graph_interface(), node2D->get_node_services_interface());
 
   auto results = rec_param->set_parameters_atomically(
     {rclcpp::Parameter("test.tolerance", 1.0),
-      rclcpp::Parameter("test.cost_travel_multiplier", 1.0),
-      rclcpp::Parameter("test.max_planning_time", 2.0),
-      rclcpp::Parameter("test.downsample_costmap", false),
-      rclcpp::Parameter("test.allow_unknown", false),
-      rclcpp::Parameter("test.downsampling_factor", 2),
-      rclcpp::Parameter("test.max_iterations", -1),
-      rclcpp::Parameter("test.max_on_approach_iterations", -1),
-      rclcpp::Parameter("test.use_final_approach_orientation", false)});
+     rclcpp::Parameter("test.cost_travel_multiplier", 1.0),
+     rclcpp::Parameter("test.max_planning_time", 2.0),
+     rclcpp::Parameter("test.downsample_costmap", false),
+     rclcpp::Parameter("test.allow_unknown", false),
+     rclcpp::Parameter("test.downsampling_factor", 2), rclcpp::Parameter("test.max_iterations", -1),
+     rclcpp::Parameter("test.max_on_approach_iterations", -1),
+     rclcpp::Parameter("test.use_final_approach_orientation", false)});
 
-  rclcpp::spin_until_future_complete(
-    node2D->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(node2D->get_node_base_interface(), results);
 
   EXPECT_EQ(node2D->get_parameter("test.tolerance").as_double(), 1.0);
-  EXPECT_EQ(
-    node2D->get_parameter("test.cost_travel_multiplier").as_double(),
-    1.0);
+  EXPECT_EQ(node2D->get_parameter("test.cost_travel_multiplier").as_double(), 1.0);
   EXPECT_EQ(node2D->get_parameter("test.max_planning_time").as_double(), 2.0);
   EXPECT_EQ(node2D->get_parameter("test.downsample_costmap").as_bool(), false);
   EXPECT_EQ(node2D->get_parameter("test.allow_unknown").as_bool(), false);
   EXPECT_EQ(node2D->get_parameter("test.downsampling_factor").as_int(), 2);
   EXPECT_EQ(node2D->get_parameter("test.max_iterations").as_int(), -1);
   EXPECT_EQ(node2D->get_parameter("test.use_final_approach_orientation").as_bool(), false);
-  EXPECT_EQ(
-    node2D->get_parameter("test.max_on_approach_iterations").as_int(),
-    -1);
+  EXPECT_EQ(node2D->get_parameter("test.max_on_approach_iterations").as_int(), -1);
 
-  results = rec_param->set_parameters_atomically(
-    {rclcpp::Parameter("test.downsample_costmap", true)});
+  results =
+    rec_param->set_parameters_atomically({rclcpp::Parameter("test.downsample_costmap", true)});
 
-  rclcpp::spin_until_future_complete(
-    node2D->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(node2D->get_node_base_interface(), results);
 }

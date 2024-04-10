@@ -40,9 +40,9 @@
 
 #include <algorithm>
 #include <cassert>
-#include <vector>
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "pluginlib/class_list_macros.hpp"
 #include "sensor_msgs/point_cloud2_iterator.hpp"
@@ -50,9 +50,9 @@
 #define VOXEL_BITS 16
 PLUGINLIB_EXPORT_CLASS(nav2_costmap_2d::VoxelLayer, nav2_costmap_2d::Layer)
 
-using nav2_costmap_2d::NO_INFORMATION;
-using nav2_costmap_2d::LETHAL_OBSTACLE;
 using nav2_costmap_2d::FREE_SPACE;
+using nav2_costmap_2d::LETHAL_OBSTACLE;
+using nav2_costmap_2d::NO_INFORMATION;
 using rcl_interfaces::msg::ParameterType;
 
 namespace nav2_costmap_2d
@@ -92,13 +92,12 @@ void VoxelLayer::onInitialize()
   auto custom_qos = rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable();
 
   if (publish_voxel_) {
-    voxel_pub_ = node->create_publisher<nav2_msgs::msg::VoxelGrid>(
-      "voxel_grid", custom_qos);
+    voxel_pub_ = node->create_publisher<nav2_msgs::msg::VoxelGrid>("voxel_grid", custom_qos);
     voxel_pub_->on_activate();
   }
 
-  clearing_endpoints_pub_ = node->create_publisher<sensor_msgs::msg::PointCloud2>(
-    "clearing_endpoints", custom_qos);
+  clearing_endpoints_pub_ =
+    node->create_publisher<sensor_msgs::msg::PointCloud2>("clearing_endpoints", custom_qos);
   clearing_endpoints_pub_->on_activate();
 
   unknown_threshold_ += (VOXEL_BITS - size_z_);
@@ -106,15 +105,10 @@ void VoxelLayer::onInitialize()
 
   // Add callback for dynamic parameters
   dyn_params_handler_ = node->add_on_set_parameters_callback(
-    std::bind(
-      &VoxelLayer::dynamicParametersCallback,
-      this, std::placeholders::_1));
+    std::bind(&VoxelLayer::dynamicParametersCallback, this, std::placeholders::_1));
 }
 
-VoxelLayer::~VoxelLayer()
-{
-  dyn_params_handler_.reset();
-}
+VoxelLayer::~VoxelLayer() { dyn_params_handler_.reset(); }
 
 void VoxelLayer::matchSize()
 {
@@ -142,8 +136,8 @@ void VoxelLayer::resetMaps()
 }
 
 void VoxelLayer::updateBounds(
-  double robot_x, double robot_y, double robot_yaw, double * min_x,
-  double * min_y, double * max_x, double * max_y)
+  double robot_x, double robot_y, double robot_yaw, double * min_x, double * min_y, double * max_x,
+  double * max_y)
 {
   std::lock_guard<Costmap2D::mutex_t> guard(*getMutex());
 
@@ -172,10 +166,10 @@ void VoxelLayer::updateBounds(
     raytraceFreespace(clearing_observations[i], min_x, min_y, max_x, max_y);
   }
 
-  // place the new obstacles into a priority queue... each with a priority of zero to begin with
+  // place the new obstacles into a priority queue... each with a priority of
+  // zero to begin with
   for (std::vector<Observation>::const_iterator it = observations.begin(); it != observations.end();
-    ++it)
-  {
+       ++it) {
     const Observation & obs = *it;
 
     const sensor_msgs::msg::PointCloud2 & cloud = *(obs.cloud_);
@@ -188,15 +182,17 @@ void VoxelLayer::updateBounds(
     sensor_msgs::PointCloud2ConstIterator<float> iter_z(cloud, "z");
 
     for (; iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
-      // if the obstacle is too high or too far away from the robot we won't add it
+      // if the obstacle is too high or too far away from the robot we won't add
+      // it
       if (*iter_z > max_obstacle_height_) {
         continue;
       }
 
-      // compute the squared distance from the hitpoint to the pointcloud's origin
+      // compute the squared distance from the hitpoint to the pointcloud's
+      // origin
       double sq_dist = (*iter_x - obs.origin_.x) * (*iter_x - obs.origin_.x) +
-        (*iter_y - obs.origin_.y) * (*iter_y - obs.origin_.y) +
-        (*iter_z - obs.origin_.z) * (*iter_z - obs.origin_.z);
+                       (*iter_y - obs.origin_.y) * (*iter_y - obs.origin_.y) +
+                       (*iter_z - obs.origin_.z) * (*iter_z - obs.origin_.z);
 
       // if the point is far enough away... we won't consider it
       if (sq_dist >= sq_obstacle_max_range) {
@@ -218,14 +214,14 @@ void VoxelLayer::updateBounds(
         continue;
       }
 
-      // mark the cell in the voxel grid and check if we should also mark it in the costmap
+      // mark the cell in the voxel grid and check if we should also mark it in
+      // the costmap
       if (voxel_grid_.markVoxelInMap(mx, my, mz, mark_threshold_)) {
         unsigned int index = getIndex(mx, my);
 
         costmap_[index] = LETHAL_OBSTACLE;
         touch(
-          static_cast<double>(*iter_x), static_cast<double>(*iter_y),
-          min_x, min_y, max_x, max_y);
+          static_cast<double>(*iter_x), static_cast<double>(*iter_y), min_x, min_y, max_x, max_y);
       }
     }
   }
@@ -256,9 +252,7 @@ void VoxelLayer::updateBounds(
 }
 
 void VoxelLayer::raytraceFreespace(
-  const Observation & clearing_observation, double * min_x,
-  double * min_y,
-  double * max_x,
+  const Observation & clearing_observation, double * min_x, double * min_y, double * max_x,
   double * max_y)
 {
   auto clearing_endpoints_ = std::make_unique<sensor_msgs::msg::PointCloud2>();
@@ -278,10 +272,8 @@ void VoxelLayer::raytraceFreespace(
       "Sensor origin at (%.2f, %.2f %.2f) is out of map bounds "
       "(%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f). "
       "The costmap cannot raytrace for it.",
-      ox, oy, oz,
-      origin_x_, origin_y_, origin_z_,
-      origin_x_ + getSizeInMetersX(), origin_y_ + getSizeInMetersY(),
-      origin_z_ + getSizeInMetersZ());
+      ox, oy, oz, origin_x_, origin_y_, origin_z_, origin_x_ + getSizeInMetersX(),
+      origin_y_ + getSizeInMetersY(), origin_z_ + getSizeInMetersZ());
 
     return;
   }
@@ -304,15 +296,15 @@ void VoxelLayer::raytraceFreespace(
 
   sensor_msgs::PointCloud2Modifier modifier(*clearing_endpoints_);
   modifier.setPointCloud2Fields(
-    3, "x", 1, sensor_msgs::msg::PointField::FLOAT32,
-    "y", 1, sensor_msgs::msg::PointField::FLOAT32,
+    3, "x", 1, sensor_msgs::msg::PointField::FLOAT32, "y", 1, sensor_msgs::msg::PointField::FLOAT32,
     "z", 1, sensor_msgs::msg::PointField::FLOAT32);
 
   sensor_msgs::PointCloud2Iterator<float> clearing_endpoints_iter_x(*clearing_endpoints_, "x");
   sensor_msgs::PointCloud2Iterator<float> clearing_endpoints_iter_y(*clearing_endpoints_, "y");
   sensor_msgs::PointCloud2Iterator<float> clearing_endpoints_iter_z(*clearing_endpoints_, "z");
 
-  // we can pre-compute the enpoints of the map outside of the inner loop... we'll need these later
+  // we can pre-compute the enpoints of the map outside of the inner loop...
+  // we'll need these later
   double map_end_x = origin_x_ + getSizeInMetersX();
   double map_end_y = origin_y_ + getSizeInMetersY();
   double map_end_z = origin_z_ + getSizeInMetersZ();
@@ -373,19 +365,16 @@ void VoxelLayer::raytraceFreespace(
       unsigned int cell_raytrace_max_range = cellDistance(clearing_observation.raytrace_max_range_);
       unsigned int cell_raytrace_min_range = cellDistance(clearing_observation.raytrace_min_range_);
 
-
-      // voxel_grid_.markVoxelLine(sensor_x, sensor_y, sensor_z, point_x, point_y, point_z);
+      // voxel_grid_.markVoxelLine(sensor_x, sensor_y, sensor_z, point_x,
+      // point_y, point_z);
       voxel_grid_.clearVoxelLineInMap(
-        sensor_x, sensor_y, sensor_z, point_x, point_y, point_z,
-        costmap_,
-        unknown_threshold_, mark_threshold_, FREE_SPACE, NO_INFORMATION,
-        cell_raytrace_max_range, cell_raytrace_min_range);
+        sensor_x, sensor_y, sensor_z, point_x, point_y, point_z, costmap_, unknown_threshold_,
+        mark_threshold_, FREE_SPACE, NO_INFORMATION, cell_raytrace_max_range,
+        cell_raytrace_min_range);
 
       updateRaytraceBounds(
         ox, oy, wpx, wpy, clearing_observation.raytrace_max_range_,
-        clearing_observation.raytrace_min_range_, min_x, min_y,
-        max_x,
-        max_y);
+        clearing_observation.raytrace_min_range_, min_x, min_y, max_x, max_y);
 
       if (publish_clearing_points) {
         *clearing_endpoints_iter_x = wpx;
@@ -441,12 +430,10 @@ void VoxelLayer::updateOrigin(double new_origin_x, double new_origin_y)
 
   // copy the local window in the costmap to the local map
   copyMapRegion(
-    costmap_, lower_left_x, lower_left_y, size_x_, local_map, 0, 0, cell_size_x,
-    cell_size_x,
+    costmap_, lower_left_x, lower_left_y, size_x_, local_map, 0, 0, cell_size_x, cell_size_x,
     cell_size_y);
   copyMapRegion(
-    voxel_map, lower_left_x, lower_left_y, size_x_, local_voxel_map, 0, 0, cell_size_x,
-    cell_size_x,
+    voxel_map, lower_left_x, lower_left_y, size_x_, local_voxel_map, 0, 0, cell_size_x, cell_size_x,
     cell_size_y);
 
   // we'll reset our maps to unknown space if appropriate
@@ -460,13 +447,12 @@ void VoxelLayer::updateOrigin(double new_origin_x, double new_origin_y)
   int start_x = lower_left_x - cell_ox;
   int start_y = lower_left_y - cell_oy;
 
-  // now we want to copy the overlapping information back into the map, but in its new location
+  // now we want to copy the overlapping information back into the map, but in
+  // its new location
   copyMapRegion(
-    local_map, 0, 0, cell_size_x, costmap_, start_x, start_y, size_x_, cell_size_x,
-    cell_size_y);
+    local_map, 0, 0, cell_size_x, costmap_, start_x, start_y, size_x_, cell_size_x, cell_size_y);
   copyMapRegion(
-    local_voxel_map, 0, 0, cell_size_x, voxel_map, start_x, start_y, size_x_,
-    cell_size_x,
+    local_voxel_map, 0, 0, cell_size_x, voxel_map, start_x, start_y, size_x_, cell_size_x,
     cell_size_y);
 
   // make sure to clean up
@@ -475,11 +461,10 @@ void VoxelLayer::updateOrigin(double new_origin_x, double new_origin_y)
 }
 
 /**
-  * @brief Callback executed when a parameter change is detected
-  * @param event ParameterEvent message
-  */
-rcl_interfaces::msg::SetParametersResult
-VoxelLayer::dynamicParametersCallback(
+ * @brief Callback executed when a parameter change is detected
+ * @param event ParameterEvent message
+ */
+rcl_interfaces::msg::SetParametersResult VoxelLayer::dynamicParametersCallback(
   std::vector<rclcpp::Parameter> parameters)
 {
   std::lock_guard<Costmap2D::mutex_t> guard(*getMutex());
@@ -508,7 +493,8 @@ VoxelLayer::dynamicParametersCallback(
         footprint_clearing_enabled_ = parameter.as_bool();
       } else if (param_name == name_ + "." + "publish_voxel_map") {
         RCLCPP_WARN(
-          logger_, "publish voxel map is not a dynamic parameter "
+          logger_,
+          "publish voxel map is not a dynamic parameter "
           "cannot be changed while running. Rejecting parameter update.");
         continue;
       }

@@ -25,8 +25,8 @@ class PipelineSequenceTestFixture : public nav2_behavior_tree::BehaviorTreeTestF
 public:
   void SetUp() override
   {
-    bt_node_ = std::make_shared<nav2_behavior_tree::PipelineSequence>(
-      "pipeline_sequence", *config_);
+    bt_node_ =
+      std::make_shared<nav2_behavior_tree::PipelineSequence>("pipeline_sequence", *config_);
     first_child_ = std::make_shared<nav2_behavior_tree::DummyNode>();
     second_child_ = std::make_shared<nav2_behavior_tree::DummyNode>();
     third_child_ = std::make_shared<nav2_behavior_tree::DummyNode>();
@@ -50,14 +50,11 @@ protected:
   static std::shared_ptr<nav2_behavior_tree::DummyNode> third_child_;
 };
 
-std::shared_ptr<nav2_behavior_tree::PipelineSequence>
-PipelineSequenceTestFixture::bt_node_ = nullptr;
-std::shared_ptr<nav2_behavior_tree::DummyNode>
-PipelineSequenceTestFixture::first_child_ = nullptr;
-std::shared_ptr<nav2_behavior_tree::DummyNode>
-PipelineSequenceTestFixture::second_child_ = nullptr;
-std::shared_ptr<nav2_behavior_tree::DummyNode>
-PipelineSequenceTestFixture::third_child_ = nullptr;
+std::shared_ptr<nav2_behavior_tree::PipelineSequence> PipelineSequenceTestFixture::bt_node_ =
+  nullptr;
+std::shared_ptr<nav2_behavior_tree::DummyNode> PipelineSequenceTestFixture::first_child_ = nullptr;
+std::shared_ptr<nav2_behavior_tree::DummyNode> PipelineSequenceTestFixture::second_child_ = nullptr;
+std::shared_ptr<nav2_behavior_tree::DummyNode> PipelineSequenceTestFixture::third_child_ = nullptr;
 
 TEST_F(PipelineSequenceTestFixture, test_failure_on_idle_child)
 {

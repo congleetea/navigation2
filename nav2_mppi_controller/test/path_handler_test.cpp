@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,18 +16,18 @@
 #include <chrono>
 #include <thread>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_mppi_controller/tools/path_handler.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "tf2_ros/transform_broadcaster.h"
+#include "gtest/gtest.h"
 
 // Tests path handling
 
 class RosLockGuard
 {
 public:
-  RosLockGuard() {rclcpp::init(0, nullptr);}
-  ~RosLockGuard() {rclcpp::shutdown();}
+  RosLockGuard() { rclcpp::init(0, nullptr); }
+  ~RosLockGuard() { rclcpp::shutdown(); }
 };
 RosLockGuard g_rclcpp;
 
@@ -35,21 +36,17 @@ using namespace mppi;  // NOLINT
 class PathHandlerWrapper : public PathHandler
 {
 public:
-  PathHandlerWrapper()
-  : PathHandler() {}
+  PathHandlerWrapper() : PathHandler() {}
 
   void pruneGlobalPlanWrapper(nav_msgs::msg::Path & path, const PathIterator end)
   {
     return prunePlan(path, end);
   }
 
-  double getMaxCostmapDistWrapper()
-  {
-    return getMaxCostmapDist();
-  }
+  double getMaxCostmapDistWrapper() { return getMaxCostmapDist(); }
 
-  std::pair<nav_msgs::msg::Path, PathIterator>
-  getGlobalPlanConsideringBoundsInCostmapFrameWrapper(const geometry_msgs::msg::PoseStamped & pose)
+  std::pair<nav_msgs::msg::Path, PathIterator> getGlobalPlanConsideringBoundsInCostmapFrameWrapper(
+    const geometry_msgs::msg::PoseStamped & pose)
   {
     return getGlobalPlanConsideringBoundsInCostmapFrame(pose);
   }
@@ -77,10 +74,7 @@ public:
     return isWithinInversionTolerances(robot_pose);
   }
 
-  nav_msgs::msg::Path & getInvertedPath()
-  {
-    return global_plan_up_to_inversion_;
-  }
+  nav_msgs::msg::Path & getInvertedPath() { return global_plan_up_to_inversion_; }
 };
 
 TEST(PathHandlerTests, GetAndPrunePath)
@@ -107,11 +101,11 @@ TEST(PathHandlerTests, TestBounds)
   PathHandlerWrapper handler;
   auto node = std::make_shared<rclcpp_lifecycle::LifecycleNode>("my_node");
   node->declare_parameter("dummy.max_robot_pose_search_dist", rclcpp::ParameterValue(99999.9));
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   auto results = costmap_ros->set_parameters_atomically(
     {rclcpp::Parameter("global_frame", "odom"),
-      rclcpp::Parameter("robot_base_frame", "base_link")});
+     rclcpp::Parameter("robot_base_frame", "base_link")});
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State state;
   costmap_ros->on_configure(state);
@@ -158,8 +152,8 @@ TEST(PathHandlerTests, TestTransforms)
   PathHandlerWrapper handler;
   auto node = std::make_shared<rclcpp_lifecycle::LifecycleNode>("my_node");
   node->declare_parameter("dummy.max_robot_pose_search_dist", rclcpp::ParameterValue(99999.9));
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State state;
   costmap_ros->on_configure(state);

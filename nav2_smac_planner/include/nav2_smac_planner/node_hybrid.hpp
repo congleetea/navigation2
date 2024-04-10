@@ -15,22 +15,22 @@
 #ifndef NAV2_SMAC_PLANNER__NODE_HYBRID_HPP_
 #define NAV2_SMAC_PLANNER__NODE_HYBRID_HPP_
 
-#include <math.h>
-#include <vector>
 #include <cmath>
-#include <iostream>
 #include <functional>
-#include <queue>
-#include <memory>
-#include <utility>
+#include <iostream>
 #include <limits>
+#include <math.h>
+#include <memory>
+#include <queue>
+#include <utility>
+#include <vector>
 
 #include "ompl/base/StateSpace.h"
 
-#include "nav2_smac_planner/constants.hpp"
-#include "nav2_smac_planner/types.hpp"
 #include "nav2_smac_planner/collision_checker.hpp"
+#include "nav2_smac_planner/constants.hpp"
 #include "nav2_smac_planner/costmap_downsampler.hpp"
+#include "nav2_smac_planner/types.hpp"
 
 namespace nav2_smac_planner
 {
@@ -71,9 +71,7 @@ struct HybridMotionTable
    * @param search_info Parameters for searching
    */
   void initDubin(
-    unsigned int & size_x_in,
-    unsigned int & size_y_in,
-    unsigned int & angle_quantization_in,
+    unsigned int & size_x_in, unsigned int & size_y_in, unsigned int & angle_quantization_in,
     SearchInfo & search_info);
 
   /**
@@ -84,9 +82,7 @@ struct HybridMotionTable
    * @param search_info Parameters for searching
    */
   void initReedsShepp(
-    unsigned int & size_x_in,
-    unsigned int & size_y_in,
-    unsigned int & angle_quantization_in,
+    unsigned int & size_x_in, unsigned int & size_y_in, unsigned int & angle_quantization_in,
     SearchInfo & search_info);
 
   /**
@@ -158,17 +154,15 @@ public:
      */
     Coordinates(const float & x_in, const float & y_in, const float & theta_in)
     : x(x_in), y(y_in), theta(theta_in)
-    {}
+    {
+    }
 
     inline bool operator==(const Coordinates & rhs)
     {
       return this->x == rhs.x && this->y == rhs.y && this->theta == rhs.theta;
     }
 
-    inline bool operator!=(const Coordinates & rhs)
-    {
-      return !(*this == rhs);
-    }
+    inline bool operator!=(const Coordinates & rhs) { return !(*this == rhs); }
 
     float x, y, theta;
   };
@@ -191,19 +185,13 @@ public:
    * @param NodeHybrid right hand side node reference
    * @return If cell indicies are equal
    */
-  bool operator==(const NodeHybrid & rhs)
-  {
-    return this->_index == rhs._index;
-  }
+  bool operator==(const NodeHybrid & rhs) { return this->_index == rhs._index; }
 
   /**
    * @brief setting continuous coordinate search poses (in partial-cells)
    * @param Pose pose
    */
-  inline void setPose(const Coordinates & pose_in)
-  {
-    pose = pose_in;
-  }
+  inline void setPose(const Coordinates & pose_in) { pose = pose_in; }
 
   /**
    * @brief Reset method for new search
@@ -214,72 +202,48 @@ public:
    * @brief Gets the accumulated cost at this node
    * @return accumulated cost
    */
-  inline float & getAccumulatedCost()
-  {
-    return _accumulated_cost;
-  }
+  inline float & getAccumulatedCost() { return _accumulated_cost; }
 
   /**
    * @brief Sets the accumulated cost at this node
    * @param reference to accumulated cost
    */
-  inline void setAccumulatedCost(const float & cost_in)
-  {
-    _accumulated_cost = cost_in;
-  }
+  inline void setAccumulatedCost(const float & cost_in) { _accumulated_cost = cost_in; }
 
   /**
    * @brief Sets the motion primitive index used to achieve node in search
    * @param reference to motion primitive idx
    */
-  inline void setMotionPrimitiveIndex(const unsigned int & idx)
-  {
-    _motion_primitive_index = idx;
-  }
+  inline void setMotionPrimitiveIndex(const unsigned int & idx) { _motion_primitive_index = idx; }
 
   /**
    * @brief Gets the motion primitive index used to achieve node in search
    * @return reference to motion primitive idx
    */
-  inline unsigned int & getMotionPrimitiveIndex()
-  {
-    return _motion_primitive_index;
-  }
+  inline unsigned int & getMotionPrimitiveIndex() { return _motion_primitive_index; }
 
   /**
    * @brief Gets the costmap cost at this node
    * @return costmap cost
    */
-  inline float & getCost()
-  {
-    return _cell_cost;
-  }
+  inline float & getCost() { return _cell_cost; }
 
   /**
    * @brief Gets if cell has been visited in search
    * @param If cell was visited
    */
-  inline bool & wasVisited()
-  {
-    return _was_visited;
-  }
+  inline bool & wasVisited() { return _was_visited; }
 
   /**
    * @brief Sets if cell has been visited in search
    */
-  inline void visited()
-  {
-    _was_visited = true;
-  }
+  inline void visited() { _was_visited = true; }
 
   /**
    * @brief Gets cell index
    * @return Reference to cell index
    */
-  inline unsigned int & getIndex()
-  {
-    return _index;
-  }
+  inline unsigned int & getIndex() { return _index; }
 
   /**
    * @brief Check if this node is valid
@@ -321,9 +285,7 @@ public:
   static inline unsigned int getIndex(
     const unsigned int & x, const unsigned int & y, const unsigned int & angle)
   {
-    return getIndex(
-      x, y, angle, motion_table.size_x,
-      motion_table.num_angle_quantization);
+    return getIndex(x, y, angle, motion_table.size_x, motion_table.num_angle_quantization);
   }
 
   /**
@@ -334,13 +296,12 @@ public:
    * @return Coordinates
    */
   static inline Coordinates getCoords(
-    const unsigned int & index,
-    const unsigned int & width, const unsigned int & angle_quantization)
+    const unsigned int & index, const unsigned int & width, const unsigned int & angle_quantization)
   {
     return Coordinates(
-      (index / angle_quantization) % width,    // x
-      index / (angle_quantization * width),    // y
-      index % angle_quantization);    // theta
+      (index / angle_quantization) % width,  // x
+      index / (angle_quantization * width),  // y
+      index % angle_quantization);           // theta
   }
 
   /**
@@ -351,8 +312,7 @@ public:
    * @return Heuristic cost between the nodes
    */
   static float getHeuristicCost(
-    const Coordinates & node_coords,
-    const Coordinates & goal_coordinates,
+    const Coordinates & node_coords, const Coordinates & goal_coordinates,
     const nav2_costmap_2d::Costmap2D * costmap);
 
   /**
@@ -364,11 +324,8 @@ public:
    * @param search_info Search info to use
    */
   static void initMotionModel(
-    const MotionModel & motion_model,
-    unsigned int & size_x,
-    unsigned int & size_y,
-    unsigned int & angle_quantization,
-    SearchInfo & search_info);
+    const MotionModel & motion_model, unsigned int & size_x, unsigned int & size_y,
+    unsigned int & angle_quantization, SearchInfo & search_info);
 
   /**
    * @brief Compute the SE2 distance heuristic
@@ -379,10 +336,8 @@ public:
    * @param search_info Info containing minimum radius to use
    */
   static void precomputeDistanceHeuristic(
-    const float & lookup_table_dim,
-    const MotionModel & motion_model,
-    const unsigned int & dim_3_size,
-    const SearchInfo & search_info);
+    const float & lookup_table_dim, const MotionModel & motion_model,
+    const unsigned int & dim_3_size, const SearchInfo & search_info);
 
   /**
    * @brief Compute the Obstacle heuristic
@@ -391,9 +346,7 @@ public:
    * @return heuristic Heuristic value
    */
   static float getObstacleHeuristic(
-    const Coordinates & node_coords,
-    const Coordinates & goal_coords,
-    const double & cost_penalty);
+    const Coordinates & node_coords, const Coordinates & goal_coords, const double & cost_penalty);
 
   /**
    * @brief Compute the Distance heuristic
@@ -404,8 +357,7 @@ public:
    * @return heuristic Heuristic value
    */
   static float getDistanceHeuristic(
-    const Coordinates & node_coords,
-    const Coordinates & goal_coords,
+    const Coordinates & node_coords, const Coordinates & goal_coords,
     const float & obstacle_heuristic);
 
   /**
@@ -414,9 +366,8 @@ public:
    * @param goal_coords Coordinates to start heuristic expansion at
    */
   static void resetObstacleHeuristic(
-    nav2_costmap_2d::Costmap2D * costmap,
-    const unsigned int & start_x, const unsigned int & start_y,
-    const unsigned int & goal_x, const unsigned int & goal_y);
+    nav2_costmap_2d::Costmap2D * costmap, const unsigned int & start_x,
+    const unsigned int & start_y, const unsigned int & goal_x, const unsigned int & goal_y);
 
   /**
    * @brief Retrieve all valid neighbors of a node.
@@ -426,9 +377,8 @@ public:
    * @param neighbors Vector of neighbors to be filled
    */
   void getNeighbors(
-    std::function<bool(const unsigned int &, nav2_smac_planner::NodeHybrid * &)> & validity_checker,
-    GridCollisionChecker * collision_checker,
-    const bool & traverse_unknown,
+    std::function<bool(const unsigned int &, nav2_smac_planner::NodeHybrid *&)> & validity_checker,
+    GridCollisionChecker * collision_checker, const bool & traverse_unknown,
     NodeVector & neighbors);
 
   /**
@@ -441,7 +391,8 @@ public:
   NodeHybrid * parent;
   Coordinates pose;
 
-  // Constants required across all nodes but don't want to allocate more than once
+  // Constants required across all nodes but don't want to allocate more than
+  // once
   static double travel_distance_cost;
   static HybridMotionTable motion_table;
   // Wavefront lookup and queue for continuing to expand as needed

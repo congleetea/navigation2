@@ -20,11 +20,8 @@
 namespace nav2_behavior_tree
 {
 
-RateController::RateController(
-  const std::string & name,
-  const BT::NodeConfiguration & conf)
-: BT::DecoratorNode(name, conf),
-  first_time_(false)
+RateController::RateController(const std::string & name, const BT::NodeConfiguration & conf)
+: BT::DecoratorNode(name, conf), first_time_(false)
 {
   double hz = 1.0;
   getInput("hz", hz);
@@ -53,9 +50,9 @@ BT::NodeStatus RateController::tick()
   // The child gets ticked the first time through and any time the period has
   // expired. In addition, once the child begins to run, it is ticked each time
   // 'til completion
-  if (first_time_ || (child_node_->status() == BT::NodeStatus::RUNNING) ||
-    seconds.count() >= period_)
-  {
+  if (
+    first_time_ || (child_node_->status() == BT::NodeStatus::RUNNING) ||
+    seconds.count() >= period_) {
     first_time_ = false;
     const BT::NodeStatus child_state = child_node_->executeTick();
 

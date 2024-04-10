@@ -40,18 +40,18 @@
 #define NAV2_COSTMAP_2D__COSTMAP_2D_PUBLISHER_HPP_
 
 #include <algorithm>
-#include <string>
 #include <memory>
+#include <string>
 
-#include "rclcpp_lifecycle/lifecycle_node.hpp"
-#include "nav2_costmap_2d/costmap_2d.hpp"
-#include "nav_msgs/msg/occupancy_grid.hpp"
 #include "map_msgs/msg/occupancy_grid_update.hpp"
+#include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_msgs/msg/costmap.hpp"
 #include "nav2_msgs/srv/get_costmap.hpp"
-#include "tf2/transform_datatypes.h"
 #include "nav2_util/lifecycle_node.hpp"
+#include "nav_msgs/msg/occupancy_grid.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "tf2/LinearMath/Quaternion.h"
+#include "tf2/transform_datatypes.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
 namespace nav2_costmap_2d
@@ -67,11 +67,8 @@ public:
    * @brief  Constructor for the Costmap2DPublisher
    */
   Costmap2DPublisher(
-    const nav2_util::LifecycleNode::WeakPtr & parent,
-    Costmap2D * costmap,
-    std::string global_frame,
-    std::string topic_name,
-    bool always_send_full_costmap = false);
+    const nav2_util::LifecycleNode::WeakPtr & parent, Costmap2D * costmap, std::string global_frame,
+    std::string topic_name, bool always_send_full_costmap = false);
 
   /**
    * @brief  Destructor
@@ -124,12 +121,10 @@ public:
 
   /**
    * @brief Check if the publisher is active
-   * @return True if the frequency for the publisher is non-zero, false otherwise
+   * @return True if the frequency for the publisher is non-zero, false
+   * otherwise
    */
-  bool active()
-  {
-    return active_;
-  }
+  bool active() { return active_; }
 
 private:
   /** @brief Prepare grid_ message for publication. */
@@ -157,7 +152,8 @@ private:
   bool active_;
   bool always_send_full_costmap_;
 
-  // Publisher for translated costmap values as msg::OccupancyGrid used in visualization
+  // Publisher for translated costmap values as msg::OccupancyGrid used in
+  // visualization
   rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::OccupancyGrid>::SharedPtr costmap_pub_;
   rclcpp_lifecycle::LifecyclePublisher<map_msgs::msg::OccupancyGridUpdate>::SharedPtr
     costmap_update_pub_;

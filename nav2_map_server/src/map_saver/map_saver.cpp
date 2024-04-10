@@ -31,11 +31,11 @@
 
 #include "nav2_map_server/map_saver.hpp"
 
-#include <string>
-#include <memory>
-#include <stdexcept>
 #include <functional>
+#include <memory>
 #include <mutex>
+#include <stdexcept>
+#include <string>
 
 using namespace std::placeholders;
 
@@ -53,12 +53,9 @@ MapSaver::MapSaver(const rclcpp::NodeOptions & options)
   declare_parameter("map_subscribe_transient_local", true);
 }
 
-MapSaver::~MapSaver()
-{
-}
+MapSaver::~MapSaver() {}
 
-nav2_util::CallbackReturn
-MapSaver::on_configure(const rclcpp_lifecycle::State & /*state*/)
+nav2_util::CallbackReturn MapSaver::on_configure(const rclcpp_lifecycle::State & /*state*/)
 {
   RCLCPP_INFO(get_logger(), "Configuring");
 
@@ -79,8 +76,7 @@ MapSaver::on_configure(const rclcpp_lifecycle::State & /*state*/)
   return nav2_util::CallbackReturn::SUCCESS;
 }
 
-nav2_util::CallbackReturn
-MapSaver::on_activate(const rclcpp_lifecycle::State & /*state*/)
+nav2_util::CallbackReturn MapSaver::on_activate(const rclcpp_lifecycle::State & /*state*/)
 {
   RCLCPP_INFO(get_logger(), "Activating");
 
@@ -90,8 +86,7 @@ MapSaver::on_activate(const rclcpp_lifecycle::State & /*state*/)
   return nav2_util::CallbackReturn::SUCCESS;
 }
 
-nav2_util::CallbackReturn
-MapSaver::on_deactivate(const rclcpp_lifecycle::State & /*state*/)
+nav2_util::CallbackReturn MapSaver::on_deactivate(const rclcpp_lifecycle::State & /*state*/)
 {
   RCLCPP_INFO(get_logger(), "Deactivating");
 
@@ -101,8 +96,7 @@ MapSaver::on_deactivate(const rclcpp_lifecycle::State & /*state*/)
   return nav2_util::CallbackReturn::SUCCESS;
 }
 
-nav2_util::CallbackReturn
-MapSaver::on_cleanup(const rclcpp_lifecycle::State & /*state*/)
+nav2_util::CallbackReturn MapSaver::on_cleanup(const rclcpp_lifecycle::State & /*state*/)
 {
   RCLCPP_INFO(get_logger(), "Cleaning up");
 
@@ -111,15 +105,14 @@ MapSaver::on_cleanup(const rclcpp_lifecycle::State & /*state*/)
   return nav2_util::CallbackReturn::SUCCESS;
 }
 
-nav2_util::CallbackReturn
-MapSaver::on_shutdown(const rclcpp_lifecycle::State & /*state*/)
+nav2_util::CallbackReturn MapSaver::on_shutdown(const rclcpp_lifecycle::State & /*state*/)
 {
   RCLCPP_INFO(get_logger(), "Shutting down");
   return nav2_util::CallbackReturn::SUCCESS;
 }
 
 void MapSaver::saveMapCallback(
-  const std::shared_ptr<rmw_request_id_t>/*request_header*/,
+  const std::shared_ptr<rmw_request_id_t> /*request_header*/,
   const std::shared_ptr<nav2_msgs::srv::SaveMap::Request> request,
   std::shared_ptr<nav2_msgs::srv::SaveMap::Response> response)
 {
@@ -134,7 +127,9 @@ void MapSaver::saveMapCallback(
   } catch (std::invalid_argument &) {
     save_parameters.mode = MapMode::Trinary;
     RCLCPP_WARN(
-      get_logger(), "Map mode parameter not recognized: '%s', using default value (trinary)",
+      get_logger(),
+      "Map mode parameter not recognized: '%s', using default value "
+      "(trinary)",
       request->map_mode.c_str());
   }
 
@@ -142,16 +137,15 @@ void MapSaver::saveMapCallback(
 }
 
 bool MapSaver::saveMapTopicToFile(
-  const std::string & map_topic,
-  const SaveParameters & save_parameters)
+  const std::string & map_topic, const SaveParameters & save_parameters)
 {
   // Local copies of map_topic and save_parameters that could be changed
   std::string map_topic_loc = map_topic;
   SaveParameters save_parameters_loc = save_parameters;
 
   RCLCPP_INFO(
-    get_logger(), "Saving map from \'%s\' topic to \'%s\' file",
-    map_topic_loc.c_str(), save_parameters_loc.map_file_name.c_str());
+    get_logger(), "Saving map from \'%s\' topic to \'%s\' file", map_topic_loc.c_str(),
+    save_parameters_loc.map_file_name.c_str());
 
   try {
     // Correct map_topic_loc if necessary
@@ -165,15 +159,13 @@ bool MapSaver::saveMapTopicToFile(
     // Set default for MapSaver node thresholds parameters
     if (save_parameters_loc.free_thresh == 0.0) {
       RCLCPP_WARN(
-        get_logger(),
-        "Free threshold unspecified. Setting it to default value: %f",
+        get_logger(), "Free threshold unspecified. Setting it to default value: %f",
         free_thresh_default_);
       save_parameters_loc.free_thresh = free_thresh_default_;
     }
     if (save_parameters_loc.occupied_thresh == 0.0) {
       RCLCPP_WARN(
-        get_logger(),
-        "Occupied threshold unspecified. Setting it to default value: %f",
+        get_logger(), "Occupied threshold unspecified. Setting it to default value: %f",
         occupied_thresh_default_);
       save_parameters_loc.occupied_thresh = occupied_thresh_default_;
     }
@@ -181,10 +173,9 @@ bool MapSaver::saveMapTopicToFile(
     std::promise<nav_msgs::msg::OccupancyGrid::SharedPtr> prom;
     std::future<nav_msgs::msg::OccupancyGrid::SharedPtr> future_result = prom.get_future();
     // A callback function that receives map message from subscribed topic
-    auto mapCallback = [&prom](
-      const nav_msgs::msg::OccupancyGrid::SharedPtr msg) -> void {
-        prom.set_value(msg);
-      };
+    auto mapCallback = [&prom](const nav_msgs::msg::OccupancyGrid::SharedPtr msg) -> void {
+      prom.set_value(msg);
+    };
 
     rclcpp::QoS map_qos(10);  // initialize to default
     if (map_subscribe_transient_local_) {
@@ -194,9 +185,8 @@ bool MapSaver::saveMapTopicToFile(
     }
 
     // Create new CallbackGroup for map_sub
-    auto callback_group = create_callback_group(
-      rclcpp::CallbackGroupType::MutuallyExclusive,
-      false);
+    auto callback_group =
+      create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false);
 
     auto option = rclcpp::SubscriptionOptions();
     option.callback_group = callback_group;
@@ -237,6 +227,6 @@ bool MapSaver::saveMapTopicToFile(
 #include "rclcpp_components/register_node_macro.hpp"
 
 // Register the component with class_loader.
-// This acts as a sort of entry point, allowing the component to be discoverable when its library
-// is being loaded into a running process.
+// This acts as a sort of entry point, allowing the component to be discoverable
+// when its library is being loaded into a running process.
 RCLCPP_COMPONENTS_REGISTER_NODE(nav2_map_server::MapSaver)

@@ -14,30 +14,30 @@
 
 #include <gtest/gtest.h>
 
-#include <math.h>
-#include <cmath>
 #include <chrono>
+#include <cmath>
+#include <limits>
+#include <math.h>
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
-#include <string>
-#include <limits>
 
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_util/lifecycle_node.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include "sensor_msgs/msg/range.hpp"
 #include "sensor_msgs/point_cloud2_iterator.hpp"
 
 #include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_listener.h"
 #include "tf2_ros/transform_broadcaster.h"
+#include "tf2_ros/transform_listener.h"
 
-#include "nav2_collision_monitor/types.hpp"
-#include "nav2_collision_monitor/scan.hpp"
 #include "nav2_collision_monitor/pointcloud.hpp"
 #include "nav2_collision_monitor/range.hpp"
+#include "nav2_collision_monitor/scan.hpp"
+#include "nav2_collision_monitor/types.hpp"
 
 using namespace std::chrono_literals;
 
@@ -58,10 +58,7 @@ static const rclcpp::Duration DATA_TIMEOUT{rclcpp::Duration::from_seconds(5.0)};
 class TestNode : public nav2_util::LifecycleNode
 {
 public:
-  TestNode()
-  : nav2_util::LifecycleNode("test_node")
-  {
-  }
+  TestNode() : nav2_util::LifecycleNode("test_node") {}
 
   ~TestNode()
   {
@@ -107,9 +104,8 @@ public:
     msg->header.stamp = stamp;
 
     modifier.setPointCloud2Fields(
-      3, "x", 1, sensor_msgs::msg::PointField::FLOAT32,
-      "y", 1, sensor_msgs::msg::PointField::FLOAT32,
-      "z", 1, sensor_msgs::msg::PointField::FLOAT32);
+      3, "x", 1, sensor_msgs::msg::PointField::FLOAT32, "y", 1,
+      sensor_msgs::msg::PointField::FLOAT32, "z", 1, sensor_msgs::msg::PointField::FLOAT32);
     modifier.resize(3);
 
     sensor_msgs::PointCloud2Iterator<float> iter_x(*msg, "x");
@@ -120,13 +116,17 @@ public:
     *iter_x = 0.5;
     *iter_y = 0.5;
     *iter_z = 0.2;
-    ++iter_x; ++iter_y; ++iter_z;
+    ++iter_x;
+    ++iter_y;
+    ++iter_z;
 
     // Point 1: (-0.5, -0.5, 0.3)
     *iter_x = -0.5;
     *iter_y = -0.5;
     *iter_z = 0.3;
-    ++iter_x; ++iter_y; ++iter_z;
+    ++iter_x;
+    ++iter_y;
+    ++iter_z;
 
     // Point 2: (1.0, 1.0, 10.0)
     *iter_x = 1.0;
@@ -141,8 +141,7 @@ public:
     range_pub_ = this->create_publisher<sensor_msgs::msg::Range>(
       RANGE_TOPIC, rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable());
 
-    std::unique_ptr<sensor_msgs::msg::Range> msg =
-      std::make_unique<sensor_msgs::msg::Range>();
+    std::unique_ptr<sensor_msgs::msg::Range> msg = std::make_unique<sensor_msgs::msg::Range>();
 
     msg->header.frame_id = SOURCE_FRAME_ID;
     msg->header.stamp = stamp;
@@ -166,69 +165,51 @@ class ScanWrapper : public nav2_collision_monitor::Scan
 {
 public:
   ScanWrapper(
-    const nav2_util::LifecycleNode::WeakPtr & node,
-    const std::string & source_name,
-    const std::shared_ptr<tf2_ros::Buffer> tf_buffer,
-    const std::string & base_frame_id,
-    const std::string & global_frame_id,
-    const tf2::Duration & transform_tolerance,
-    const rclcpp::Duration & data_timeout,
-    const bool base_shift_correction)
+    const nav2_util::LifecycleNode::WeakPtr & node, const std::string & source_name,
+    const std::shared_ptr<tf2_ros::Buffer> tf_buffer, const std::string & base_frame_id,
+    const std::string & global_frame_id, const tf2::Duration & transform_tolerance,
+    const rclcpp::Duration & data_timeout, const bool base_shift_correction)
   : nav2_collision_monitor::Scan(
-      node, source_name, tf_buffer, base_frame_id, global_frame_id,
-      transform_tolerance, data_timeout, base_shift_correction)
-  {}
-
-  bool dataReceived() const
+      node, source_name, tf_buffer, base_frame_id, global_frame_id, transform_tolerance,
+      data_timeout, base_shift_correction)
   {
-    return data_ != nullptr;
   }
+
+  bool dataReceived() const { return data_ != nullptr; }
 };  // ScanWrapper
 
 class PointCloudWrapper : public nav2_collision_monitor::PointCloud
 {
 public:
   PointCloudWrapper(
-    const nav2_util::LifecycleNode::WeakPtr & node,
-    const std::string & source_name,
-    const std::shared_ptr<tf2_ros::Buffer> tf_buffer,
-    const std::string & base_frame_id,
-    const std::string & global_frame_id,
-    const tf2::Duration & transform_tolerance,
-    const rclcpp::Duration & data_timeout,
-    const bool base_shift_correction)
+    const nav2_util::LifecycleNode::WeakPtr & node, const std::string & source_name,
+    const std::shared_ptr<tf2_ros::Buffer> tf_buffer, const std::string & base_frame_id,
+    const std::string & global_frame_id, const tf2::Duration & transform_tolerance,
+    const rclcpp::Duration & data_timeout, const bool base_shift_correction)
   : nav2_collision_monitor::PointCloud(
-      node, source_name, tf_buffer, base_frame_id, global_frame_id,
-      transform_tolerance, data_timeout, base_shift_correction)
-  {}
-
-  bool dataReceived() const
+      node, source_name, tf_buffer, base_frame_id, global_frame_id, transform_tolerance,
+      data_timeout, base_shift_correction)
   {
-    return data_ != nullptr;
   }
+
+  bool dataReceived() const { return data_ != nullptr; }
 };  // PointCloudWrapper
 
 class RangeWrapper : public nav2_collision_monitor::Range
 {
 public:
   RangeWrapper(
-    const nav2_util::LifecycleNode::WeakPtr & node,
-    const std::string & source_name,
-    const std::shared_ptr<tf2_ros::Buffer> tf_buffer,
-    const std::string & base_frame_id,
-    const std::string & global_frame_id,
-    const tf2::Duration & transform_tolerance,
-    const rclcpp::Duration & data_timeout,
-    const bool base_shift_correction)
+    const nav2_util::LifecycleNode::WeakPtr & node, const std::string & source_name,
+    const std::shared_ptr<tf2_ros::Buffer> tf_buffer, const std::string & base_frame_id,
+    const std::string & global_frame_id, const tf2::Duration & transform_tolerance,
+    const rclcpp::Duration & data_timeout, const bool base_shift_correction)
   : nav2_collision_monitor::Range(
-      node, source_name, tf_buffer, base_frame_id, global_frame_id,
-      transform_tolerance, data_timeout, base_shift_correction)
-  {}
-
-  bool dataReceived() const
+      node, source_name, tf_buffer, base_frame_id, global_frame_id, transform_tolerance,
+      data_timeout, base_shift_correction)
   {
-    return data_ != nullptr;
   }
+
+  bool dataReceived() const { return data_ != nullptr; }
 };  // RangeWrapper
 
 class Tester : public ::testing::Test
@@ -288,13 +269,11 @@ void Tester::createSources(const bool base_shift_correction)
   // Create Scan object
   test_node_->declare_parameter(
     std::string(SCAN_NAME) + ".topic", rclcpp::ParameterValue(SCAN_TOPIC));
-  test_node_->set_parameter(
-    rclcpp::Parameter(std::string(SCAN_NAME) + ".topic", SCAN_TOPIC));
+  test_node_->set_parameter(rclcpp::Parameter(std::string(SCAN_NAME) + ".topic", SCAN_TOPIC));
 
   scan_ = std::make_shared<ScanWrapper>(
-    test_node_, SCAN_NAME, tf_buffer_,
-    BASE_FRAME_ID, GLOBAL_FRAME_ID,
-    TRANSFORM_TOLERANCE, DATA_TIMEOUT, base_shift_correction);
+    test_node_, SCAN_NAME, tf_buffer_, BASE_FRAME_ID, GLOBAL_FRAME_ID, TRANSFORM_TOLERANCE,
+    DATA_TIMEOUT, base_shift_correction);
   scan_->configure();
 
   // Create PointCloud object
@@ -304,32 +283,27 @@ void Tester::createSources(const bool base_shift_correction)
     rclcpp::Parameter(std::string(POINTCLOUD_NAME) + ".topic", POINTCLOUD_TOPIC));
   test_node_->declare_parameter(
     std::string(POINTCLOUD_NAME) + ".min_height", rclcpp::ParameterValue(0.1));
-  test_node_->set_parameter(
-    rclcpp::Parameter(std::string(POINTCLOUD_NAME) + ".min_height", 0.1));
+  test_node_->set_parameter(rclcpp::Parameter(std::string(POINTCLOUD_NAME) + ".min_height", 0.1));
   test_node_->declare_parameter(
     std::string(POINTCLOUD_NAME) + ".max_height", rclcpp::ParameterValue(1.0));
-  test_node_->set_parameter(
-    rclcpp::Parameter(std::string(POINTCLOUD_NAME) + ".max_height", 1.0));
+  test_node_->set_parameter(rclcpp::Parameter(std::string(POINTCLOUD_NAME) + ".max_height", 1.0));
 
   pointcloud_ = std::make_shared<PointCloudWrapper>(
-    test_node_, POINTCLOUD_NAME, tf_buffer_,
-    BASE_FRAME_ID, GLOBAL_FRAME_ID,
-    TRANSFORM_TOLERANCE, DATA_TIMEOUT, base_shift_correction);
+    test_node_, POINTCLOUD_NAME, tf_buffer_, BASE_FRAME_ID, GLOBAL_FRAME_ID, TRANSFORM_TOLERANCE,
+    DATA_TIMEOUT, base_shift_correction);
   pointcloud_->configure();
 
   // Create Range object
   test_node_->declare_parameter(
     std::string(RANGE_NAME) + ".topic", rclcpp::ParameterValue(RANGE_TOPIC));
-  test_node_->set_parameter(
-    rclcpp::Parameter(std::string(RANGE_NAME) + ".topic", RANGE_TOPIC));
+  test_node_->set_parameter(rclcpp::Parameter(std::string(RANGE_NAME) + ".topic", RANGE_TOPIC));
 
   test_node_->declare_parameter(
     std::string(RANGE_NAME) + ".obstacles_angle", rclcpp::ParameterValue(M_PI / 199));
 
   range_ = std::make_shared<RangeWrapper>(
-    test_node_, RANGE_NAME, tf_buffer_,
-    BASE_FRAME_ID, GLOBAL_FRAME_ID,
-    TRANSFORM_TOLERANCE, DATA_TIMEOUT, base_shift_correction);
+    test_node_, RANGE_NAME, tf_buffer_, BASE_FRAME_ID, GLOBAL_FRAME_ID, TRANSFORM_TOLERANCE,
+    DATA_TIMEOUT, base_shift_correction);
   range_->configure();
 }
 

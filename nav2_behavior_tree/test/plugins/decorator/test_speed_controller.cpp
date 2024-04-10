@@ -13,20 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <chrono>
+#include <gtest/gtest.h>
 #include <memory>
 #include <set>
 
-#include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_util/robot_utils.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "../../test_behavior_tree_fixture.hpp"
 #include "../../test_dummy_tree_node.hpp"
 #include "nav2_behavior_tree/plugins/decorator/speed_controller.hpp"
 
-using namespace std::chrono;  // NOLINT
+using namespace std::chrono;           // NOLINT
 using namespace std::chrono_literals;  // NOLINT
 
 class SpeedControllerTestFixture : public nav2_behavior_tree::BehaviorTreeTestFixture
@@ -43,7 +43,8 @@ public:
     config_->blackboard->set("goal", goal);
 
     std::vector<geometry_msgs::msg::PoseStamped> fake_poses;
-    config_->blackboard->set<std::vector<geometry_msgs::msg::PoseStamped>>("goals", fake_poses);  // NOLINT
+    config_->blackboard->set<std::vector<geometry_msgs::msg::PoseStamped>>(
+      "goals", fake_poses);  // NOLINT
 
     bt_node_ = std::make_shared<nav2_behavior_tree::SpeedController>("speed_controller", *config_);
     dummy_node_ = std::make_shared<nav2_behavior_tree::DummyNode>();
@@ -63,19 +64,17 @@ protected:
   static std::shared_ptr<nav2_behavior_tree::DummyNode> dummy_node_;
 };
 
-std::shared_ptr<nav2_util::OdomSmoother>
-SpeedControllerTestFixture::odom_smoother_ = nullptr;
-std::shared_ptr<nav2_behavior_tree::SpeedController>
-SpeedControllerTestFixture::bt_node_ = nullptr;
-std::shared_ptr<nav2_behavior_tree::DummyNode>
-SpeedControllerTestFixture::dummy_node_ = nullptr;
+std::shared_ptr<nav2_util::OdomSmoother> SpeedControllerTestFixture::odom_smoother_ = nullptr;
+std::shared_ptr<nav2_behavior_tree::SpeedController> SpeedControllerTestFixture::bt_node_ = nullptr;
+std::shared_ptr<nav2_behavior_tree::DummyNode> SpeedControllerTestFixture::dummy_node_ = nullptr;
 
 /*
  * Test for speed controller behavior
  * Speed controller calculates the period after which it should succeed
  * based on the current velocity which is scaled to a pre-defined rate range
  * Current velocity is set using odom messages
- * The period is reset on the basis of current velocity after the last period is exceeded
+ * The period is reset on the basis of current velocity after the last period is
+ * exceeded
  */
 TEST_F(SpeedControllerTestFixture, test_behavior)
 {
@@ -100,7 +99,8 @@ TEST_F(SpeedControllerTestFixture, test_behavior)
   // set the child node to success so node can return success
   dummy_node_->changeStatus(BT::NodeStatus::SUCCESS);
 
-  // should return success since period has exceeded and new period should be set to ~2s
+  // should return success since period has exceeded and new period should be
+  // set to ~2s
   rclcpp::sleep_for(1s);
   EXPECT_EQ(bt_node_->executeTick(), BT::NodeStatus::SUCCESS);
 

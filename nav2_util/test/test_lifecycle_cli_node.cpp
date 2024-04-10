@@ -15,13 +15,13 @@
 #ifndef NAV2_UTIL__TEST__TEST_LIFECYCLE_CLI_NODE_HPP_
 #define NAV2_UTIL__TEST__TEST_LIFECYCLE_CLI_NODE_HPP_
 
-#include <cstdlib>
-#include <memory>
-#include "gtest/gtest.h"
 #include "nav2_util/lifecycle_node.hpp"
 #include "nav2_util/lifecycle_utils.hpp"
 #include "nav2_util/node_thread.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
+#include <cstdlib>
+#include <memory>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -30,11 +30,7 @@
 class DummyNode : public nav2_util::LifecycleNode
 {
 public:
-  DummyNode()
-  : nav2_util::LifecycleNode("nav2_test_cli", "")
-  {
-    activated = false;
-  }
+  DummyNode() : nav2_util::LifecycleNode("nav2_test_cli", "") { activated = false; }
 
   nav2_util::CallbackReturn on_activate(const rclcpp_lifecycle::State & /*state*/)
   {
@@ -66,15 +62,9 @@ public:
 class RclCppFixture
 {
 public:
-  RclCppFixture()
-  {
-    rclcpp::init(0, nullptr);
-  }
+  RclCppFixture() { rclcpp::init(0, nullptr); }
 
-  ~RclCppFixture()
-  {
-    rclcpp::shutdown();
-  }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 
 RclCppFixture g_rclcppfixture;

@@ -20,20 +20,18 @@
 #include "behaviortree_cpp_v3/bt_factory.h"
 
 #include "../../test_action_server.hpp"
-#include "nav2_behavior_tree/plugins/action/controller_cancel_node.hpp"
 #include "lifecycle_msgs/srv/change_state.hpp"
+#include "nav2_behavior_tree/plugins/action/controller_cancel_node.hpp"
 
 class CancelControllerServer : public TestActionServer<nav2_msgs::action::FollowPath>
 {
 public:
-  CancelControllerServer()
-  : TestActionServer("follow_path")
-  {}
+  CancelControllerServer() : TestActionServer("follow_path") {}
 
 protected:
   void execute(
     const typename std::shared_ptr<rclcpp_action::ServerGoalHandle<nav2_msgs::action::FollowPath>>
-    goal_handle)
+      goal_handle)
   {
     while (!goal_handle->is_canceling()) {
       // waiting here until goal cancels
@@ -55,24 +53,16 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
     config_->blackboard->set<std::chrono::milliseconds>(
-      "server_timeout",
-      std::chrono::milliseconds(20));
+      "server_timeout", std::chrono::milliseconds(20));
     config_->blackboard->set<std::chrono::milliseconds>(
-      "bt_loop_duration",
-      std::chrono::milliseconds(10));
-    client_ = rclcpp_action::create_client<nav2_msgs::action::FollowPath>(
-      node_, "follow_path");
+      "bt_loop_duration", std::chrono::milliseconds(10));
+    client_ = rclcpp_action::create_client<nav2_msgs::action::FollowPath>(node_, "follow_path");
 
-    BT::NodeBuilder builder =
-      [](const std::string & name, const BT::NodeConfiguration & config)
-      {
-        return std::make_unique<nav2_behavior_tree::ControllerCancel>(
-          name, "follow_path", config);
-      };
+    BT::NodeBuilder builder = [](const std::string & name, const BT::NodeConfiguration & config) {
+      return std::make_unique<nav2_behavior_tree::ControllerCancel>(name, "follow_path", config);
+    };
 
     factory_->registerBuilder<nav2_behavior_tree::ControllerCancel>("CancelControl", builder);
   }
@@ -87,10 +77,7 @@ public:
     factory_.reset();
   }
 
-  void TearDown() override
-  {
-    tree_.reset();
-  }
+  void TearDown() override { tree_.reset(); }
 
   static std::shared_ptr<CancelControllerServer> action_server_;
   static std::shared_ptr<rclcpp_action::Client<nav2_msgs::action::FollowPath>> client_;
@@ -103,14 +90,12 @@ protected:
 };
 
 rclcpp::Node::SharedPtr CancelControllerActionTestFixture::node_ = nullptr;
-std::shared_ptr<CancelControllerServer>
-CancelControllerActionTestFixture::action_server_ = nullptr;
+std::shared_ptr<CancelControllerServer> CancelControllerActionTestFixture::action_server_ = nullptr;
 std::shared_ptr<rclcpp_action::Client<nav2_msgs::action::FollowPath>>
-CancelControllerActionTestFixture::client_ = nullptr;
+  CancelControllerActionTestFixture::client_ = nullptr;
 
 BT::NodeConfiguration * CancelControllerActionTestFixture::config_ = nullptr;
-std::shared_ptr<BT::BehaviorTreeFactory>
-CancelControllerActionTestFixture::factory_ = nullptr;
+std::shared_ptr<BT::BehaviorTreeFactory> CancelControllerActionTestFixture::factory_ = nullptr;
 std::shared_ptr<BT::Tree> CancelControllerActionTestFixture::tree_ = nullptr;
 
 TEST_F(CancelControllerActionTestFixture, test_ports)
@@ -133,7 +118,8 @@ TEST_F(CancelControllerActionTestFixture, test_ports)
   client_->wait_for_action_server();
   client_->async_send_goal(goal_msg, send_goal_options);
 
-  // Adding a sleep so that the goal is indeed older than 10ms as described in our abstract class
+  // Adding a sleep so that the goal is indeed older than 10ms as described in
+  // our abstract class
   std::this_thread::sleep_for(std::chrono::milliseconds(15));
 
   // Executing tick
@@ -155,9 +141,8 @@ int main(int argc, char ** argv)
 
   // initialize action server and spin on new thread
   CancelControllerActionTestFixture::action_server_ = std::make_shared<CancelControllerServer>();
-  std::thread server_thread([]() {
-      rclcpp::spin(CancelControllerActionTestFixture::action_server_);
-    });
+  std::thread server_thread(
+    []() { rclcpp::spin(CancelControllerActionTestFixture::action_server_); });
 
   int all_successful = RUN_ALL_TESTS();
 

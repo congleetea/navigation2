@@ -35,12 +35,12 @@
 #ifndef COSTMAP_QUEUE__COSTMAP_QUEUE_HPP_
 #define COSTMAP_QUEUE__COSTMAP_QUEUE_HPP_
 
+#include "costmap_queue/map_based_queue.hpp"
+#include "nav2_costmap_2d/costmap_2d.hpp"
 #include <cmath>
-#include <vector>
 #include <limits>
 #include <memory>
-#include "nav2_costmap_2d/costmap_2d.hpp"
-#include "costmap_queue/map_based_queue.hpp"
+#include <vector>
 
 namespace costmap_queue
 {
@@ -54,7 +54,8 @@ public:
   /**
    * @brief Real Constructor
    * @param d The distance to the nearest obstacle
-   * @param i The index of the cell in the costmap. Redundant with the following two parameters.
+   * @param i The index of the cell in the costmap. Redundant with the following
+   * two parameters.
    * @param x The x coordinate of the cell in the cost map
    * @param y The y coordinate of the cell in the cost map
    * @param sx The x coordinate of the closest source cell in the costmap
@@ -90,19 +91,22 @@ public:
  * @class CostmaQueue
  * @brief A tool for finding the cells closest to some set of originating cells.
  *
- * A common operation with costmaps is to define a set of cells in the costmap, and then
- * perform some operation on all the other cells based on which cell in the original set
- * the other cells are closest to. This operation is done in the inflation layer to figure out
- * how far each cell is from an obstacle, and is also used in a number of Trajectory cost functions.
+ * A common operation with costmaps is to define a set of cells in the costmap,
+ * and then perform some operation on all the other cells based on which cell in
+ * the original set the other cells are closest to. This operation is done in
+ * the inflation layer to figure out how far each cell is from an obstacle, and
+ * is also used in a number of Trajectory cost functions.
  *
- * It is implemented with a queue. The standard operation is to enqueueCell the original set, and then
- * retreive the other cells with the isEmpty/getNextCell iterator-like functionality. getNextCell
- * returns an object that contains the coordinates of this cell and the origin cell, as well as
- * the distance between them. By default, the Euclidean distance is used for ordering, but passing in
+ * It is implemented with a queue. The standard operation is to enqueueCell the
+ * original set, and then retreive the other cells with the isEmpty/getNextCell
+ * iterator-like functionality. getNextCell returns an object that contains the
+ * coordinates of this cell and the origin cell, as well as the distance between
+ * them. By default, the Euclidean distance is used for ordering, but passing in
  * manhattan=true to the constructor will use the Manhattan distance.
  *
- * The validCellToQueue overridable-function allows for deriving classes to limit the queue traversal
- * to a subset of all costmap cells. LimitedCostmapQueue does this by ignoring distances above a limit.
+ * The validCellToQueue overridable-function allows for deriving classes to
+ * limit the queue traversal to a subset of all costmap cells.
+ * LimitedCostmapQueue does this by ignoring distances above a limit.
  *
  */
 class CostmapQueue : public MapBasedQueue<CellData>
@@ -111,7 +115,8 @@ public:
   /**
    * @brief constructor
    * @param costmap Costmap which defines the size/number of cells
-   * @param manhattan If true, sort cells by Manhattan distance, otherwise use Euclidean distance
+   * @param manhattan If true, sort cells by Manhattan distance, otherwise use
+   * Euclidean distance
    */
   explicit CostmapQueue(nav2_costmap_2d::Costmap2D & costmap, bool manhattan = false);
 
@@ -131,16 +136,18 @@ public:
    * @brief Get the next cell to examine, and enqueue its neighbors as needed
    * @return The next cell
    *
-   * NB: Assumes that isEmpty has been called before this call and returned false
+   * NB: Assumes that isEmpty has been called before this call and returned
+   * false
    */
   CellData getNextCell();
 
   /**
-   * @brief Check to see if we should add this cell to the queue. Always true unless overridden.
+   * @brief Check to see if we should add this cell to the queue. Always true
+   * unless overridden.
    * @param cell The cell to check
    * @return True, unless overriden
    */
-  virtual bool validCellToQueue(const CellData & /*cell*/) {return true;}
+  virtual bool validCellToQueue(const CellData & /*cell*/) { return true; }
   /**
    * @brief convenience typedef for a pointer
    */
@@ -174,8 +181,8 @@ protected:
    * @return
    */
   inline double distanceLookup(
-    const unsigned int cur_x, const unsigned int cur_y,
-    const unsigned int src_x, const unsigned int src_y)
+    const unsigned int cur_x, const unsigned int cur_y, const unsigned int src_x,
+    const unsigned int src_y)
   {
     unsigned int dx = CellData::absolute_difference(cur_x, src_x);
     unsigned int dy = CellData::absolute_difference(cur_y, src_y);

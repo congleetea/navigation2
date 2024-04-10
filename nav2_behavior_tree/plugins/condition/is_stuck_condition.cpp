@@ -12,19 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
 #include <chrono>
+#include <string>
 
 #include "nav2_behavior_tree/plugins/condition/is_stuck_condition.hpp"
 
-using namespace std::chrono_literals; // NOLINT
+using namespace std::chrono_literals;  // NOLINT
 
 namespace nav2_behavior_tree
 {
 
 IsStuckCondition::IsStuckCondition(
-  const std::string & condition_name,
-  const BT::NodeConfiguration & conf)
+  const std::string & condition_name, const BT::NodeConfiguration & conf)
 : BT::ConditionNode(condition_name, conf),
   is_stuck_(false),
   odom_history_size_(10),
@@ -32,19 +31,16 @@ IsStuckCondition::IsStuckCondition(
   brake_accel_limit_(-10.0)
 {
   node_ = config().blackboard->get<rclcpp::Node::SharedPtr>("node");
-  callback_group_ = node_->create_callback_group(
-    rclcpp::CallbackGroupType::MutuallyExclusive,
-    false);
+  callback_group_ =
+    node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false);
   callback_group_executor_.add_callback_group(callback_group_, node_->get_node_base_interface());
-  callback_group_executor_thread = std::thread([this]() {callback_group_executor_.spin();});
+  callback_group_executor_thread = std::thread([this]() { callback_group_executor_.spin(); });
 
   rclcpp::SubscriptionOptions sub_option;
   sub_option.callback_group = callback_group_;
   odom_sub_ = node_->create_subscription<nav_msgs::msg::Odometry>(
-    "odom",
-    rclcpp::SystemDefaultsQoS(),
-    std::bind(&IsStuckCondition::onOdomReceived, this, std::placeholders::_1),
-    sub_option);
+    "odom", rclcpp::SystemDefaultsQoS(),
+    std::bind(&IsStuckCondition::onOdomReceived, this, std::placeholders::_1), sub_option);
 
   RCLCPP_DEBUG(node_->get_logger(), "Initialized an IsStuckCondition BT node");
 
@@ -74,7 +70,8 @@ void IsStuckCondition::onOdomReceived(const typename nav_msgs::msg::Odometry::Sh
 
 BT::NodeStatus IsStuckCondition::tick()
 {
-  // TODO(orduno) #383 Once check for is stuck and state calculations are moved to robot class
+  // TODO(orduno) #383 Once check for is stuck and state calculations are moved
+  // to robot class
   //              this becomes
   // if (robot_state_.isStuck()) {
 
@@ -113,8 +110,8 @@ void IsStuckCondition::updateStates()
     prev_time += (static_cast<double>(prev_odom.header.stamp.nanosec)) * 1e-9;
 
     double dt = curr_time - prev_time;
-    double vel_diff = static_cast<double>(
-      curr_odom.twist.twist.linear.x - prev_odom.twist.twist.linear.x);
+    double vel_diff =
+      static_cast<double>(curr_odom.twist.twist.linear.x - prev_odom.twist.twist.linear.x);
     current_accel_ = vel_diff / dt;
   }
 
@@ -123,17 +120,20 @@ void IsStuckCondition::updateStates()
 
 bool IsStuckCondition::isStuck()
 {
-  // TODO(orduno) #400 The robot getting stuck can result on different types of motion
-  // depending on the state prior to getting stuck (sudden change in accel, not moving at all,
-  // random oscillations, etc). For now, we only address the case where there is a sudden
-  // harsh deceleration. A better approach to capture all situations would be to do a forward
-  // simulation of the robot motion and compare it with the actual one.
+  // TODO(orduno) #400 The robot getting stuck can result on different types of
+  // motion depending on the state prior to getting stuck (sudden change in
+  // accel, not moving at all, random oscillations, etc). For now, we only
+  // address the case where there is a sudden harsh deceleration. A better
+  // approach to capture all situations would be to do a forward simulation of
+  // the robot motion and compare it with the actual one.
 
   // Detect if robot bumped into something by checking for abnormal deceleration
   if (current_accel_ < brake_accel_limit_) {
     RCLCPP_DEBUG(
-      node_->get_logger(), "Current deceleration is beyond brake limit."
-      " brake limit: %.2f, current accel: %.2f", brake_accel_limit_, current_accel_);
+      node_->get_logger(),
+      "Current deceleration is beyond brake limit."
+      " brake limit: %.2f, current accel: %.2f",
+      brake_accel_limit_, current_accel_);
 
     return true;
   }

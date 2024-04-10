@@ -33,20 +33,19 @@
  */
 
 #include "dwb_critics/obstacle_footprint.hpp"
+#include "dwb_core/exceptions.hpp"
+#include "dwb_critics/line_iterator.hpp"
+#include "nav2_costmap_2d/cost_values.hpp"
+#include "pluginlib/class_list_macros.hpp"
 #include <algorithm>
 #include <vector>
-#include "dwb_critics/line_iterator.hpp"
-#include "dwb_core/exceptions.hpp"
-#include "pluginlib/class_list_macros.hpp"
-#include "nav2_costmap_2d/cost_values.hpp"
 
 PLUGINLIB_EXPORT_CLASS(dwb_critics::ObstacleFootprintCritic, dwb_core::TrajectoryCritic)
 
 namespace dwb_critics
 {
 Footprint getOrientedFootprint(
-  const geometry_msgs::msg::Pose2D & pose,
-  const Footprint & footprint_spec)
+  const geometry_msgs::msg::Pose2D & pose, const Footprint & footprint_spec)
 {
   std::vector<geometry_msgs::msg::Point> oriented_footprint;
   oriented_footprint.resize(footprint_spec.size());
@@ -78,15 +77,13 @@ double ObstacleFootprintCritic::scorePose(const geometry_msgs::msg::Pose2D & pos
 {
   unsigned int cell_x, cell_y;
   if (!costmap_->worldToMap(pose.x, pose.y, cell_x, cell_y)) {
-    throw dwb_core::
-          IllegalTrajectoryException(name_, "Trajectory Goes Off Grid.");
+    throw dwb_core::IllegalTrajectoryException(name_, "Trajectory Goes Off Grid.");
   }
   return scorePose(pose, getOrientedFootprint(pose, footprint_spec_));
 }
 
 double ObstacleFootprintCritic::scorePose(
-  const geometry_msgs::msg::Pose2D &,
-  const Footprint & footprint)
+  const geometry_msgs::msg::Pose2D &, const Footprint & footprint)
 {
   // now we really have to lay down the footprint in the costmap grid
   unsigned int x0, x1, y0, y1;
@@ -97,14 +94,12 @@ double ObstacleFootprintCritic::scorePose(
   for (unsigned int i = 0; i < footprint.size() - 1; ++i) {
     // get the cell coord of the first point
     if (!costmap_->worldToMap(footprint[i].x, footprint[i].y, x0, y0)) {
-      throw dwb_core::
-            IllegalTrajectoryException(name_, "Footprint Goes Off Grid.");
+      throw dwb_core::IllegalTrajectoryException(name_, "Footprint Goes Off Grid.");
     }
 
     // get the cell coord of the second point
     if (!costmap_->worldToMap(footprint[i + 1].x, footprint[i + 1].y, x1, y1)) {
-      throw dwb_core::
-            IllegalTrajectoryException(name_, "Footprint Goes Off Grid.");
+      throw dwb_core::IllegalTrajectoryException(name_, "Footprint Goes Off Grid.");
     }
 
     line_cost = lineCost(x0, x1, y0, y1);
@@ -114,20 +109,19 @@ double ObstacleFootprintCritic::scorePose(
   // we also need to connect the first point in the footprint to the last point
   // get the cell coord of the last point
   if (!costmap_->worldToMap(footprint.back().x, footprint.back().y, x0, y0)) {
-    throw dwb_core::
-          IllegalTrajectoryException(name_, "Footprint Goes Off Grid.");
+    throw dwb_core::IllegalTrajectoryException(name_, "Footprint Goes Off Grid.");
   }
 
   // get the cell coord of the first point
   if (!costmap_->worldToMap(footprint.front().x, footprint.front().y, x1, y1)) {
-    throw dwb_core::
-          IllegalTrajectoryException(name_, "Footprint Goes Off Grid.");
+    throw dwb_core::IllegalTrajectoryException(name_, "Footprint Goes Off Grid.");
   }
 
   line_cost = lineCost(x0, x1, y0, y1);
   footprint_cost = std::max(line_cost, footprint_cost);
 
-  // if all line costs are legal... then we can return that the footprint is legal
+  // if all line costs are legal... then we can return that the footprint is
+  // legal
   return footprint_cost;
 }
 
@@ -137,7 +131,7 @@ double ObstacleFootprintCritic::lineCost(int x0, int x1, int y0, int y1)
   double point_cost = -1.0;
 
   for (LineIterator line(x0, y0, x1, y1); line.isValid(); line.advance()) {
-    point_cost = pointCost(line.getX(), line.getY());   // Score the current point
+    point_cost = pointCost(line.getX(), line.getY());  // Score the current point
 
     if (line_cost < point_cost) {
       line_cost = point_cost;
@@ -152,11 +146,9 @@ double ObstacleFootprintCritic::pointCost(int x, int y)
   unsigned char cost = costmap_->getCost(x, y);
   // if the cell is in an obstacle the path is invalid or unknown
   if (cost == nav2_costmap_2d::LETHAL_OBSTACLE) {
-    throw dwb_core::
-          IllegalTrajectoryException(name_, "Trajectory Hits Obstacle.");
+    throw dwb_core::IllegalTrajectoryException(name_, "Trajectory Hits Obstacle.");
   } else if (cost == nav2_costmap_2d::NO_INFORMATION) {
-    throw dwb_core::
-          IllegalTrajectoryException(name_, "Trajectory Hits Unknown Region.");
+    throw dwb_core::IllegalTrajectoryException(name_, "Trajectory Hits Unknown Region.");
   }
 
   return cost;

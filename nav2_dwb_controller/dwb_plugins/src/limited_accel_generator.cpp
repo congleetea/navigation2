@@ -33,20 +33,19 @@
  */
 
 #include "dwb_plugins/limited_accel_generator.hpp"
-#include <vector>
-#include <memory>
-#include <string>
-#include "nav_2d_utils/parameters.hpp"
-#include "pluginlib/class_list_macros.hpp"
 #include "dwb_core/exceptions.hpp"
 #include "nav2_util/node_utils.hpp"
+#include "nav_2d_utils/parameters.hpp"
+#include "pluginlib/class_list_macros.hpp"
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace dwb_plugins
 {
 
 void LimitedAccelGenerator::initialize(
-  const nav2_util::LifecycleNode::SharedPtr & nh,
-  const std::string & plugin_name)
+  const nav2_util::LifecycleNode::SharedPtr & nh, const std::string & plugin_name)
 {
   plugin_name_ = plugin_name;
   StandardTrajectoryGenerator::initialize(nh, plugin_name_);
@@ -55,18 +54,18 @@ void LimitedAccelGenerator::initialize(
     nav2_util::declare_parameter_if_not_declared(
       nh, plugin_name + ".sim_period", rclcpp::PARAMETER_DOUBLE);
     if (!nh->get_parameter(plugin_name + ".sim_period", acceleration_time_)) {
-      // This actually should never appear, since declare_parameter_if_not_declared()
-      // completed w/o exceptions guarantee that static parameter will be initialized
-      // with some value. However for reliability we should also process the case
-      // when get_parameter() will return a failure for some other reasons.
+      // This actually should never appear, since
+      // declare_parameter_if_not_declared() completed w/o exceptions guarantee
+      // that static parameter will be initialized with some value. However for
+      // reliability we should also process the case when get_parameter() will
+      // return a failure for some other reasons.
       throw std::runtime_error("Failed to get 'sim_period' value");
     }
   } catch (std::exception &) {
     RCLCPP_WARN(
-      rclcpp::get_logger("LimitedAccelGenerator"),
-      "'sim_period' parameter is not set for %s", plugin_name.c_str());
-    double controller_frequency = nav_2d_utils::searchAndGetParam(
-      nh, "controller_frequency", 20.0);
+      rclcpp::get_logger("LimitedAccelGenerator"), "'sim_period' parameter is not set for %s",
+      plugin_name.c_str());
+    double controller_frequency = nav_2d_utils::searchAndGetParam(nh, "controller_frequency", 20.0);
     if (controller_frequency > 0) {
       acceleration_time_ = 1.0 / controller_frequency;
     } else {
@@ -86,8 +85,7 @@ void LimitedAccelGenerator::startNewIteration(const nav_2d_msgs::msg::Twist2D & 
 }
 
 nav_2d_msgs::msg::Twist2D LimitedAccelGenerator::computeNewVelocity(
-  const nav_2d_msgs::msg::Twist2D & cmd_vel,
-  const nav_2d_msgs::msg::Twist2D & /*start_vel*/,
+  const nav_2d_msgs::msg::Twist2D & cmd_vel, const nav_2d_msgs::msg::Twist2D & /*start_vel*/,
   const double /*dt*/)
 {
   return cmd_vel;

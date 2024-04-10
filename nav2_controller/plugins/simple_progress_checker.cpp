@@ -13,16 +13,16 @@
 // limitations under the License.
 
 #include "nav2_controller/plugins/simple_progress_checker.hpp"
-#include <cmath>
-#include <string>
-#include <memory>
-#include <vector>
-#include "nav2_core/exceptions.hpp"
-#include "nav_2d_utils/conversions.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/pose2_d.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav2_core/exceptions.hpp"
 #include "nav2_util/node_utils.hpp"
+#include "nav_2d_utils/conversions.hpp"
 #include "pluginlib/class_list_macros.hpp"
+#include <cmath>
+#include <memory>
+#include <string>
+#include <vector>
 
 using rcl_interfaces::msg::ParameterType;
 using std::placeholders::_1;
@@ -30,8 +30,7 @@ using std::placeholders::_1;
 namespace nav2_controller
 {
 void SimpleProgressChecker::initialize(
-  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-  const std::string & plugin_name)
+  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, const std::string & plugin_name)
 {
   plugin_name_ = plugin_name;
   auto node = parent.lock();
@@ -67,10 +66,7 @@ bool SimpleProgressChecker::check(geometry_msgs::msg::PoseStamped & current_pose
   return !((clock_->now() - baseline_time_) > time_allowance_);
 }
 
-void SimpleProgressChecker::reset()
-{
-  baseline_pose_set_ = false;
-}
+void SimpleProgressChecker::reset() { baseline_pose_set_ = false; }
 
 void SimpleProgressChecker::resetBaselinePose(const geometry_msgs::msg::Pose2D & pose)
 {
@@ -85,8 +81,7 @@ bool SimpleProgressChecker::isRobotMovedEnough(const geometry_msgs::msg::Pose2D 
 }
 
 double SimpleProgressChecker::pose_distance(
-  const geometry_msgs::msg::Pose2D & pose1,
-  const geometry_msgs::msg::Pose2D & pose2)
+  const geometry_msgs::msg::Pose2D & pose1, const geometry_msgs::msg::Pose2D & pose2)
 {
   double dx = pose1.x - pose2.x;
   double dy = pose1.y - pose2.y;
@@ -94,8 +89,8 @@ double SimpleProgressChecker::pose_distance(
   return std::hypot(dx, dy);
 }
 
-rcl_interfaces::msg::SetParametersResult
-SimpleProgressChecker::dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters)
+rcl_interfaces::msg::SetParametersResult SimpleProgressChecker::dynamicParametersCallback(
+  std::vector<rclcpp::Parameter> parameters)
 {
   rcl_interfaces::msg::SetParametersResult result;
   for (auto parameter : parameters) {

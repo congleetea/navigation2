@@ -39,8 +39,8 @@ namespace nav2_util
 {
 
 /**
-  * @brief OccupancyGrid data constants
-  */
+ * @brief OccupancyGrid data constants
+ */
 static constexpr int8_t OCC_GRID_UNKNOWN = -1;
 static constexpr int8_t OCC_GRID_FREE = 0;
 static constexpr int8_t OCC_GRID_OCCUPIED = 100;

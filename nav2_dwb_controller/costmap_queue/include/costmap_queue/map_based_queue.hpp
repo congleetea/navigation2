@@ -46,26 +46,26 @@ namespace costmap_queue
 /**
  * @brief Templatized interface for a priority queue
  *
- * This is faster than the std::priority_queue implementation in certain cases because iterating does
- * not require resorting after every element is examined.
+ * This is faster than the std::priority_queue implementation in certain cases
+ * because iterating does not require resorting after every element is examined.
  * Based on https://github.com/ros-planning/navigation/pull/525
- * The relative speed of this against the priority queue depends how many items with each
- * priority are inserted into the queue.
+ * The relative speed of this against the priority queue depends how many items
+ * with each priority are inserted into the queue.
  *
- * One additional speed up depends on the patterns of priorities during each iteration of the queue.
- * If the same priorities are inserted into the queue on every iteration, then it is quicker to
- * set reset_bins = false, such that the priority bins are not reset and will not have to be recreated
- * on each iteration.
+ * One additional speed up depends on the patterns of priorities during each
+ * iteration of the queue. If the same priorities are inserted into the queue on
+ * every iteration, then it is quicker to set reset_bins = false, such that the
+ * priority bins are not reset and will not have to be recreated on each
+ * iteration.
  */
-template<class item_t>
+template <class item_t>
 class MapBasedQueue
 {
 public:
   /**
    * @brief Default Constructor
    */
-  explicit MapBasedQueue(bool reset_bins = true)
-  : reset_bins_(reset_bins), item_count_(0)
+  explicit MapBasedQueue(bool reset_bins = true) : reset_bins_(reset_bins), item_count_(0)
   {
     reset();
   }
@@ -122,10 +122,7 @@ public:
    *
    * Must be called prior to front/pop.
    */
-  bool isEmpty()
-  {
-    return item_count_ == 0;
-  }
+  bool isEmpty() { return item_count_ == 0; }
 
   /**
    * @brief Return the item at the front of the queue
@@ -151,8 +148,8 @@ public:
     }
 
     auto not_empty = [](const typename ItemMap::value_type & key_val) {
-        return !key_val.second.empty();
-      };
+      return !key_val.second.empty();
+    };
     iter_ = std::find_if(iter_, item_bins_.end(), not_empty);
   }
 

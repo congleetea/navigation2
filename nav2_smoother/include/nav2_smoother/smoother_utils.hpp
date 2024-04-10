@@ -16,20 +16,20 @@
 #define NAV2_SMOOTHER__SMOOTHER_UTILS_HPP_
 
 #include <cmath>
-#include <vector>
-#include <string>
 #include <iostream>
 #include <memory>
 #include <queue>
+#include <string>
 #include <utility>
+#include <vector>
 
+#include "angles/angles.h"
 #include "nav2_core/smoother.hpp"
-#include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_costmap_2d/cost_values.hpp"
+#include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_util/geometry_utils.hpp"
 #include "nav2_util/node_utils.hpp"
 #include "nav_msgs/msg/path.hpp"
-#include "angles/angles.h"
 #include "tf2/utils.h"
 
 namespace smoother_utils
@@ -48,8 +48,7 @@ struct PathSegment
 typedef std::vector<geometry_msgs::msg::PoseStamped>::iterator PathIterator;
 typedef std::vector<geometry_msgs::msg::PoseStamped>::reverse_iterator ReversePathIterator;
 
-inline std::vector<PathSegment> findDirectionalPathSegments(
-  const nav_msgs::msg::Path & path)
+inline std::vector<PathSegment> findDirectionalPathSegments(const nav_msgs::msg::Path & path)
 {
   std::vector<PathSegment> segments;
   PathSegment curr_segment;
@@ -57,15 +56,12 @@ inline std::vector<PathSegment> findDirectionalPathSegments(
 
   // Iterating through the path to determine the position of the cusp
   for (unsigned int idx = 1; idx < path.poses.size() - 1; ++idx) {
-    // We have two vectors for the dot product OA and AB. Determining the vectors.
-    double oa_x = path.poses[idx].pose.position.x -
-      path.poses[idx - 1].pose.position.x;
-    double oa_y = path.poses[idx].pose.position.y -
-      path.poses[idx - 1].pose.position.y;
-    double ab_x = path.poses[idx + 1].pose.position.x -
-      path.poses[idx].pose.position.x;
-    double ab_y = path.poses[idx + 1].pose.position.y -
-      path.poses[idx].pose.position.y;
+    // We have two vectors for the dot product OA and AB. Determining the
+    // vectors.
+    double oa_x = path.poses[idx].pose.position.x - path.poses[idx - 1].pose.position.x;
+    double oa_y = path.poses[idx].pose.position.y - path.poses[idx - 1].pose.position.y;
+    double ab_x = path.poses[idx + 1].pose.position.x - path.poses[idx].pose.position.x;
+    double ab_y = path.poses[idx + 1].pose.position.y - path.poses[idx].pose.position.y;
 
     // Checking for the existance of cusp, in the path, using the dot product.
     double dot_product = (oa_x * ab_x) + (oa_y * ab_y);
@@ -91,9 +87,7 @@ inline std::vector<PathSegment> findDirectionalPathSegments(
   return segments;
 }
 
-inline void updateApproximatePathOrientations(
-  nav_msgs::msg::Path & path,
-  bool & reversing_segment)
+inline void updateApproximatePathOrientations(nav_msgs::msg::Path & path, bool & reversing_segment)
 {
   double dx, dy, theta, pt_yaw;
   reversing_segment = false;

@@ -38,9 +38,9 @@
 #include "nav2_costmap_2d/costmap_filters/binary_filter.hpp"
 
 #include <cmath>
-#include <utility>
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "nav2_costmap_2d/costmap_filters/filter_values.hpp"
 #include "nav2_util/occ_grid_values.hpp"
@@ -49,14 +49,18 @@ namespace nav2_costmap_2d
 {
 
 BinaryFilter::BinaryFilter()
-: filter_info_sub_(nullptr), mask_sub_(nullptr),
-  binary_state_pub_(nullptr), filter_mask_(nullptr), mask_frame_(""), global_frame_(""),
-  default_state_(false), binary_state_(default_state_)
+: filter_info_sub_(nullptr),
+  mask_sub_(nullptr),
+  binary_state_pub_(nullptr),
+  filter_mask_(nullptr),
+  mask_frame_(""),
+  global_frame_(""),
+  default_state_(false),
+  binary_state_(default_state_)
 {
 }
 
-void BinaryFilter::initializeFilter(
-  const std::string & filter_info_topic)
+void BinaryFilter::initializeFilter(const std::string & filter_info_topic)
 {
   std::lock_guard<CostmapFilter::mutex_t> guard(*getMutex());
 
@@ -77,8 +81,7 @@ void BinaryFilter::initializeFilter(
   filter_info_topic_ = filter_info_topic;
   // Setting new costmap filter info subscriber
   RCLCPP_INFO(
-    logger_,
-    "BinaryFilter: Subscribing to \"%s\" topic for filter info...",
+    logger_, "BinaryFilter: Subscribing to \"%s\" topic for filter info...",
     filter_info_topic_.c_str());
   filter_info_sub_ = node->create_subscription<nav2_msgs::msg::CostmapFilterInfo>(
     filter_info_topic_, rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
@@ -88,8 +91,8 @@ void BinaryFilter::initializeFilter(
   global_frame_ = layered_costmap_->getGlobalFrameID();
 
   // Create new binary state publisher
-  binary_state_pub_ = node->create_publisher<std_msgs::msg::Bool>(
-    binary_state_topic, rclcpp::QoS(10));
+  binary_state_pub_ =
+    node->create_publisher<std_msgs::msg::Bool>(binary_state_topic, rclcpp::QoS(10));
   binary_state_pub_->on_activate();
 
   // Reset parameters
@@ -100,8 +103,7 @@ void BinaryFilter::initializeFilter(
   changeState(default_state_);
 }
 
-void BinaryFilter::filterInfoCallback(
-  const nav2_msgs::msg::CostmapFilterInfo::SharedPtr msg)
+void BinaryFilter::filterInfoCallback(const nav2_msgs::msg::CostmapFilterInfo::SharedPtr msg)
 {
   std::lock_guard<CostmapFilter::mutex_t> guard(*getMutex());
 
@@ -112,14 +114,15 @@ void BinaryFilter::filterInfoCallback(
 
   if (!mask_sub_) {
     RCLCPP_INFO(
-      logger_,
-      "BinaryFilter: Received filter info from %s topic.", filter_info_topic_.c_str());
+      logger_, "BinaryFilter: Received filter info from %s topic.", filter_info_topic_.c_str());
   } else {
     RCLCPP_WARN(
       logger_,
-      "BinaryFilter: New costmap filter info arrived from %s topic. Updating old filter info.",
+      "BinaryFilter: New costmap filter info arrived from %s topic. "
+      "Updating old filter info.",
       filter_info_topic_.c_str());
-    // Resetting previous subscriber each time when new costmap filter information arrives
+    // Resetting previous subscriber each time when new costmap filter
+    // information arrives
     mask_sub_.reset();
   }
 
@@ -136,27 +139,23 @@ void BinaryFilter::filterInfoCallback(
 
   // Setting new filter mask subscriber
   RCLCPP_INFO(
-    logger_,
-    "BinaryFilter: Subscribing to \"%s\" topic for filter mask...",
-    mask_topic_.c_str());
+    logger_, "BinaryFilter: Subscribing to \"%s\" topic for filter mask...", mask_topic_.c_str());
   mask_sub_ = node->create_subscription<nav_msgs::msg::OccupancyGrid>(
     mask_topic_, rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
     std::bind(&BinaryFilter::maskCallback, this, std::placeholders::_1));
 }
 
-void BinaryFilter::maskCallback(
-  const nav_msgs::msg::OccupancyGrid::SharedPtr msg)
+void BinaryFilter::maskCallback(const nav_msgs::msg::OccupancyGrid::SharedPtr msg)
 {
   std::lock_guard<CostmapFilter::mutex_t> guard(*getMutex());
 
   if (!filter_mask_) {
-    RCLCPP_INFO(
-      logger_,
-      "BinaryFilter: Received filter mask from %s topic.", mask_topic_.c_str());
+    RCLCPP_INFO(logger_, "BinaryFilter: Received filter mask from %s topic.", mask_topic_.c_str());
   } else {
     RCLCPP_WARN(
       logger_,
-      "BinaryFilter: New filter mask arrived from %s topic. Updating old filter mask.",
+      "BinaryFilter: New filter mask arrived from %s topic. Updating "
+      "old filter mask.",
       mask_topic_.c_str());
     filter_mask_.reset();
   }
@@ -166,17 +165,14 @@ void BinaryFilter::maskCallback(
 }
 
 void BinaryFilter::process(
-  nav2_costmap_2d::Costmap2D & /*master_grid*/,
-  int /*min_i*/, int /*min_j*/, int /*max_i*/, int /*max_j*/,
-  const geometry_msgs::msg::Pose2D & pose)
+  nav2_costmap_2d::Costmap2D & /*master_grid*/, int /*min_i*/, int /*min_j*/, int /*max_i*/,
+  int /*max_j*/, const geometry_msgs::msg::Pose2D & pose)
 {
   std::lock_guard<CostmapFilter::mutex_t> guard(*getMutex());
 
   if (!filter_mask_) {
     // Show warning message every 2 seconds to not litter an output
-    RCLCPP_WARN_THROTTLE(
-      logger_, *(clock_), 2000,
-      "BinaryFilter: Filter mask was not received");
+    RCLCPP_WARN_THROTTLE(logger_, *(clock_), 2000, "BinaryFilter: Filter mask was not received");
     return;
   }
 
@@ -187,13 +183,15 @@ void BinaryFilter::process(
     return;
   }
 
-  // Converting mask_pose robot position to filter_mask_ indexes (mask_robot_i, mask_robot_j)
+  // Converting mask_pose robot position to filter_mask_ indexes (mask_robot_i,
+  // mask_robot_j)
   unsigned int mask_robot_i, mask_robot_j;
   if (!worldToMask(filter_mask_, mask_pose.x, mask_pose.y, mask_robot_i, mask_robot_j)) {
     // Robot went out of mask range. Set "false" state by-default
     RCLCPP_WARN(
       logger_,
-      "BinaryFilter: Robot is outside of filter mask. Resetting binary state to default.");
+      "BinaryFilter: Robot is outside of filter mask. "
+      "Resetting binary state to default.");
     changeState(default_state_);
     return;
   }
@@ -204,8 +202,7 @@ void BinaryFilter::process(
     // Corresponding filter mask cell is unknown.
     // Warn and do nothing.
     RCLCPP_WARN_THROTTLE(
-      logger_, *(clock_), 2000,
-      "BinaryFilter: Filter mask [%i, %i] data is unknown. Do nothing.",
+      logger_, *(clock_), 2000, "BinaryFilter: Filter mask [%i, %i] data is unknown. Do nothing.",
       mask_robot_i, mask_robot_j);
     return;
   }
@@ -256,8 +253,7 @@ void BinaryFilter::changeState(const bool state)
   }
 
   // Forming and publishing new BinaryState message
-  std::unique_ptr<std_msgs::msg::Bool> msg =
-    std::make_unique<std_msgs::msg::Bool>();
+  std::unique_ptr<std_msgs::msg::Bool> msg = std::make_unique<std_msgs::msg::Bool>();
   msg->data = state;
   binary_state_pub_->publish(std::move(msg));
 }

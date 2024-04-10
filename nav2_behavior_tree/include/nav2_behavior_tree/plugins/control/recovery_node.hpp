@@ -15,21 +15,23 @@
 #ifndef NAV2_BEHAVIOR_TREE__PLUGINS__CONTROL__RECOVERY_NODE_HPP_
 #define NAV2_BEHAVIOR_TREE__PLUGINS__CONTROL__RECOVERY_NODE_HPP_
 
-#include <string>
 #include "behaviortree_cpp_v3/control_node.h"
+#include <string>
 
 namespace nav2_behavior_tree
 {
 /**
- * @brief The RecoveryNode has only two children and returns SUCCESS if and only if the first child
- * returns SUCCESS.
+ * @brief The RecoveryNode has only two children and returns SUCCESS if and only
+ * if the first child returns SUCCESS.
  *
- * - If the first child returns FAILURE, the second child will be executed.  After that the first
- * child is executed again if the second child returns SUCCESS.
+ * - If the first child returns FAILURE, the second child will be executed.
+ * After that the first child is executed again if the second child returns
+ * SUCCESS.
  *
  * - If the first or second child returns RUNNING, this node returns RUNNING.
  *
- * - If the second child returns FAILURE, this control node will stop the loop and returns FAILURE.
+ * - If the second child returns FAILURE, this control node will stop the loop
+ * and returns FAILURE.
  *
  */
 class RecoveryNode : public BT::ControlNode
@@ -40,9 +42,7 @@ public:
    * @param name Name for the XML tag for this node
    * @param conf BT node configuration
    */
-  RecoveryNode(
-    const std::string & name,
-    const BT::NodeConfiguration & conf);
+  RecoveryNode(const std::string & name, const BT::NodeConfiguration & conf);
 
   /**
    * @brief A destructor for nav2_behavior_tree::RecoveryNode
@@ -55,9 +55,7 @@ public:
    */
   static BT::PortsList providedPorts()
   {
-    return {
-      BT::InputPort<int>("number_of_retries", 1, "Number of retries")
-    };
+    return {BT::InputPort<int>("number_of_retries", 1, "Number of retries")};
   }
 
 private:
@@ -72,7 +70,8 @@ private:
   BT::NodeStatus tick() override;
 
   /**
-   * @brief The other (optional) override required by a BT action to reset node state
+   * @brief The other (optional) override required by a BT action to reset node
+   * state
    */
   void halt() override;
 };

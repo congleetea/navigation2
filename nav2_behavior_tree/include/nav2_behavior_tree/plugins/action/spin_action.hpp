@@ -24,7 +24,8 @@ namespace nav2_behavior_tree
 {
 
 /**
- * @brief A nav2_behavior_tree::BtActionNode class that wraps nav2_msgs::action::Spin
+ * @brief A nav2_behavior_tree::BtActionNode class that wraps
+ * nav2_msgs::action::Spin
  */
 class SpinAction : public BtActionNode<nav2_msgs::action::Spin>
 {
@@ -36,8 +37,7 @@ public:
    * @param conf BT node configuration
    */
   SpinAction(
-    const std::string & xml_tag_name,
-    const std::string & action_name,
+    const std::string & xml_tag_name, const std::string & action_name,
     const BT::NodeConfiguration & conf);
 
   /**
@@ -52,11 +52,9 @@ public:
   static BT::PortsList providedPorts()
   {
     return providedBasicPorts(
-      {
-        BT::InputPort<double>("spin_dist", 1.57, "Spin distance"),
-        BT::InputPort<double>("time_allowance", 10.0, "Allowed time for spinning"),
-        BT::InputPort<bool>("is_recovery", true, "True if recovery")
-      });
+      {BT::InputPort<double>("spin_dist", 1.57, "Spin distance"),
+       BT::InputPort<double>("time_allowance", 10.0, "Allowed time for spinning"),
+       BT::InputPort<bool>("is_recovery", true, "True if recovery")});
   }
 
 private:

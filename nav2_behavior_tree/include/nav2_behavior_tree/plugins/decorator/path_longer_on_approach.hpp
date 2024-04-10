@@ -15,13 +15,13 @@
 #ifndef NAV2_BEHAVIOR_TREE__PLUGINS__DECORATOR__PATH_LONGER_ON_APPROACH_HPP_
 #define NAV2_BEHAVIOR_TREE__PLUGINS__DECORATOR__PATH_LONGER_ON_APPROACH_HPP_
 
-#include <string>
-#include <memory>
 #include <limits>
+#include <memory>
+#include <string>
 
+#include "behaviortree_cpp_v3/decorator_node.h"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav_msgs/msg/path.hpp"
-#include "behaviortree_cpp_v3/decorator_node.h"
 #include "rclcpp/rclcpp.hpp"
 
 namespace nav2_behavior_tree
@@ -39,9 +39,7 @@ public:
    * @param name Name for the XML tag for this node
    * @param conf BT node configuration
    */
-  PathLongerOnApproach(
-    const std::string & name,
-    const BT::NodeConfiguration & conf);
+  PathLongerOnApproach(const std::string & name, const BT::NodeConfiguration & conf);
 
   /**
    * @brief Creates list of BT ports
@@ -52,11 +50,11 @@ public:
     return {
       BT::InputPort<nav_msgs::msg::Path>("path", "Planned Path"),
       BT::InputPort<double>(
-        "prox_len", 3.0,
-        "Proximity length (m) for the path to be longer on approach"),
+        "prox_len", 3.0, "Proximity length (m) for the path to be longer on approach"),
       BT::InputPort<double>(
         "length_factor", 2.0,
-        "Length multiplication factor to check if the path is significantly longer"),
+        "Length multiplication factor to check if the "
+        "path is significantly longer"),
     };
   }
 
@@ -73,9 +71,7 @@ private:
    * @param old_path current path to the goal
    * @return whether the path is updated for the current goal
    */
-  bool isPathUpdated(
-    nav_msgs::msg::Path & new_path,
-    nav_msgs::msg::Path & old_path);
+  bool isPathUpdated(nav_msgs::msg::Path & new_path, nav_msgs::msg::Path & old_path);
 
   /**
    * @brief Checks if the robot is in the goal proximity
@@ -83,9 +79,7 @@ private:
    * @param prox_leng proximity length from the goal
    * @return whether the robot is in the goal proximity
    */
-  bool isRobotInGoalProximity(
-    nav_msgs::msg::Path & old_path,
-    double & prox_leng);
+  bool isRobotInGoalProximity(nav_msgs::msg::Path & old_path, double & prox_leng);
 
   /**
    * @brief Checks if the new path is longer
@@ -95,9 +89,7 @@ private:
    * @return whether the new path is longer
    */
   bool isNewPathLonger(
-    nav_msgs::msg::Path & new_path,
-    nav_msgs::msg::Path & old_path,
-    double & length_factor);
+    nav_msgs::msg::Path & new_path, nav_msgs::msg::Path & old_path, double & length_factor);
 
 private:
   nav_msgs::msg::Path new_path_;

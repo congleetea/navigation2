@@ -19,8 +19,8 @@
 #include <string>
 #include <vector>
 
-#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/point.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
 
 #include "behaviortree_cpp_v3/bt_factory.h"
@@ -29,18 +29,15 @@
 #include "nav2_behavior_tree/plugins/action/navigate_through_poses_action.hpp"
 
 class NavigateThroughPosesActionServer
-  : public TestActionServer<nav2_msgs::action::NavigateThroughPoses>
+: public TestActionServer<nav2_msgs::action::NavigateThroughPoses>
 {
 public:
-  NavigateThroughPosesActionServer()
-  : TestActionServer("navigate_through_poses")
-  {}
+  NavigateThroughPosesActionServer() : TestActionServer("navigate_through_poses") {}
 
 protected:
-  void execute(
-    const typename std::shared_ptr<
-      rclcpp_action::ServerGoalHandle<nav2_msgs::action::NavigateThroughPoses>> goal_handle)
-  override
+  void execute(const typename std::shared_ptr<
+               rclcpp_action::ServerGoalHandle<nav2_msgs::action::NavigateThroughPoses>>
+                 goal_handle) override
   {
     const auto goal = goal_handle->get_goal();
     auto result = std::make_shared<nav2_msgs::action::NavigateThroughPoses::Result>();
@@ -61,26 +58,19 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
     config_->blackboard->set<std::chrono::milliseconds>(
-      "server_timeout",
-      std::chrono::milliseconds(20));
+      "server_timeout", std::chrono::milliseconds(20));
     config_->blackboard->set<std::chrono::milliseconds>(
-      "bt_loop_duration",
-      std::chrono::milliseconds(10));
+      "bt_loop_duration", std::chrono::milliseconds(10));
     config_->blackboard->set<bool>("initial_pose_received", false);
     std::vector<geometry_msgs::msg::PoseStamped> poses;
-    config_->blackboard->set<std::vector<geometry_msgs::msg::PoseStamped>>(
-      "goals", poses);
+    config_->blackboard->set<std::vector<geometry_msgs::msg::PoseStamped>>("goals", poses);
 
-    BT::NodeBuilder builder =
-      [](const std::string & name, const BT::NodeConfiguration & config)
-      {
-        return std::make_unique<nav2_behavior_tree::NavigateThroughPosesAction>(
-          name, "navigate_through_poses", config);
-      };
+    BT::NodeBuilder builder = [](const std::string & name, const BT::NodeConfiguration & config) {
+      return std::make_unique<nav2_behavior_tree::NavigateThroughPosesAction>(
+        name, "navigate_through_poses", config);
+    };
 
     factory_->registerBuilder<nav2_behavior_tree::NavigateThroughPosesAction>(
       "NavigateThroughPoses", builder);
@@ -95,10 +85,7 @@ public:
     factory_.reset();
   }
 
-  void TearDown() override
-  {
-    tree_.reset();
-  }
+  void TearDown() override { tree_.reset(); }
 
   static std::shared_ptr<NavigateThroughPosesActionServer> action_server_;
 
@@ -111,7 +98,7 @@ protected:
 
 rclcpp::Node::SharedPtr NavigateThroughPosesActionTestFixture::node_ = nullptr;
 std::shared_ptr<NavigateThroughPosesActionServer>
-NavigateThroughPosesActionTestFixture::action_server_ = nullptr;
+  NavigateThroughPosesActionTestFixture::action_server_ = nullptr;
 BT::NodeConfiguration * NavigateThroughPosesActionTestFixture::config_ = nullptr;
 std::shared_ptr<BT::BehaviorTreeFactory> NavigateThroughPosesActionTestFixture::factory_ = nullptr;
 std::shared_ptr<BT::Tree> NavigateThroughPosesActionTestFixture::tree_ = nullptr;
@@ -160,9 +147,8 @@ int main(int argc, char ** argv)
   NavigateThroughPosesActionTestFixture::action_server_ =
     std::make_shared<NavigateThroughPosesActionServer>();
 
-  std::thread server_thread([]() {
-      rclcpp::spin(NavigateThroughPosesActionTestFixture::action_server_);
-    });
+  std::thread server_thread(
+    []() { rclcpp::spin(NavigateThroughPosesActionTestFixture::action_server_); });
 
   int all_successful = RUN_ALL_TESTS();
 

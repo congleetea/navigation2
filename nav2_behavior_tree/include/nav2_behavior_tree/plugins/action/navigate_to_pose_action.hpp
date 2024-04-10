@@ -19,14 +19,15 @@
 
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
-#include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "nav2_behavior_tree/bt_action_node.hpp"
+#include "nav2_msgs/action/navigate_to_pose.hpp"
 
 namespace nav2_behavior_tree
 {
 
 /**
- * @brief A nav2_behavior_tree::BtActionNode class that wraps nav2_msgs::action::NavigateToPose
+ * @brief A nav2_behavior_tree::BtActionNode class that wraps
+ * nav2_msgs::action::NavigateToPose
  */
 class NavigateToPoseAction : public BtActionNode<nav2_msgs::action::NavigateToPose>
 {
@@ -38,8 +39,7 @@ public:
    * @param conf BT node configuration
    */
   NavigateToPoseAction(
-    const std::string & xml_tag_name,
-    const std::string & action_name,
+    const std::string & xml_tag_name, const std::string & action_name,
     const BT::NodeConfiguration & conf);
 
   /**
@@ -53,11 +53,10 @@ public:
    */
   static BT::PortsList providedPorts()
   {
-    return providedBasicPorts(
-      {
-        BT::InputPort<geometry_msgs::msg::PoseStamped>("goal", "Destination to plan to"),
-        BT::InputPort<std::string>("behavior_tree", "Behavior tree to run"),
-      });
+    return providedBasicPorts({
+      BT::InputPort<geometry_msgs::msg::PoseStamped>("goal", "Destination to plan to"),
+      BT::InputPort<std::string>("behavior_tree", "Behavior tree to run"),
+    });
   }
 };
 

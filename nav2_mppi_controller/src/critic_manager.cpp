@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,12 +50,11 @@ void CriticManager::loadCritics()
   critics_.clear();
   for (auto name : critic_names_) {
     std::string fullname = getFullName(name);
-    auto instance = std::unique_ptr<critics::CriticFunction>(
-      loader_->createUnmanagedInstance(fullname));
+    auto instance =
+      std::unique_ptr<critics::CriticFunction>(loader_->createUnmanagedInstance(fullname));
     critics_.push_back(std::move(instance));
     critics_.back()->on_configure(
-      parent_, name_, name_ + "." + name, costmap_ros_,
-      parameters_handler_);
+      parent_, name_, name_ + "." + name, costmap_ros_, parameters_handler_);
     RCLCPP_INFO(logger_, "Critic loaded : %s", fullname.c_str());
   }
 }
@@ -64,8 +64,7 @@ std::string CriticManager::getFullName(const std::string & name)
   return "mppi::critics::" + name;
 }
 
-void CriticManager::evalTrajectoriesScores(
-  CriticData & data) const
+void CriticManager::evalTrajectoriesScores(CriticData & data) const
 {
   for (size_t q = 0; q < critics_.size(); q++) {
     if (data.fail_flag) {

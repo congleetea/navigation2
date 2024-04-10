@@ -16,23 +16,23 @@
 #ifndef BEHAVIORS__ASSISTED_TELEOP__ASSISTED_TELEOP_BEHAVIOR_TESTER_HPP_
 #define BEHAVIORS__ASSISTED_TELEOP__ASSISTED_TELEOP_BEHAVIOR_TESTER_HPP_
 
+#include <algorithm>
 #include <gtest/gtest.h>
 #include <memory>
 #include <string>
 #include <thread>
-#include <algorithm>
 
 #include "angles/angles.h"
+#include "geometry_msgs/msg/pose2_d.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "geometry_msgs/msg/twist.hpp"
-#include "geometry_msgs/msg/pose2_d.hpp"
 #include "nav2_costmap_2d/costmap_topic_collision_checker.hpp"
 #include "nav2_msgs/action/assisted_teleop.hpp"
 #include "nav2_util/node_thread.hpp"
 #include "nav2_util/robot_utils.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
 #include "std_msgs/msg/empty.hpp"
 
 #include "tf2/utils.h"
@@ -51,18 +51,13 @@ public:
   ~AssistedTeleopBehaviorTester();
 
   // Runs a single test with given target yaw
-  bool defaultAssistedTeleopTest(
-    const float lin_vel,
-    const float ang_vel);
+  bool defaultAssistedTeleopTest(const float lin_vel, const float ang_vel);
 
   void activate();
 
   void deactivate();
 
-  bool isActive() const
-  {
-    return is_active_;
-  }
+  bool isActive() const { return is_active_; }
 
 private:
   void sendInitialPose();

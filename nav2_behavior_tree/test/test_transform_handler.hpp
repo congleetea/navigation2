@@ -16,24 +16,24 @@
 #ifndef TEST_TRANSFORM_HANDLER_HPP_
 #define TEST_TRANSFORM_HANDLER_HPP_
 
+#include <algorithm>
+#include <chrono>
 #include <memory>
 #include <string>
 #include <thread>
-#include <chrono>
-#include <algorithm>
 
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
-#include "nav2_util/node_thread.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
+#include "nav2_util/node_thread.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
 #include "tf2_msgs/msg/tf_message.hpp"
+#include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_broadcaster.h"
 #include "tf2_ros/transform_listener.h"
-#include "tf2_ros/buffer.h"
 
-using namespace std::chrono_literals; // NOLINT
-using namespace std::chrono;  // NOLINT
+using namespace std::chrono_literals;  // NOLINT
+using namespace std::chrono;           // NOLINT
 
 namespace nav2_behavior_tree
 {
@@ -41,10 +41,7 @@ class TransformHandler
 {
 public:
   explicit TransformHandler(rclcpp::Node::SharedPtr & node)
-  : node_(node),
-    is_active_(false),
-    base_transform_(nullptr),
-    tf_broadcaster_(nullptr)
+  : node_(node), is_active_(false), base_transform_(nullptr), tf_broadcaster_(nullptr)
   {
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(node_->get_clock());
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
@@ -83,10 +80,7 @@ public:
     tf_listener_.reset();
   }
 
-  std::shared_ptr<tf2_ros::Buffer> getBuffer()
-  {
-    return tf_buffer_;
-  }
+  std::shared_ptr<tf2_ros::Buffer> getBuffer() { return tf_buffer_; }
 
   void waitForTransform()
   {
@@ -139,8 +133,8 @@ private:
     updateRobotPose(robot_pose);
 
     // Publish the transform periodically
-    transform_timer_ = node_->create_wall_timer(
-      100ms, std::bind(&TransformHandler::publishRobotTransform, this));
+    transform_timer_ =
+      node_->create_wall_timer(100ms, std::bind(&TransformHandler::publishRobotTransform, this));
   }
 
   rclcpp::Node::SharedPtr node_;

@@ -17,8 +17,8 @@
 #ifndef NAV2_AMCL__MOTION_MODEL__MOTION_MODEL_HPP_
 #define NAV2_AMCL__MOTION_MODEL__MOTION_MODEL_HPP_
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "nav2_amcl/pf/pf.hpp"
 #include "nav2_amcl/pf/pf_pdf.hpp"
@@ -46,8 +46,7 @@ public:
    * @return MotionModel A pointer to the motion model it created
    */
   virtual void initialize(
-    double alpha1, double alpha2, double alpha3, double alpha4,
-    double alpha5) = 0;
+    double alpha1, double alpha2, double alpha3, double alpha4, double alpha5) = 0;
 
   /**
    * @brief Update on new odometry data

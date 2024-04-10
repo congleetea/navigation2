@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <chrono>
+#include <gtest/gtest.h>
 #include <memory>
 #include <set>
 
@@ -24,7 +24,7 @@
 #include "../../test_behavior_tree_fixture.hpp"
 #include "nav2_behavior_tree/plugins/condition/time_expired_condition.hpp"
 
-using namespace std::chrono;  // NOLINT
+using namespace std::chrono;           // NOLINT
 using namespace std::chrono_literals;  // NOLINT
 
 class TimeExpiredConditionTestFixture : public nav2_behavior_tree::BehaviorTreeTestFixture
@@ -32,21 +32,17 @@ class TimeExpiredConditionTestFixture : public nav2_behavior_tree::BehaviorTreeT
 public:
   void SetUp()
   {
-    bt_node_ = std::make_shared<nav2_behavior_tree::TimeExpiredCondition>(
-      "time_expired", *config_);
+    bt_node_ = std::make_shared<nav2_behavior_tree::TimeExpiredCondition>("time_expired", *config_);
   }
 
-  void TearDown()
-  {
-    bt_node_.reset();
-  }
+  void TearDown() { bt_node_.reset(); }
 
 protected:
   static std::shared_ptr<nav2_behavior_tree::TimeExpiredCondition> bt_node_;
 };
 
 std::shared_ptr<nav2_behavior_tree::TimeExpiredCondition>
-TimeExpiredConditionTestFixture::bt_node_ = nullptr;
+  TimeExpiredConditionTestFixture::bt_node_ = nullptr;
 
 TEST_F(TimeExpiredConditionTestFixture, test_behavior)
 {

@@ -40,7 +40,8 @@
 namespace dwb_critics
 {
 /**
- * @brief Projects the given pose forward the specified distance in the x direction.
+ * @brief Projects the given pose forward the specified distance in the x
+ * direction.
  * @param pose Input pose
  * @param distance distance to move (in meters)
  * @return Pose distance meters in front of input pose.

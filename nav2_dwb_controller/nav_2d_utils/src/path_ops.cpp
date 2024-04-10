@@ -40,8 +40,7 @@ using std::sqrt;
 namespace nav_2d_utils
 {
 nav_2d_msgs::msg::Path2D adjustPlanResolution(
-  const nav_2d_msgs::msg::Path2D & global_plan_in,
-  double resolution)
+  const nav_2d_msgs::msg::Path2D & global_plan_in, double resolution)
 {
   nav_2d_msgs::msg::Path2D global_plan_out;
   if (global_plan_in.poses.size() == 0) {

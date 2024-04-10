@@ -58,8 +58,7 @@ class RecoveryNodeTestFixture : public nav2_behavior_tree::BehaviorTreeTestFixtu
 public:
   void SetUp() override
   {
-    bt_node_ = std::make_shared<nav2_behavior_tree::RecoveryNode>(
-      "recovery_node", *config_);
+    bt_node_ = std::make_shared<nav2_behavior_tree::RecoveryNode>("recovery_node", *config_);
     first_child_ = std::make_shared<RecoveryDummy>();
     second_child_ = std::make_shared<RecoveryDummy>();
     bt_node_->addChild(first_child_.get());
@@ -114,7 +113,8 @@ TEST_F(RecoveryNodeTestFixture, test_success_one_retry)
   first_child_->changeStatus(BT::NodeStatus::SUCCESS);
   EXPECT_EQ(bt_node_->executeTick(), BT::NodeStatus::SUCCESS);
 
-  // first child fails, second child succeeds, then first child succeeds (one retry)
+  // first child fails, second child succeeds, then first child succeeds (one
+  // retry)
   first_child_->returnSuccessOn(1);
   first_child_->changeStatus(BT::NodeStatus::FAILURE);
   second_child_->changeStatus(BT::NodeStatus::SUCCESS);
@@ -134,7 +134,8 @@ TEST_F(RecoveryNodeTestFixture, test_failure_one_retry)
   EXPECT_EQ(first_child_->status(), BT::NodeStatus::IDLE);
   EXPECT_EQ(second_child_->status(), BT::NodeStatus::IDLE);
 
-  // first child fails, second child succeeds, then first child fails (one retry)
+  // first child fails, second child succeeds, then first child fails (one
+  // retry)
   first_child_->returnFailureOn(1);
   first_child_->changeStatus(BT::NodeStatus::FAILURE);
   second_child_->changeStatus(BT::NodeStatus::SUCCESS);

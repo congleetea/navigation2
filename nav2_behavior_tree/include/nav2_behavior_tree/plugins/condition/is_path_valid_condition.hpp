@@ -15,13 +15,13 @@
 #ifndef NAV2_BEHAVIOR_TREE__PLUGINS__CONDITION__IS_PATH_VALID_CONDITION_HPP_
 #define NAV2_BEHAVIOR_TREE__PLUGINS__CONDITION__IS_PATH_VALID_CONDITION_HPP_
 
-#include <string>
 #include <memory>
+#include <string>
 
-#include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp_v3/condition_node.h"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_msgs/srv/is_path_valid.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_behavior_tree
 {
@@ -38,9 +38,7 @@ public:
    * @param condition_name Name for the XML tag for this node
    * @param conf BT node configuration
    */
-  IsPathValidCondition(
-    const std::string & condition_name,
-    const BT::NodeConfiguration & conf);
+  IsPathValidCondition(const std::string & condition_name, const BT::NodeConfiguration & conf);
 
   IsPathValidCondition() = delete;
 
@@ -58,8 +56,7 @@ public:
   {
     return {
       BT::InputPort<nav_msgs::msg::Path>("path", "Path to Check"),
-      BT::InputPort<std::chrono::milliseconds>("server_timeout")
-    };
+      BT::InputPort<std::chrono::milliseconds>("server_timeout")};
   }
 
 private:

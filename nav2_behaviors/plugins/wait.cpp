@@ -20,11 +20,7 @@
 namespace nav2_behaviors
 {
 
-Wait::Wait()
-: TimedBehavior<WaitAction>(),
-  feedback_(std::make_shared<WaitAction::Feedback>())
-{
-}
+Wait::Wait() : TimedBehavior<WaitAction>(), feedback_(std::make_shared<WaitAction::Feedback>()) {}
 
 Wait::~Wait() = default;
 

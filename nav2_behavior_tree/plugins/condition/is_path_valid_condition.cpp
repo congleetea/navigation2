@@ -21,8 +21,7 @@ namespace nav2_behavior_tree
 {
 
 IsPathValidCondition::IsPathValidCondition(
-  const std::string & condition_name,
-  const BT::NodeConfiguration & conf)
+  const std::string & condition_name, const BT::NodeConfiguration & conf)
 : BT::ConditionNode(condition_name, conf)
 {
   node_ = config().blackboard->get<rclcpp::Node::SharedPtr>("node");
@@ -42,9 +41,9 @@ BT::NodeStatus IsPathValidCondition::tick()
   request->path = path;
   auto result = client_->async_send_request(request);
 
-  if (rclcpp::spin_until_future_complete(node_, result, server_timeout_) ==
-    rclcpp::FutureReturnCode::SUCCESS)
-  {
+  if (
+    rclcpp::spin_until_future_complete(node_, result, server_timeout_) ==
+    rclcpp::FutureReturnCode::SUCCESS) {
     if (result.get()->is_valid) {
       return BT::NodeStatus::SUCCESS;
     }

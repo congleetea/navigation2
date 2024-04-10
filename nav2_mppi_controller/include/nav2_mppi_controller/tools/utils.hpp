@@ -1,5 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
-// Copyright (c) 2023 Open Navigation LLC
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov Copyright (c) 2023 Open Navigation LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@
 
 #include <algorithm>
 #include <chrono>
-#include <string>
 #include <limits>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <xtensor/xarray.hpp>
-#include <xtensor/xnorm.hpp>
 #include <xtensor/xmath.hpp>
+#include <xtensor/xnorm.hpp>
 #include <xtensor/xview.hpp>
 
 #include "angles/angles.h"
@@ -40,14 +40,14 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 
-#include "nav2_util/node_utils.hpp"
 #include "nav2_core/goal_checker.hpp"
+#include "nav2_util/node_utils.hpp"
 
-#include "nav2_mppi_controller/models/optimizer_settings.hpp"
-#include "nav2_mppi_controller/models/control_sequence.hpp"
-#include "nav2_mppi_controller/models/path.hpp"
 #include "builtin_interfaces/msg/time.hpp"
 #include "nav2_mppi_controller/critic_data.hpp"
+#include "nav2_mppi_controller/models/control_sequence.hpp"
+#include "nav2_mppi_controller/models/optimizer_settings.hpp"
+#include "nav2_mppi_controller/models/path.hpp"
 
 namespace mppi::utils
 {
@@ -192,15 +192,15 @@ inline models::Path toTensor(const nav_msgs::msg::Path & path)
 }
 
 /**
- * @brief Check if the robot pose is within the Goal Checker's tolerances to goal
+ * @brief Check if the robot pose is within the Goal Checker's tolerances to
+ * goal
  * @param global_checker Pointer to the goal checker
  * @param robot Pose of robot
  * @param path Path to retreive goal pose from
  * @return bool If robot is within goal checker tolerances to the goal
  */
 inline bool withinPositionGoalTolerance(
-  nav2_core::GoalChecker * goal_checker,
-  const geometry_msgs::msg::Pose & robot,
+  nav2_core::GoalChecker * goal_checker, const geometry_msgs::msg::Pose & robot,
   const models::Path & path)
 {
   const auto goal_idx = path.x.shape(0) - 1;
@@ -235,9 +235,7 @@ inline bool withinPositionGoalTolerance(
  * @return bool If robot is within tolerance to the goal
  */
 inline bool withinPositionGoalTolerance(
-  float pose_tolerance,
-  const geometry_msgs::msg::Pose & robot,
-  const models::Path & path)
+  float pose_tolerance, const geometry_msgs::msg::Pose & robot, const models::Path & path)
 {
   const auto goal_idx = path.x.shape(0) - 1;
   const auto goal_x = path.x(goal_idx);
@@ -258,13 +256,13 @@ inline bool withinPositionGoalTolerance(
 }
 
 /**
-  * @brief normalize
-  * Normalizes the angle to be -M_PI circle to +M_PI circle
-  * It takes and returns radians.
-  * @param angles Angles to normalize
-  * @return normalized angles
-  */
-template<typename T>
+ * @brief normalize
+ * Normalizes the angle to be -M_PI circle to +M_PI circle
+ * It takes and returns radians.
+ * @param angles Angles to normalize
+ * @return normalized angles
+ */
+template <typename T>
 auto normalize_angles(const T & angles)
 {
   auto && theta = xt::eval(xt::fmod(angles + M_PI, 2.0 * M_PI));
@@ -272,22 +270,20 @@ auto normalize_angles(const T & angles)
 }
 
 /**
-  * @brief shortest_angular_distance
-  *
-  * Given 2 angles, this returns the shortest angular
-  * difference.  The inputs and ouputs are of course radians.
-  *
-  * The result
-  * would always be -pi <= result <= pi.  Adding the result
-  * to "from" will always get you an equivelent angle to "to".
-  * @param from Start angle
-  * @param to End angle
-  * @return Shortest distance between angles
-  */
-template<typename F, typename T>
-auto shortest_angular_distance(
-  const F & from,
-  const T & to)
+ * @brief shortest_angular_distance
+ *
+ * Given 2 angles, this returns the shortest angular
+ * difference.  The inputs and ouputs are of course radians.
+ *
+ * The result
+ * would always be -pi <= result <= pi.  Adding the result
+ * to "from" will always get you an equivelent angle to "to".
+ * @param from Start angle
+ * @param to End angle
+ * @return Shortest distance between angles
+ */
+template <typename F, typename T>
+auto shortest_angular_distance(const F & from, const T & to)
 {
   return normalize_angles(to - from);
 }
@@ -367,8 +363,7 @@ inline void setPathFurthestPointIfNotSet(CriticData & data)
  * @param data Data to use
  */
 inline void findPathCosts(
-  CriticData & data,
-  std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros)
+  CriticData & data, std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros)
 {
   auto * costmap = costmap_ros->getCostmap();
   unsigned int map_x, map_y;
@@ -383,7 +378,7 @@ inline void findPathCosts(
     }
 
     switch (costmap->getCost(map_x, map_y)) {
-      using namespace nav2_costmap_2d; // NOLINT
+      using namespace nav2_costmap_2d;  // NOLINT
       case (LETHAL_OBSTACLE):
         (*data.path_pts_valid)[idx] = false;
         continue;
@@ -391,8 +386,7 @@ inline void findPathCosts(
         (*data.path_pts_valid)[idx] = false;
         continue;
       case (NO_INFORMATION):
-        const bool is_tracking_unknown =
-          costmap_ros->getLayeredCostmap()->isTrackingUnknown();
+        const bool is_tracking_unknown = costmap_ros->getLayeredCostmap()->isTrackingUnknown();
         (*data.path_pts_valid)[idx] = is_tracking_unknown ? true : false;
         continue;
     }
@@ -406,8 +400,7 @@ inline void findPathCosts(
  * @param data Data to use
  */
 inline void setPathCostsIfNotSet(
-  CriticData & data,
-  std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros)
+  CriticData & data, std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros)
 {
   if (!data.path_pts_valid) {
     findPathCosts(data, costmap_ros);
@@ -431,7 +424,8 @@ inline float posePointAngle(
 
   float yaw = atan2f(point_y - pose_y, point_x - pose_x);
 
-  // If no preference for forward, return smallest angle either in heading or 180 of heading
+  // If no preference for forward, return smallest angle either in heading or
+  // 180 of heading
   if (!forward_preference) {
     return std::min(
       fabs(angles::shortest_angular_distance(yaw, pose_yaw)),
@@ -464,142 +458,69 @@ inline void savitskyGolayFilter(
   }
 
   auto applyFilter = [&](const xt::xarray<float> & data) -> float {
-      return xt::sum(data * filter, {0}, immediate)();
-    };
+    return xt::sum(data * filter, {0}, immediate)();
+  };
 
-  auto applyFilterOverAxis =
-    [&](xt::xtensor<float, 1> & sequence,
-      const float hist_0, const float hist_1, const float hist_2, const float hist_3) -> void
-    {
-      unsigned int idx = 0;
+  auto applyFilterOverAxis = [&](
+                               xt::xtensor<float, 1> & sequence, const float hist_0,
+                               const float hist_1, const float hist_2, const float hist_3) -> void {
+    unsigned int idx = 0;
+    sequence(idx) = applyFilter(
+      {hist_0, hist_1, hist_2, hist_3, sequence(idx), sequence(idx + 1), sequence(idx + 2),
+       sequence(idx + 3), sequence(idx + 4)});
+
+    idx++;
+    sequence(idx) = applyFilter(
+      {hist_1, hist_2, hist_3, sequence(idx - 1), sequence(idx), sequence(idx + 1),
+       sequence(idx + 2), sequence(idx + 3), sequence(idx + 4)});
+
+    idx++;
+    sequence(idx) = applyFilter(
+      {hist_2, hist_3, sequence(idx - 2), sequence(idx - 1), sequence(idx), sequence(idx + 1),
+       sequence(idx + 2), sequence(idx + 3), sequence(idx + 4)});
+
+    idx++;
+    sequence(idx) = applyFilter(
+      {hist_3, sequence(idx - 3), sequence(idx - 2), sequence(idx - 1), sequence(idx),
+       sequence(idx + 1), sequence(idx + 2), sequence(idx + 3), sequence(idx + 4)});
+
+    for (idx = 4; idx != num_sequences - 4; idx++) {
       sequence(idx) = applyFilter(
-      {
-        hist_0,
-        hist_1,
-        hist_2,
-        hist_3,
-        sequence(idx),
-        sequence(idx + 1),
-        sequence(idx + 2),
-        sequence(idx + 3),
-        sequence(idx + 4)});
+        {sequence(idx - 4), sequence(idx - 3), sequence(idx - 2), sequence(idx - 1), sequence(idx),
+         sequence(idx + 1), sequence(idx + 2), sequence(idx + 3), sequence(idx + 4)});
+    }
 
-      idx++;
-      sequence(idx) = applyFilter(
-      {
-        hist_1,
-        hist_2,
-        hist_3,
-        sequence(idx - 1),
-        sequence(idx),
-        sequence(idx + 1),
-        sequence(idx + 2),
-        sequence(idx + 3),
-        sequence(idx + 4)});
+    idx++;
+    sequence(idx) = applyFilter(
+      {sequence(idx - 4), sequence(idx - 3), sequence(idx - 2), sequence(idx - 1), sequence(idx),
+       sequence(idx + 1), sequence(idx + 2), sequence(idx + 3), sequence(idx + 3)});
 
-      idx++;
-      sequence(idx) = applyFilter(
-      {
-        hist_2,
-        hist_3,
-        sequence(idx - 2),
-        sequence(idx - 1),
-        sequence(idx),
-        sequence(idx + 1),
-        sequence(idx + 2),
-        sequence(idx + 3),
-        sequence(idx + 4)});
+    idx++;
+    sequence(idx) = applyFilter(
+      {sequence(idx - 4), sequence(idx - 3), sequence(idx - 2), sequence(idx - 1), sequence(idx),
+       sequence(idx + 1), sequence(idx + 2), sequence(idx + 2), sequence(idx + 2)});
 
-      idx++;
-      sequence(idx) = applyFilter(
-      {
-        hist_3,
-        sequence(idx - 3),
-        sequence(idx - 2),
-        sequence(idx - 1),
-        sequence(idx),
-        sequence(idx + 1),
-        sequence(idx + 2),
-        sequence(idx + 3),
-        sequence(idx + 4)});
+    idx++;
+    sequence(idx) = applyFilter(
+      {sequence(idx - 4), sequence(idx - 3), sequence(idx - 2), sequence(idx - 1), sequence(idx),
+       sequence(idx + 1), sequence(idx + 1), sequence(idx + 1), sequence(idx + 1)});
 
-      for (idx = 4; idx != num_sequences - 4; idx++) {
-        sequence(idx) = applyFilter(
-        {
-          sequence(idx - 4),
-          sequence(idx - 3),
-          sequence(idx - 2),
-          sequence(idx - 1),
-          sequence(idx),
-          sequence(idx + 1),
-          sequence(idx + 2),
-          sequence(idx + 3),
-          sequence(idx + 4)});
-      }
-
-      idx++;
-      sequence(idx) = applyFilter(
-      {
-        sequence(idx - 4),
-        sequence(idx - 3),
-        sequence(idx - 2),
-        sequence(idx - 1),
-        sequence(idx),
-        sequence(idx + 1),
-        sequence(idx + 2),
-        sequence(idx + 3),
-        sequence(idx + 3)});
-
-      idx++;
-      sequence(idx) = applyFilter(
-      {
-        sequence(idx - 4),
-        sequence(idx - 3),
-        sequence(idx - 2),
-        sequence(idx - 1),
-        sequence(idx),
-        sequence(idx + 1),
-        sequence(idx + 2),
-        sequence(idx + 2),
-        sequence(idx + 2)});
-
-      idx++;
-      sequence(idx) = applyFilter(
-      {
-        sequence(idx - 4),
-        sequence(idx - 3),
-        sequence(idx - 2),
-        sequence(idx - 1),
-        sequence(idx),
-        sequence(idx + 1),
-        sequence(idx + 1),
-        sequence(idx + 1),
-        sequence(idx + 1)});
-
-      idx++;
-      sequence(idx) = applyFilter(
-      {
-        sequence(idx - 4),
-        sequence(idx - 3),
-        sequence(idx - 2),
-        sequence(idx - 1),
-        sequence(idx),
-        sequence(idx),
-        sequence(idx),
-        sequence(idx),
-        sequence(idx)});
-    };
+    idx++;
+    sequence(idx) = applyFilter(
+      {sequence(idx - 4), sequence(idx - 3), sequence(idx - 2), sequence(idx - 1), sequence(idx),
+       sequence(idx), sequence(idx), sequence(idx), sequence(idx)});
+  };
 
   // Filter trajectories
   applyFilterOverAxis(
-    control_sequence.vx, control_history[0].vx,
-    control_history[1].vx, control_history[2].vx, control_history[3].vx);
+    control_sequence.vx, control_history[0].vx, control_history[1].vx, control_history[2].vx,
+    control_history[3].vx);
   applyFilterOverAxis(
-    control_sequence.vy, control_history[0].vy,
-    control_history[1].vy, control_history[2].vy, control_history[3].vy);
+    control_sequence.vy, control_history[0].vy, control_history[1].vy, control_history[2].vy,
+    control_history[3].vy);
   applyFilterOverAxis(
-    control_sequence.wz, control_history[0].wz,
-    control_history[1].wz, control_history[2].wz, control_history[3].wz);
+    control_sequence.wz, control_history[0].wz, control_history[1].wz, control_history[2].wz,
+    control_history[3].wz);
 
   // Update control history
   unsigned int offset = settings.shift_control_sequence ? 1 : 0;
@@ -607,13 +528,12 @@ inline void savitskyGolayFilter(
   control_history[1] = control_history[2];
   control_history[2] = control_history[3];
   control_history[3] = {
-    control_sequence.vx(offset),
-    control_sequence.vy(offset),
-    control_sequence.wz(offset)};
+    control_sequence.vx(offset), control_sequence.vy(offset), control_sequence.wz(offset)};
 }
 
 /**
- * @brief Find the iterator of the first pose at which there is an inversion on the path,
+ * @brief Find the iterator of the first pose at which there is an inversion on
+ * the path,
  * @param path to check for inversion
  * @return the first point after the inversion found in the path
  */
@@ -626,15 +546,12 @@ inline unsigned int findFirstPathInversion(nav_msgs::msg::Path & path)
 
   // Iterating through the path to determine the position of the path inversion
   for (unsigned int idx = 1; idx < path.poses.size() - 1; ++idx) {
-    // We have two vectors for the dot product OA and AB. Determining the vectors.
-    float oa_x = path.poses[idx].pose.position.x -
-      path.poses[idx - 1].pose.position.x;
-    float oa_y = path.poses[idx].pose.position.y -
-      path.poses[idx - 1].pose.position.y;
-    float ab_x = path.poses[idx + 1].pose.position.x -
-      path.poses[idx].pose.position.x;
-    float ab_y = path.poses[idx + 1].pose.position.y -
-      path.poses[idx].pose.position.y;
+    // We have two vectors for the dot product OA and AB. Determining the
+    // vectors.
+    float oa_x = path.poses[idx].pose.position.x - path.poses[idx - 1].pose.position.x;
+    float oa_y = path.poses[idx].pose.position.y - path.poses[idx - 1].pose.position.y;
+    float ab_x = path.poses[idx + 1].pose.position.x - path.poses[idx].pose.position.x;
+    float ab_y = path.poses[idx + 1].pose.position.y - path.poses[idx].pose.position.y;
 
     // Checking for the existance of cusp, in the path, using the dot product.
     float dot_product = (oa_x * ab_x) + (oa_y * ab_y);
@@ -666,7 +583,8 @@ inline unsigned int removePosesAfterFirstInversion(nav_msgs::msg::Path & path)
 }
 
 /**
- * @brief Compare to trajectory points to find closest path point along integrated distances
+ * @brief Compare to trajectory points to find closest path point along
+ * integrated distances
  * @param vec Vect to check
  * @return dist Distance to look for
  */

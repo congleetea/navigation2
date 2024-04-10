@@ -30,9 +30,8 @@
 // #include <gsl/gsl_eigen.h>
 // #include <gsl/gsl_linalg.h>
 
-#include "nav2_amcl/pf/pf_vector.hpp"
 #include "nav2_amcl/pf/eig3.hpp"
-
+#include "nav2_amcl/pf/pf_vector.hpp"
 
 // Return a zero vector
 pf_vector_t pf_vector_zero()
@@ -45,7 +44,6 @@ pf_vector_t pf_vector_zero()
 
   return c;
 }
-
 
 // // Check for NAN or INF in any component
 // int pf_vector_finite(pf_vector_t a)
@@ -61,7 +59,6 @@ pf_vector_t pf_vector_zero()
 //   return 1;
 // }
 
-
 // Print a vector
 // void pf_vector_fprintf(pf_vector_t a, FILE * file, const char * fmt)
 // {
@@ -73,7 +70,6 @@ pf_vector_t pf_vector_zero()
 //   }
 //   fprintf(file, "\n");
 // }
-
 
 // // Simple vector addition
 // pf_vector_t pf_vector_add(pf_vector_t a, pf_vector_t b)
@@ -87,7 +83,6 @@ pf_vector_t pf_vector_zero()
 //   return c;
 // }
 
-
 // Simple vector subtraction
 pf_vector_t pf_vector_sub(pf_vector_t a, pf_vector_t b)
 {
@@ -99,7 +94,6 @@ pf_vector_t pf_vector_sub(pf_vector_t a, pf_vector_t b)
 
   return c;
 }
-
 
 // Transform from local to global coords (a + b)
 pf_vector_t pf_vector_coord_add(pf_vector_t a, pf_vector_t b)
@@ -114,20 +108,18 @@ pf_vector_t pf_vector_coord_add(pf_vector_t a, pf_vector_t b)
   return c;
 }
 
-
 // // Transform from global to local coords (a - b)
 // pf_vector_t pf_vector_coord_sub(pf_vector_t a, pf_vector_t b)
 // {
 //   pf_vector_t c;
 
-//   c.v[0] = +(a.v[0] - b.v[0]) * cos(b.v[2]) + (a.v[1] - b.v[1]) * sin(b.v[2]);
-//   c.v[1] = -(a.v[0] - b.v[0]) * sin(b.v[2]) + (a.v[1] - b.v[1]) * cos(b.v[2]);
-//   c.v[2] = a.v[2] - b.v[2];
-//   c.v[2] = atan2(sin(c.v[2]), cos(c.v[2]));
+//   c.v[0] = +(a.v[0] - b.v[0]) * cos(b.v[2]) + (a.v[1] - b.v[1]) *
+//   sin(b.v[2]); c.v[1] = -(a.v[0] - b.v[0]) * sin(b.v[2]) + (a.v[1] - b.v[1])
+//   * cos(b.v[2]); c.v[2] = a.v[2] - b.v[2]; c.v[2] = atan2(sin(c.v[2]),
+//   cos(c.v[2]));
 
 //   return c;
 // }
-
 
 // Return a zero matrix
 pf_matrix_t pf_matrix_zero()
@@ -143,7 +135,6 @@ pf_matrix_t pf_matrix_zero()
 
   return c;
 }
-
 
 // // Check for NAN or INF in any component
 // int pf_matrix_finite(pf_matrix_t a)
@@ -161,7 +152,6 @@ pf_matrix_t pf_matrix_zero()
 //   return 1;
 // }
 
-
 // Print a matrix
 // void pf_matrix_fprintf(pf_matrix_t a, FILE * file, const char * fmt)
 // {
@@ -175,7 +165,6 @@ pf_matrix_t pf_matrix_zero()
 //     fprintf(file, "\n");
 //   }
 // }
-
 
 /*
 // Compute the matrix inverse
@@ -216,7 +205,6 @@ pf_matrix_t pf_matrix_inverse(pf_matrix_t a, double *det)
   return ai;
 }
 */
-
 
 // Decompose a covariance matrix [a] into a rotation matrix [r] and a diagonal
 // matrix [d] such that a = r d r^T.

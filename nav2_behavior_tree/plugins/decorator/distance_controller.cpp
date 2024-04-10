@@ -14,13 +14,13 @@
 // limitations under the License.
 
 #include <chrono>
-#include <string>
-#include <memory>
 #include <cmath>
+#include <memory>
+#include <string>
 
-#include "nav2_util/robot_utils.hpp"
-#include "nav2_util/geometry_utils.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav2_util/geometry_utils.hpp"
+#include "nav2_util/robot_utils.hpp"
 #include "tf2_ros/buffer.h"
 
 #include "behaviortree_cpp_v3/decorator_node.h"
@@ -30,9 +30,7 @@
 namespace nav2_behavior_tree
 {
 
-DistanceController::DistanceController(
-  const std::string & name,
-  const BT::NodeConfiguration & conf)
+DistanceController::DistanceController(const std::string & name, const BT::NodeConfiguration & conf)
 : BT::DecoratorNode(name, conf),
   distance_(1.0),
   global_frame_("map"),
@@ -54,9 +52,7 @@ inline BT::NodeStatus DistanceController::tick()
     // Reset the starting position since we're starting a new iteration of
     // the distance controller (moving from IDLE to RUNNING)
     if (!nav2_util::getCurrentPose(
-        start_pose_, *tf_, global_frame_, robot_base_frame_,
-        transform_tolerance_))
-    {
+          start_pose_, *tf_, global_frame_, robot_base_frame_, transform_tolerance_)) {
       RCLCPP_DEBUG(node_->get_logger(), "Current robot pose is not available.");
       return BT::NodeStatus::FAILURE;
     }
@@ -68,23 +64,19 @@ inline BT::NodeStatus DistanceController::tick()
   // Determine distance travelled since we've started this iteration
   geometry_msgs::msg::PoseStamped current_pose;
   if (!nav2_util::getCurrentPose(
-      current_pose, *tf_, global_frame_, robot_base_frame_,
-      transform_tolerance_))
-  {
+        current_pose, *tf_, global_frame_, robot_base_frame_, transform_tolerance_)) {
     RCLCPP_DEBUG(node_->get_logger(), "Current robot pose is not available.");
     return BT::NodeStatus::FAILURE;
   }
 
   // Get euclidean distance
-  auto travelled = nav2_util::geometry_utils::euclidean_distance(
-    start_pose_.pose, current_pose.pose);
+  auto travelled =
+    nav2_util::geometry_utils::euclidean_distance(start_pose_.pose, current_pose.pose);
 
   // The child gets ticked the first time through and every time the threshold
   // distance is crossed. In addition, once the child begins to run, it is
   // ticked each time 'til completion
-  if (first_time_ || (child_node_->status() == BT::NodeStatus::RUNNING) ||
-    travelled >= distance_)
-  {
+  if (first_time_ || (child_node_->status() == BT::NodeStatus::RUNNING) || travelled >= distance_) {
     first_time_ = false;
     const BT::NodeStatus child_state = child_node_->executeTick();
 
@@ -94,9 +86,7 @@ inline BT::NodeStatus DistanceController::tick()
 
       case BT::NodeStatus::SUCCESS:
         if (!nav2_util::getCurrentPose(
-            start_pose_, *tf_, global_frame_, robot_base_frame_,
-            transform_tolerance_))
-        {
+              start_pose_, *tf_, global_frame_, robot_base_frame_, transform_tolerance_)) {
           RCLCPP_DEBUG(node_->get_logger(), "Current robot pose is not available.");
           return BT::NodeStatus::FAILURE;
         }

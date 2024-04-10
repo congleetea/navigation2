@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,24 +16,24 @@
 #include <chrono>
 #include <thread>
 
-#include <xtensor/xrandom.hpp>
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_mppi_controller/tools/utils.hpp"
 #include "nav2_mppi_controller/models/path.hpp"
+#include "nav2_mppi_controller/tools/utils.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
+#include <xtensor/xrandom.hpp>
 
 // Tests noise generator object
 
 class RosLockGuard
 {
 public:
-  RosLockGuard() {rclcpp::init(0, nullptr);}
-  ~RosLockGuard() {rclcpp::shutdown();}
+  RosLockGuard() { rclcpp::init(0, nullptr); }
+  ~RosLockGuard() { rclcpp::shutdown(); }
 };
 RosLockGuard g_rclcpp;
 
 using namespace mppi::utils;  // NOLINT
-using namespace mppi;  // NOLINT
+using namespace mppi;         // NOLINT
 
 class TestGoalChecker : public nav2_core::GoalChecker
 {
@@ -42,18 +43,21 @@ public:
   virtual void initialize(
     const rclcpp_lifecycle::LifecycleNode::WeakPtr & /*parent*/,
     const std::string & /*plugin_name*/,
-    const std::shared_ptr<nav2_costmap_2d::Costmap2DROS>/*costmap_ros*/) {}
+    const std::shared_ptr<nav2_costmap_2d::Costmap2DROS> /*costmap_ros*/)
+  {
+  }
 
   virtual void reset() {}
 
   virtual bool isGoalReached(
-    const geometry_msgs::msg::Pose & /*query_pose*/,
-    const geometry_msgs::msg::Pose & /*goal_pose*/,
-    const geometry_msgs::msg::Twist & /*velocity*/) {return false;}
+    const geometry_msgs::msg::Pose & /*query_pose*/, const geometry_msgs::msg::Pose & /*goal_pose*/,
+    const geometry_msgs::msg::Twist & /*velocity*/)
+  {
+    return false;
+  }
 
   virtual bool getTolerances(
-    geometry_msgs::msg::Pose & pose_tolerance,
-    geometry_msgs::msg::Twist & /*vel_tolerance*/)
+    geometry_msgs::msg::Pose & pose_tolerance, geometry_msgs::msg::Twist & /*vel_tolerance*/)
   {
     pose_tolerance.position.x = 0.25;
     pose_tolerance.position.y = 0.25;
@@ -213,9 +217,8 @@ TEST(UtilsTests, FurthestAndClosestReachedPoint)
   xt::xtensor<float, 1> costs;
   float model_dt = 0.1;
 
-  CriticData data =
-  {state, generated_trajectories, path, costs, model_dt, false, nullptr, nullptr,
-    std::nullopt, std::nullopt};  /// Caution, keep references
+  CriticData data = {state,   generated_trajectories, path,        costs, model_dt, false, nullptr,
+                     nullptr, std::nullopt,           std::nullopt};  /// Caution, keep references
 
   // Attempt to set furthest point if notionally set, should not change
   data.furthest_reached_path_point = 99999;
@@ -223,9 +226,8 @@ TEST(UtilsTests, FurthestAndClosestReachedPoint)
   EXPECT_EQ(data.furthest_reached_path_point, 99999);
 
   // Attempt to set if not set already with no other information, should fail
-  CriticData data2 =
-  {state, generated_trajectories, path, costs, model_dt, false, nullptr, nullptr,
-    std::nullopt, std::nullopt};  /// Caution, keep references
+  CriticData data2 = {state,   generated_trajectories, path,        costs, model_dt, false, nullptr,
+                      nullptr, std::nullopt,           std::nullopt};  /// Caution, keep references
   setPathFurthestPointIfNotSet(data2);
   EXPECT_EQ(data2.furthest_reached_path_point, 0);
 
@@ -242,9 +244,8 @@ TEST(UtilsTests, FurthestAndClosestReachedPoint)
   }
   path = toTensor(plan);
 
-  CriticData data3 =
-  {state, generated_trajectories, path, costs, model_dt, false, nullptr, nullptr,
-    std::nullopt, std::nullopt};  /// Caution, keep references
+  CriticData data3 = {state,   generated_trajectories, path,        costs, model_dt, false, nullptr,
+                      nullptr, std::nullopt,           std::nullopt};  /// Caution, keep references
   EXPECT_EQ(findPathFurthestReachedPoint(data3), 5u);
   EXPECT_EQ(findPathTrajectoryInitialPoint(data3), 5u);
 }
@@ -257,9 +258,8 @@ TEST(UtilsTests, findPathCosts)
   xt::xtensor<float, 1> costs;
   float model_dt = 0.1;
 
-  CriticData data =
-  {state, generated_trajectories, path, costs, model_dt, false, nullptr, nullptr,
-    std::nullopt, std::nullopt};  /// Caution, keep references
+  CriticData data = {state,   generated_trajectories, path,        costs, model_dt, false, nullptr,
+                     nullptr, std::nullopt,           std::nullopt};  /// Caution, keep references
 
   // Test not set if already set, should not change
   data.path_pts_valid = std::vector<bool>(10, false);
@@ -270,22 +270,22 @@ TEST(UtilsTests, findPathCosts)
   setPathCostsIfNotSet(data, nullptr);
   EXPECT_EQ(data.path_pts_valid->size(), 10u);
 
-  CriticData data3 =
-  {state, generated_trajectories, path, costs, model_dt, false, nullptr, nullptr,
-    std::nullopt, std::nullopt};  /// Caution, keep references
+  CriticData data3 = {state,   generated_trajectories, path,        costs, model_dt, false, nullptr,
+                      nullptr, std::nullopt,           std::nullopt};  /// Caution, keep references
 
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   rclcpp_lifecycle::State lstate;
   costmap_ros->on_configure(lstate);
   auto * costmap = costmap_ros->getCostmap();
-  // island in the middle of lethal cost to cross. Costmap defaults to size 5x5 @ 10cm resolution
-  for (unsigned int i = 10; i <= 30; ++i) {  // 1m-3m
+  // island in the middle of lethal cost to cross. Costmap defaults to size 5x5
+  // @ 10cm resolution
+  for (unsigned int i = 10; i <= 30; ++i) {    // 1m-3m
     for (unsigned int j = 10; j <= 30; ++j) {  // 1m-3m
       costmap->setCost(i, j, 254);
     }
   }
-  for (unsigned int i = 40; i <= 45; ++i) {  // 4m-4.5m
+  for (unsigned int i = 40; i <= 45; ++i) {    // 4m-4.5m
     for (unsigned int j = 45; j <= 45; ++j) {  // 4m-4.5m
       costmap->setCost(i, j, 253);
     }
@@ -385,8 +385,8 @@ TEST(UtilsTests, FindPathInversionTest)
   path.poses.erase(path.poses.begin(), path.poses.begin() + 7);
   EXPECT_EQ(utils::findFirstPathInversion(path), 3u);
 
-  // Has inversion at index 10, so should return 11 for the first point afterwards
-  // 0 1 2 3 4 5 6 7 8 9 10 **9** 8 7 6 5 4 3 2 1
+  // Has inversion at index 10, so should return 11 for the first point
+  // afterwards 0 1 2 3 4 5 6 7 8 9 10 **9** 8 7 6 5 4 3 2 1
   path.poses.clear();
   for (unsigned int i = 0; i != 10; i++) {
     geometry_msgs::msg::PoseStamped pose;

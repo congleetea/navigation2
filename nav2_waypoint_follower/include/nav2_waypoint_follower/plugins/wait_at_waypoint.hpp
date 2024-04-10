@@ -18,26 +18,26 @@
 
 #include <string>
 
+#include "nav2_core/waypoint_task_executor.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
-#include "nav2_core/waypoint_task_executor.hpp"
 
 namespace nav2_waypoint_follower
 {
 
 /**
  * @brief Simple plugin based on WaypointTaskExecutor, lets robot to sleep for a
- *        specified amount of time at waypoint arrival. You can reference this class to define
- *        your own task and rewrite the body for it.
+ *        specified amount of time at waypoint arrival. You can reference this
+ * class to define your own task and rewrite the body for it.
  *
  */
 class WaitAtWaypoint : public nav2_core::WaypointTaskExecutor
 {
 public:
-/**
- * @brief Construct a new Wait At Waypoint Arrival object
- *
- */
+  /**
+   * @brief Construct a new Wait At Waypoint Arrival object
+   *
+   */
   WaitAtWaypoint();
 
   /**
@@ -49,16 +49,16 @@ public:
   /**
    * @brief declares and loads parameters used (waypoint_pause_duration_)
    *
-   * @param parent parent node that plugin will be created withing(waypoint_follower in this case)
+   * @param parent parent node that plugin will be created
+   * withing(waypoint_follower in this case)
    * @param plugin_name
    */
   void initialize(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-    const std::string & plugin_name);
-
+    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, const std::string & plugin_name);
 
   /**
-   * @brief Override this to define the body of your task that you would like to execute once the robot arrived to waypoint
+   * @brief Override this to define the body of your task that you would like to
+   * execute once the robot arrived to waypoint
    *
    * @param curr_pose current pose of the robot
    * @param curr_waypoint_index current waypoint, that robot just arrived

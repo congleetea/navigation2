@@ -13,12 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <chrono>
 #include <gtest/gtest.h>
 #include <memory>
 #include <set>
-#include <vector>
 #include <string>
-#include <chrono>
+#include <vector>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
@@ -28,22 +28,18 @@
 
 #include "test_msgs/action/fibonacci.hpp"
 
-using namespace std::chrono_literals; // NOLINT
-using namespace std::placeholders;  // NOLINT
+using namespace std::chrono_literals;  // NOLINT
+using namespace std::placeholders;     // NOLINT
 
 class FibonacciActionServer : public rclcpp::Node
 {
 public:
   FibonacciActionServer()
-  : rclcpp::Node("fibonacci_node", rclcpp::NodeOptions()),
-    sleep_duration_(0ms)
+  : rclcpp::Node("fibonacci_node", rclcpp::NodeOptions()), sleep_duration_(0ms)
   {
     this->action_server_ = rclcpp_action::create_server<test_msgs::action::Fibonacci>(
-      this->get_node_base_interface(),
-      this->get_node_clock_interface(),
-      this->get_node_logging_interface(),
-      this->get_node_waitables_interface(),
-      "fibonacci",
+      this->get_node_base_interface(), this->get_node_clock_interface(),
+      this->get_node_logging_interface(), this->get_node_waitables_interface(), "fibonacci",
       std::bind(&FibonacciActionServer::handle_goal, this, _1, _2),
       std::bind(&FibonacciActionServer::handle_cancel, this, _1),
       std::bind(&FibonacciActionServer::handle_accepted, this, _1));
@@ -56,8 +52,7 @@ public:
 
 protected:
   rclcpp_action::GoalResponse handle_goal(
-    const rclcpp_action::GoalUUID &,
-    std::shared_ptr<const test_msgs::action::Fibonacci::Goal>)
+    const rclcpp_action::GoalUUID &, std::shared_ptr<const test_msgs::action::Fibonacci::Goal>)
   {
     if (sleep_duration_ > 0ms) {
       std::this_thread::sleep_for(sleep_duration_);
@@ -74,7 +69,8 @@ protected:
   void handle_accepted(
     const std::shared_ptr<rclcpp_action::ServerGoalHandle<test_msgs::action::Fibonacci>> handle)
   {
-    // this needs to return quickly to avoid blocking the executor, so spin up a new thread
+    // this needs to return quickly to avoid blocking the executor, so spin up a
+    // new thread
     if (handle) {
       const auto goal = handle->get_goal();
       auto result = std::make_shared<test_msgs::action::Fibonacci::Result>();
@@ -104,16 +100,12 @@ protected:
 class FibonacciAction : public nav2_behavior_tree::BtActionNode<test_msgs::action::Fibonacci>
 {
 public:
-  FibonacciAction(
-    const std::string & xml_tag_name,
-    const BT::NodeConfiguration & conf)
+  FibonacciAction(const std::string & xml_tag_name, const BT::NodeConfiguration & conf)
   : nav2_behavior_tree::BtActionNode<test_msgs::action::Fibonacci>(xml_tag_name, "fibonacci", conf)
-  {}
-
-  void on_tick() override
   {
-    getInput("order", goal_.order);
   }
+
+  void on_tick() override { getInput("order", goal_.order); }
 
   BT::NodeStatus on_success() override
   {
@@ -145,11 +137,9 @@ public:
     config_->blackboard->set<std::chrono::milliseconds>("bt_loop_duration", 10ms);
     config_->blackboard->set<bool>("initial_pose_received", false);
 
-    BT::NodeBuilder builder =
-      [](const std::string & name, const BT::NodeConfiguration & config)
-      {
-        return std::make_unique<FibonacciAction>(name, config);
-      };
+    BT::NodeBuilder builder = [](const std::string & name, const BT::NodeConfiguration & config) {
+      return std::make_unique<FibonacciAction>(name, config);
+    };
 
     factory_->registerBuilder<FibonacciAction>("Fibonacci", builder);
   }
@@ -167,13 +157,12 @@ public:
   {
     // initialize action server and spin on new thread
     action_server_ = std::make_shared<FibonacciActionServer>();
-    server_thread_ = std::make_shared<std::thread>(
-      []() {
-        while (rclcpp::ok() && BTActionNodeTestFixture::action_server_ != nullptr) {
-          rclcpp::spin_some(BTActionNodeTestFixture::action_server_);
-          std::this_thread::sleep_for(100ns);
-        }
-      });
+    server_thread_ = std::make_shared<std::thread>([]() {
+      while (rclcpp::ok() && BTActionNodeTestFixture::action_server_ != nullptr) {
+        rclcpp::spin_some(BTActionNodeTestFixture::action_server_);
+        std::this_thread::sleep_for(100ns);
+      }
+    });
   }
 
   void TearDown() override
@@ -242,8 +231,8 @@ TEST_F(BTActionNodeTestFixture, test_server_timeout_success)
   // expected fibonacci sequence for order 5
   std::vector<int> expected = {0, 1, 1, 2, 3, 5};
 
-  // since the server timeout was larger than the action server goal handling duration
-  // the BT should have succeeded
+  // since the server timeout was larger than the action server goal handling
+  // duration the BT should have succeeded
   EXPECT_EQ(result, BT::NodeStatus::SUCCESS);
 
   // checking the output fibonacci sequence
@@ -252,8 +241,8 @@ TEST_F(BTActionNodeTestFixture, test_server_timeout_success)
     EXPECT_EQ(sequence[i], expected[i]);
   }
 
-  // start a new execution cycle with the previous BT to ensure previous state doesn't leak into
-  // the new cycle
+  // start a new execution cycle with the previous BT to ensure previous state
+  // doesn't leak into the new cycle
 
   // halt BT for a new execution cycle
   tree_->haltTree();
@@ -272,11 +261,12 @@ TEST_F(BTActionNodeTestFixture, test_server_timeout_success)
     loopRate.sleep();
   }
 
-  // since the server timeout was smaller than the action server goal handling duration
-  // the BT should have failed
+  // since the server timeout was smaller than the action server goal handling
+  // duration the BT should have failed
   EXPECT_EQ(result, BT::NodeStatus::FAILURE);
 
-  // since the server timeout is 20ms and bt loop duration is 10ms, number of ticks should be 2
+  // since the server timeout is 20ms and bt loop duration is 10ms, number of
+  // ticks should be 2
   EXPECT_EQ(ticks, 2);
 }
 
@@ -291,8 +281,8 @@ TEST_F(BTActionNodeTestFixture, test_server_timeout_failure)
         </BehaviorTree>
       </root>)";
 
-  // setting a server timeout smaller than the time the action server will take to accept the goal
-  // to simulate a server timeout scenario
+  // setting a server timeout smaller than the time the action server will take
+  // to accept the goal to simulate a server timeout scenario
   config_->blackboard->set<std::chrono::milliseconds>("server_timeout", 90ms);
   config_->blackboard->set<std::chrono::milliseconds>("bt_loop_duration", 10ms);
 
@@ -316,15 +306,16 @@ TEST_F(BTActionNodeTestFixture, test_server_timeout_failure)
     loopRate.sleep();
   }
 
-  // since the server timeout was smaller than the action server goal handling duration
-  // the BT should have failed
+  // since the server timeout was smaller than the action server goal handling
+  // duration the BT should have failed
   EXPECT_EQ(result, BT::NodeStatus::FAILURE);
 
-  // since the server timeout is 90ms and bt loop duration is 10ms, number of ticks should be 9
+  // since the server timeout is 90ms and bt loop duration is 10ms, number of
+  // ticks should be 9
   EXPECT_EQ(ticks, 9);
 
-  // start a new execution cycle with the previous BT to ensure previous state doesn't leak into
-  // the new cycle
+  // start a new execution cycle with the previous BT to ensure previous state
+  // doesn't leak into the new cycle
 
   // halt BT for a new execution cycle
   tree_->haltTree();
@@ -343,8 +334,8 @@ TEST_F(BTActionNodeTestFixture, test_server_timeout_failure)
     loopRate.sleep();
   }
 
-  // since the server timeout was smaller than the action server goal handling duration
-  // the BT should have failed
+  // since the server timeout was smaller than the action server goal handling
+  // duration the BT should have failed
   EXPECT_EQ(result, BT::NodeStatus::SUCCESS);
 }
 

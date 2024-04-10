@@ -19,8 +19,8 @@
 #include <string>
 #include <vector>
 
-#include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp_v3/utils/shared_library.h"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_behavior_tree
 {
@@ -33,11 +33,8 @@ BehaviorTreeEngine::BehaviorTreeEngine(const std::vector<std::string> & plugin_l
   }
 }
 
-BtStatus
-BehaviorTreeEngine::run(
-  BT::Tree * tree,
-  std::function<void()> onLoop,
-  std::function<bool()> cancelRequested,
+BtStatus BehaviorTreeEngine::run(
+  BT::Tree * tree, std::function<void()> onLoop, std::function<bool()> cancelRequested,
   std::chrono::milliseconds loopTimeout)
 {
   rclcpp::WallRate loopRate(loopTimeout);
@@ -57,8 +54,7 @@ BehaviorTreeEngine::run(
 
       if (!loopRate.sleep()) {
         RCLCPP_WARN(
-          rclcpp::get_logger("BehaviorTreeEngine"),
-          "Behavior Tree tick rate %0.2f was exceeded!",
+          rclcpp::get_logger("BehaviorTreeEngine"), "Behavior Tree tick rate %0.2f was exceeded!",
           1.0 / (loopRate.period().count() * 1.0e-9));
       }
     }
@@ -72,25 +68,21 @@ BehaviorTreeEngine::run(
   return (result == BT::NodeStatus::SUCCESS) ? BtStatus::SUCCEEDED : BtStatus::FAILED;
 }
 
-BT::Tree
-BehaviorTreeEngine::createTreeFromText(
-  const std::string & xml_string,
-  BT::Blackboard::Ptr blackboard)
+BT::Tree BehaviorTreeEngine::createTreeFromText(
+  const std::string & xml_string, BT::Blackboard::Ptr blackboard)
 {
   return factory_.createTreeFromText(xml_string, blackboard);
 }
 
-BT::Tree
-BehaviorTreeEngine::createTreeFromFile(
-  const std::string & file_path,
-  BT::Blackboard::Ptr blackboard)
+BT::Tree BehaviorTreeEngine::createTreeFromFile(
+  const std::string & file_path, BT::Blackboard::Ptr blackboard)
 {
   return factory_.createTreeFromFile(file_path, blackboard);
 }
 
-// In order to re-run a Behavior Tree, we must be able to reset all nodes to the initial state
-void
-BehaviorTreeEngine::haltAllActions(BT::TreeNode * root_node)
+// In order to re-run a Behavior Tree, we must be able to reset all nodes to the
+// initial state
+void BehaviorTreeEngine::haltAllActions(BT::TreeNode * root_node)
 {
   if (!root_node) {
     return;
@@ -101,10 +93,10 @@ BehaviorTreeEngine::haltAllActions(BT::TreeNode * root_node)
 
   // but, just in case...
   auto visitor = [](BT::TreeNode * node) {
-      if (node->status() == BT::NodeStatus::RUNNING) {
-        node->halt();
-      }
-    };
+    if (node->status() == BT::NodeStatus::RUNNING) {
+      node->halt();
+    }
+  };
   BT::applyRecursiveVisitor(root_node, visitor);
 }
 

@@ -24,7 +24,8 @@ namespace nav2_behavior_tree
 {
 
 /**
- * @brief A nav2_behavior_tree::BtActionNode class that wraps nav2_msgs::action::Wait
+ * @brief A nav2_behavior_tree::BtActionNode class that wraps
+ * nav2_msgs::action::Wait
  */
 class WaitAction : public BtActionNode<nav2_msgs::action::Wait>
 {
@@ -36,8 +37,7 @@ public:
    * @param conf BT node configuration
    */
   WaitAction(
-    const std::string & xml_tag_name,
-    const std::string & action_name,
+    const std::string & xml_tag_name, const std::string & action_name,
     const BT::NodeConfiguration & conf);
 
   /**
@@ -51,10 +51,7 @@ public:
    */
   static BT::PortsList providedPorts()
   {
-    return providedBasicPorts(
-      {
-        BT::InputPort<int>("wait_duration", 1, "Wait time")
-      });
+    return providedBasicPorts({BT::InputPort<int>("wait_duration", 1, "Wait time")});
   }
 };
 

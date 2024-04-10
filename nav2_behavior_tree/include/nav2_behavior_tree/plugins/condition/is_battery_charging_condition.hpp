@@ -15,13 +15,13 @@
 #ifndef NAV2_BEHAVIOR_TREE__PLUGINS__CONDITION__IS_BATTERY_CHARGING_CONDITION_HPP_
 #define NAV2_BEHAVIOR_TREE__PLUGINS__CONDITION__IS_BATTERY_CHARGING_CONDITION_HPP_
 
-#include <string>
 #include <memory>
 #include <mutex>
+#include <string>
 
+#include "behaviortree_cpp_v3/condition_node.h"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/battery_state.hpp"
-#include "behaviortree_cpp_v3/condition_node.h"
 
 namespace nav2_behavior_tree
 {
@@ -39,8 +39,7 @@ public:
    * @param conf BT node configuration
    */
   IsBatteryChargingCondition(
-    const std::string & condition_name,
-    const BT::NodeConfiguration & conf);
+    const std::string & condition_name, const BT::NodeConfiguration & conf);
 
   IsBatteryChargingCondition() = delete;
 
@@ -57,9 +56,7 @@ public:
   static BT::PortsList providedPorts()
   {
     return {
-      BT::InputPort<std::string>(
-        "battery_topic", std::string("/battery_status"), "Battery topic")
-    };
+      BT::InputPort<std::string>("battery_topic", std::string("/battery_status"), "Battery topic")};
   }
 
 private:

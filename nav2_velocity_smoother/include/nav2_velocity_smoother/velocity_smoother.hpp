@@ -49,7 +49,8 @@ public:
   ~VelocitySmoother();
 
   /**
-   * @brief Find the scale factor, eta, which scales axis into acceleration range
+   * @brief Find the scale factor, eta, which scales axis into acceleration
+   * range
    * @param v_curr current velocity
    * @param v_cmd commanded velocity
    * @param accel maximum acceleration
@@ -57,8 +58,7 @@ public:
    * @return Scale factor, eta
    */
   double findEtaConstraint(
-    const double v_curr, const double v_cmd,
-    const double accel, const double decel);
+    const double v_curr, const double v_cmd, const double accel, const double decel);
 
   /**
    * @brief Apply acceleration and scale factor constraints
@@ -70,8 +70,8 @@ public:
    * @return Velocity command
    */
   double applyConstraints(
-    const double v_curr, const double v_cmd,
-    const double accel, const double decel, const double eta);
+    const double v_curr, const double v_cmd, const double accel, const double decel,
+    const double eta);
 
 protected:
   /**
@@ -129,8 +129,7 @@ protected:
 
   // Network interfaces
   std::unique_ptr<nav2_util::OdomSmoother> odom_smoother_;
-  rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::Twist>::SharedPtr
-    smoothed_cmd_pub_;
+  rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::Twist>::SharedPtr smoothed_cmd_pub_;
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_sub_;
   rclcpp::TimerBase::SharedPtr timer_;
 

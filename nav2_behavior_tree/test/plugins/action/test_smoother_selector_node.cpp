@@ -41,12 +41,10 @@ public:
     config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
 
     BT::NodeBuilder builder = [](const std::string & name, const BT::NodeConfiguration & config) {
-        return std::make_unique<nav2_behavior_tree::SmootherSelector>(name, config);
-      };
+      return std::make_unique<nav2_behavior_tree::SmootherSelector>(name, config);
+    };
 
-    factory_->registerBuilder<nav2_behavior_tree::SmootherSelector>(
-      "SmootherSelector",
-      builder);
+    factory_->registerBuilder<nav2_behavior_tree::SmootherSelector>("SmootherSelector", builder);
   }
 
   static void TearDownTestCase()
@@ -57,10 +55,7 @@ public:
     factory_.reset();
   }
 
-  void TearDown() override
-  {
-    tree_.reset();
-  }
+  void TearDown() override { tree_.reset(); }
 
 protected:
   static rclcpp::Node::SharedPtr node_;

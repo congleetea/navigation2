@@ -24,7 +24,8 @@ namespace nav2_behavior_tree
 {
 
 /**
- * @brief A nav2_behavior_tree::BtActionNode class that wraps nav2_msgs::action::BackUp
+ * @brief A nav2_behavior_tree::BtActionNode class that wraps
+ * nav2_msgs::action::BackUp
  */
 class BackUpAction : public BtActionNode<nav2_msgs::action::BackUp>
 {
@@ -36,8 +37,7 @@ public:
    * @param conf BT node configuration
    */
   BackUpAction(
-    const std::string & xml_tag_name,
-    const std::string & action_name,
+    const std::string & xml_tag_name, const std::string & action_name,
     const BT::NodeConfiguration & conf);
 
   /**
@@ -52,11 +52,9 @@ public:
   static BT::PortsList providedPorts()
   {
     return providedBasicPorts(
-      {
-        BT::InputPort<double>("backup_dist", 0.15, "Distance to backup"),
-        BT::InputPort<double>("backup_speed", 0.025, "Speed at which to backup"),
-        BT::InputPort<double>("time_allowance", 10.0, "Allowed time for reversing")
-      });
+      {BT::InputPort<double>("backup_dist", 0.15, "Distance to backup"),
+       BT::InputPort<double>("backup_speed", 0.025, "Speed at which to backup"),
+       BT::InputPort<double>("time_allowance", 10.0, "Allowed time for reversing")});
   }
 };
 

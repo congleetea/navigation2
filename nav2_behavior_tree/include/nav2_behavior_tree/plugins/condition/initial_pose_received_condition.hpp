@@ -24,6 +24,6 @@ namespace nav2_behavior_tree
  * has been received and FAILURE otherwise
  */
 BT::NodeStatus initialPoseReceived(BT::TreeNode & tree_node);
-}
+}  // namespace nav2_behavior_tree
 
 #endif  // NAV2_BEHAVIOR_TREE__PLUGINS__CONDITION__INITIAL_POSE_RECEIVED_CONDITION_HPP_

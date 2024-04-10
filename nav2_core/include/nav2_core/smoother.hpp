@@ -20,20 +20,20 @@
 
 #include "nav2_costmap_2d/costmap_subscriber.hpp"
 #include "nav2_costmap_2d/footprint_subscriber.hpp"
-#include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_listener.h"
+#include "nav_msgs/msg/path.hpp"
+#include "pluginlib/class_loader.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
-#include "pluginlib/class_loader.hpp"
-#include "nav_msgs/msg/path.hpp"
-
+#include "tf2_ros/buffer.h"
+#include "tf2_ros/transform_listener.h"
 
 namespace nav2_core
 {
 
 /**
  * @class Smoother
- * @brief smoother interface that acts as a virtual base class for all smoother plugins
+ * @brief smoother interface that acts as a virtual base class for all smoother
+ * plugins
  */
 class Smoother
 {
@@ -46,9 +46,8 @@ public:
   virtual ~Smoother() {}
 
   virtual void configure(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr &,
-    std::string name, std::shared_ptr<tf2_ros::Buffer>,
-    std::shared_ptr<nav2_costmap_2d::CostmapSubscriber>,
+    const rclcpp_lifecycle::LifecycleNode::WeakPtr &, std::string name,
+    std::shared_ptr<tf2_ros::Buffer>, std::shared_ptr<nav2_costmap_2d::CostmapSubscriber>,
     std::shared_ptr<nav2_costmap_2d::FootprintSubscriber>) = 0;
 
   /**
@@ -71,11 +70,10 @@ public:
    *
    * @param path In-out path to be smoothed
    * @param max_time Maximum duration smoothing should take
-   * @return If smoothing was completed (true) or interrupted by time limit (false)
+   * @return If smoothing was completed (true) or interrupted by time limit
+   * (false)
    */
-  virtual bool smooth(
-    nav_msgs::msg::Path & path,
-    const rclcpp::Duration & max_time) = 0;
+  virtual bool smooth(nav_msgs::msg::Path & path, const rclcpp::Duration & max_time) = 0;
 };
 
 }  // namespace nav2_core

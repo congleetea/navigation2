@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "std_msgs/msg/string.hpp"
 
@@ -27,15 +27,12 @@ namespace nav2_behavior_tree
 
 using std::placeholders::_1;
 
-PlannerSelector::PlannerSelector(
-  const std::string & name,
-  const BT::NodeConfiguration & conf)
+PlannerSelector::PlannerSelector(const std::string & name, const BT::NodeConfiguration & conf)
 : BT::SyncActionNode(name, conf)
 {
   node_ = config().blackboard->get<rclcpp::Node::SharedPtr>("node");
-  callback_group_ = node_->create_callback_group(
-    rclcpp::CallbackGroupType::MutuallyExclusive,
-    false);
+  callback_group_ =
+    node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false);
   callback_group_executor_.add_callback_group(callback_group_, node_->get_node_base_interface());
 
   getInput("topic_name", topic_name_);
@@ -46,21 +43,18 @@ PlannerSelector::PlannerSelector(
   rclcpp::SubscriptionOptions sub_option;
   sub_option.callback_group = callback_group_;
   planner_selector_sub_ = node_->create_subscription<std_msgs::msg::String>(
-    topic_name_,
-    qos,
-    std::bind(&PlannerSelector::callbackPlannerSelect, this, _1),
-    sub_option);
+    topic_name_, qos, std::bind(&PlannerSelector::callbackPlannerSelect, this, _1), sub_option);
 }
 
 BT::NodeStatus PlannerSelector::tick()
 {
   callback_group_executor_.spin_some();
 
-  // This behavior always use the last selected planner received from the topic input.
-  // When no input is specified it uses the default planner.
-  // If the default planner is not specified then we work in "required planner mode":
-  // In this mode, the behavior returns failure if the planner selection is not received from
-  // the topic input.
+  // This behavior always use the last selected planner received from the topic
+  // input. When no input is specified it uses the default planner. If the
+  // default planner is not specified then we work in "required planner mode":
+  // In this mode, the behavior returns failure if the planner selection is not
+  // received from the topic input.
   if (last_selected_planner_.empty()) {
     std::string default_planner;
     getInput("default_planner", default_planner);
@@ -76,8 +70,7 @@ BT::NodeStatus PlannerSelector::tick()
   return BT::NodeStatus::SUCCESS;
 }
 
-void
-PlannerSelector::callbackPlannerSelect(const std_msgs::msg::String::SharedPtr msg)
+void PlannerSelector::callbackPlannerSelect(const std_msgs::msg::String::SharedPtr msg)
 {
   last_selected_planner_ = msg->data;
 }

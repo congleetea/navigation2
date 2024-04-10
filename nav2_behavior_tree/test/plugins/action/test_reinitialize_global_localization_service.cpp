@@ -26,9 +26,7 @@
 class ReinitializeGlobalLocalizationService : public TestService<std_srvs::srv::Empty>
 {
 public:
-  ReinitializeGlobalLocalizationService()
-  : TestService("reinitialize_global_localization")
-  {}
+  ReinitializeGlobalLocalizationService() : TestService("reinitialize_global_localization") {}
 };
 
 class ReinitializeGlobalLocalizationServiceTestFixture : public ::testing::Test
@@ -44,15 +42,11 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
     config_->blackboard->set<std::chrono::milliseconds>(
-      "server_timeout",
-      std::chrono::milliseconds(20));
+      "server_timeout", std::chrono::milliseconds(20));
     config_->blackboard->set<std::chrono::milliseconds>(
-      "bt_loop_duration",
-      std::chrono::milliseconds(10));
+      "bt_loop_duration", std::chrono::milliseconds(10));
     config_->blackboard->set<bool>("initial_pose_received", false);
 
     factory_->registerNodeType<nav2_behavior_tree::ReinitializeGlobalLocalizationService>(
@@ -68,10 +62,7 @@ public:
     factory_.reset();
   }
 
-  void TearDown() override
-  {
-    tree_.reset();
-  }
+  void TearDown() override { tree_.reset(); }
 
   static std::shared_ptr<ReinitializeGlobalLocalizationService> server_;
 
@@ -84,10 +75,10 @@ protected:
 
 rclcpp::Node::SharedPtr ReinitializeGlobalLocalizationServiceTestFixture::node_ = nullptr;
 std::shared_ptr<ReinitializeGlobalLocalizationService>
-ReinitializeGlobalLocalizationServiceTestFixture::server_ = nullptr;
+  ReinitializeGlobalLocalizationServiceTestFixture::server_ = nullptr;
 BT::NodeConfiguration * ReinitializeGlobalLocalizationServiceTestFixture::config_ = nullptr;
 std::shared_ptr<BT::BehaviorTreeFactory>
-ReinitializeGlobalLocalizationServiceTestFixture::factory_ = nullptr;
+  ReinitializeGlobalLocalizationServiceTestFixture::factory_ = nullptr;
 std::shared_ptr<BT::Tree> ReinitializeGlobalLocalizationServiceTestFixture::tree_ = nullptr;
 
 TEST_F(ReinitializeGlobalLocalizationServiceTestFixture, test_tick)
@@ -114,9 +105,8 @@ int main(int argc, char ** argv)
   // initialize service and spin on new thread
   ReinitializeGlobalLocalizationServiceTestFixture::server_ =
     std::make_shared<ReinitializeGlobalLocalizationService>();
-  std::thread server_thread([]() {
-      rclcpp::spin(ReinitializeGlobalLocalizationServiceTestFixture::server_);
-    });
+  std::thread server_thread(
+    []() { rclcpp::spin(ReinitializeGlobalLocalizationServiceTestFixture::server_); });
 
   int all_successful = RUN_ALL_TESTS();
 

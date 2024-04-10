@@ -32,17 +32,17 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cmath>
-#include <string>
-#include <memory>
-#include <limits>
-#include <vector>
 #include "nav2_controller/plugins/stopped_goal_checker.hpp"
-#include "pluginlib/class_list_macros.hpp"
 #include "nav2_util/node_utils.hpp"
+#include "pluginlib/class_list_macros.hpp"
+#include <cmath>
+#include <limits>
+#include <memory>
+#include <string>
+#include <vector>
 
-using std::hypot;
 using std::fabs;
+using std::hypot;
 
 using rcl_interfaces::msg::ParameterType;
 using std::placeholders::_1;
@@ -56,8 +56,7 @@ StoppedGoalChecker::StoppedGoalChecker()
 }
 
 void StoppedGoalChecker::initialize(
-  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-  const std::string & plugin_name,
+  const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, const std::string & plugin_name,
   const std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros)
 {
   plugin_name_ = plugin_name;
@@ -66,11 +65,9 @@ void StoppedGoalChecker::initialize(
   auto node = parent.lock();
 
   nav2_util::declare_parameter_if_not_declared(
-    node,
-    plugin_name + ".rot_stopped_velocity", rclcpp::ParameterValue(0.25));
+    node, plugin_name + ".rot_stopped_velocity", rclcpp::ParameterValue(0.25));
   nav2_util::declare_parameter_if_not_declared(
-    node,
-    plugin_name + ".trans_stopped_velocity", rclcpp::ParameterValue(0.25));
+    node, plugin_name + ".trans_stopped_velocity", rclcpp::ParameterValue(0.25));
 
   node->get_parameter(plugin_name + ".rot_stopped_velocity", rot_stopped_velocity_);
   node->get_parameter(plugin_name + ".trans_stopped_velocity", trans_stopped_velocity_);
@@ -94,8 +91,7 @@ bool StoppedGoalChecker::isGoalReached(
 }
 
 bool StoppedGoalChecker::getTolerances(
-  geometry_msgs::msg::Pose & pose_tolerance,
-  geometry_msgs::msg::Twist & vel_tolerance)
+  geometry_msgs::msg::Pose & pose_tolerance, geometry_msgs::msg::Twist & vel_tolerance)
 {
   double invalid_field = std::numeric_limits<double>::lowest();
 
@@ -114,8 +110,8 @@ bool StoppedGoalChecker::getTolerances(
   return true && rtn;
 }
 
-rcl_interfaces::msg::SetParametersResult
-StoppedGoalChecker::dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters)
+rcl_interfaces::msg::SetParametersResult StoppedGoalChecker::dynamicParametersCallback(
+  std::vector<rclcpp::Parameter> parameters)
 {
   rcl_interfaces::msg::SetParametersResult result;
   for (auto parameter : parameters) {

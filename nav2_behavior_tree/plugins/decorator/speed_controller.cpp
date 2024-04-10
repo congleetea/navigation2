@@ -13,19 +13,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
-#include <memory>
-#include <vector>
 #include "nav2_util/geometry_utils.hpp"
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "nav2_behavior_tree/plugins/decorator/speed_controller.hpp"
 
 namespace nav2_behavior_tree
 {
 
-SpeedController::SpeedController(
-  const std::string & name,
-  const BT::NodeConfiguration & conf)
+SpeedController::SpeedController(const std::string & name, const BT::NodeConfiguration & conf)
 : BT::DecoratorNode(name, conf),
   first_tick_(false),
   period_(1.0),
@@ -52,8 +50,8 @@ SpeedController::SpeedController(
 
   std::string odom_topic;
   node_->get_parameter_or("odom_topic", odom_topic, std::string("odom"));
-  odom_smoother_ = config().blackboard->get<std::shared_ptr<nav2_util::OdomSmoother>>(
-    "odom_smoother");
+  odom_smoother_ =
+    config().blackboard->get<std::shared_ptr<nav2_util::OdomSmoother>>("odom_smoother");
 }
 
 inline BT::NodeStatus SpeedController::tick()
@@ -89,9 +87,9 @@ inline BT::NodeStatus SpeedController::tick()
   // The child gets ticked the first time through and any time the period has
   // expired. In addition, once the child begins to run, it is ticked each time
   // 'til completion
-  if (first_tick_ || (child_node_->status() == BT::NodeStatus::RUNNING) ||
-    elapsed.seconds() >= period_)
-  {
+  if (
+    first_tick_ || (child_node_->status() == BT::NodeStatus::RUNNING) ||
+    elapsed.seconds() >= period_) {
     first_tick_ = false;
 
     // update period if the last period is exceeded

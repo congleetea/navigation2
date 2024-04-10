@@ -38,9 +38,9 @@
 #include <string>
 #include <vector>
 
-#include "nav_2d_utils/parameters.hpp"
-#include "nav2_util/node_utils.hpp"
 #include "nav2_costmap_2d/costmap_filters/filter_values.hpp"
+#include "nav2_util/node_utils.hpp"
+#include "nav_2d_utils/parameters.hpp"
 
 using nav2_util::declare_parameter_if_not_declared;
 using rcl_interfaces::msg::ParameterType;
@@ -49,19 +49,12 @@ using std::placeholders::_1;
 namespace dwb_plugins
 {
 
-KinematicsHandler::KinematicsHandler()
-{
-  kinematics_.store(new KinematicParameters);
-}
+KinematicsHandler::KinematicsHandler() { kinematics_.store(new KinematicParameters); }
 
-KinematicsHandler::~KinematicsHandler()
-{
-  delete kinematics_.load();
-}
+KinematicsHandler::~KinematicsHandler() { delete kinematics_.load(); }
 
 void KinematicsHandler::initialize(
-  const nav2_util::LifecycleNode::SharedPtr & nh,
-  const std::string & plugin_name)
+  const nav2_util::LifecycleNode::SharedPtr & nh, const std::string & plugin_name)
 {
   plugin_name_ = plugin_name;
 
@@ -70,27 +63,19 @@ void KinematicsHandler::initialize(
   declare_parameter_if_not_declared(nh, plugin_name + ".max_vel_x", rclcpp::ParameterValue(0.0));
   declare_parameter_if_not_declared(nh, plugin_name + ".max_vel_y", rclcpp::ParameterValue(0.0));
   declare_parameter_if_not_declared(
-    nh, plugin_name + ".max_vel_theta",
-    rclcpp::ParameterValue(0.0));
+    nh, plugin_name + ".max_vel_theta", rclcpp::ParameterValue(0.0));
+  declare_parameter_if_not_declared(nh, plugin_name + ".min_speed_xy", rclcpp::ParameterValue(0.0));
+  declare_parameter_if_not_declared(nh, plugin_name + ".max_speed_xy", rclcpp::ParameterValue(0.0));
   declare_parameter_if_not_declared(
-    nh, plugin_name + ".min_speed_xy",
-    rclcpp::ParameterValue(0.0));
-  declare_parameter_if_not_declared(
-    nh, plugin_name + ".max_speed_xy",
-    rclcpp::ParameterValue(0.0));
-  declare_parameter_if_not_declared(
-    nh, plugin_name + ".min_speed_theta",
-    rclcpp::ParameterValue(0.0));
+    nh, plugin_name + ".min_speed_theta", rclcpp::ParameterValue(0.0));
   declare_parameter_if_not_declared(nh, plugin_name + ".acc_lim_x", rclcpp::ParameterValue(0.0));
   declare_parameter_if_not_declared(nh, plugin_name + ".acc_lim_y", rclcpp::ParameterValue(0.0));
   declare_parameter_if_not_declared(
-    nh, plugin_name + ".acc_lim_theta",
-    rclcpp::ParameterValue(0.0));
+    nh, plugin_name + ".acc_lim_theta", rclcpp::ParameterValue(0.0));
   declare_parameter_if_not_declared(nh, plugin_name + ".decel_lim_x", rclcpp::ParameterValue(0.0));
   declare_parameter_if_not_declared(nh, plugin_name + ".decel_lim_y", rclcpp::ParameterValue(0.0));
   declare_parameter_if_not_declared(
-    nh, plugin_name + ".decel_lim_theta",
-    rclcpp::ParameterValue(0.0));
+    nh, plugin_name + ".decel_lim_theta", rclcpp::ParameterValue(0.0));
 
   KinematicParameters kinematics;
 
@@ -124,8 +109,7 @@ void KinematicsHandler::initialize(
   update_kinematics(kinematics);
 }
 
-void KinematicsHandler::setSpeedLimit(
-  const double & speed_limit, const bool & percentage)
+void KinematicsHandler::setSpeedLimit(const double & speed_limit, const bool & percentage)
 {
   KinematicParameters kinematics(*kinematics_.load());
 
@@ -164,8 +148,8 @@ void KinematicsHandler::setSpeedLimit(
   update_kinematics(kinematics);
 }
 
-rcl_interfaces::msg::SetParametersResult
-KinematicsHandler::dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters)
+rcl_interfaces::msg::SetParametersResult KinematicsHandler::dynamicParametersCallback(
+  std::vector<rclcpp::Parameter> parameters)
 {
   rcl_interfaces::msg::SetParametersResult result;
   KinematicParameters kinematics(*kinematics_.load());

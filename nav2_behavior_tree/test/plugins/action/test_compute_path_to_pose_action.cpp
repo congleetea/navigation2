@@ -18,8 +18,8 @@
 #include <set>
 #include <string>
 
-#include "nav_msgs/msg/path.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav_msgs/msg/path.hpp"
 
 #include "behaviortree_cpp_v3/bt_factory.h"
 
@@ -29,15 +29,12 @@
 class ComputePathToPoseActionServer : public TestActionServer<nav2_msgs::action::ComputePathToPose>
 {
 public:
-  ComputePathToPoseActionServer()
-  : TestActionServer("compute_path_to_pose")
-  {}
+  ComputePathToPoseActionServer() : TestActionServer("compute_path_to_pose") {}
 
 protected:
-  void execute(
-    const typename std::shared_ptr<
-      rclcpp_action::ServerGoalHandle<nav2_msgs::action::ComputePathToPose>> goal_handle)
-  override
+  void execute(const typename std::shared_ptr<
+               rclcpp_action::ServerGoalHandle<nav2_msgs::action::ComputePathToPose>>
+                 goal_handle) override
   {
     const auto goal = goal_handle->get_goal();
     auto result = std::make_shared<nav2_msgs::action::ComputePathToPose::Result>();
@@ -65,23 +62,17 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
     config_->blackboard->set<std::chrono::milliseconds>(
-      "server_timeout",
-      std::chrono::milliseconds(20));
+      "server_timeout", std::chrono::milliseconds(20));
     config_->blackboard->set<std::chrono::milliseconds>(
-      "bt_loop_duration",
-      std::chrono::milliseconds(10));
+      "bt_loop_duration", std::chrono::milliseconds(10));
     config_->blackboard->set<bool>("initial_pose_received", false);
 
-    BT::NodeBuilder builder =
-      [](const std::string & name, const BT::NodeConfiguration & config)
-      {
-        return std::make_unique<nav2_behavior_tree::ComputePathToPoseAction>(
-          name, "compute_path_to_pose", config);
-      };
+    BT::NodeBuilder builder = [](const std::string & name, const BT::NodeConfiguration & config) {
+      return std::make_unique<nav2_behavior_tree::ComputePathToPoseAction>(
+        name, "compute_path_to_pose", config);
+    };
 
     factory_->registerBuilder<nav2_behavior_tree::ComputePathToPoseAction>(
       "ComputePathToPose", builder);
@@ -96,10 +87,7 @@ public:
     factory_.reset();
   }
 
-  void TearDown() override
-  {
-    tree_.reset();
-  }
+  void TearDown() override { tree_.reset(); }
 
   static std::shared_ptr<ComputePathToPoseActionServer> action_server_;
 
@@ -111,8 +99,8 @@ protected:
 };
 
 rclcpp::Node::SharedPtr ComputePathToPoseActionTestFixture::node_ = nullptr;
-std::shared_ptr<ComputePathToPoseActionServer>
-ComputePathToPoseActionTestFixture::action_server_ = nullptr;
+std::shared_ptr<ComputePathToPoseActionServer> ComputePathToPoseActionTestFixture::action_server_ =
+  nullptr;
 BT::NodeConfiguration * ComputePathToPoseActionTestFixture::config_ = nullptr;
 std::shared_ptr<BT::BehaviorTreeFactory> ComputePathToPoseActionTestFixture::factory_ = nullptr;
 std::shared_ptr<BT::Tree> ComputePathToPoseActionTestFixture::tree_ = nullptr;
@@ -255,9 +243,8 @@ int main(int argc, char ** argv)
   ComputePathToPoseActionTestFixture::action_server_ =
     std::make_shared<ComputePathToPoseActionServer>();
 
-  std::thread server_thread([]() {
-      rclcpp::spin(ComputePathToPoseActionTestFixture::action_server_);
-    });
+  std::thread server_thread(
+    []() { rclcpp::spin(ComputePathToPoseActionTestFixture::action_server_); });
 
   int all_successful = RUN_ALL_TESTS();
 

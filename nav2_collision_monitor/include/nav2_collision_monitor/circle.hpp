@@ -16,8 +16,8 @@
 #define NAV2_COLLISION_MONITOR__CIRCLE_HPP_
 
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "nav2_collision_monitor/polygon.hpp"
 
@@ -41,10 +41,8 @@ public:
    * @param transform_tolerance Transform tolerance
    */
   Circle(
-    const nav2_util::LifecycleNode::WeakPtr & node,
-    const std::string & polygon_name,
-    const std::shared_ptr<tf2_ros::Buffer> tf_buffer,
-    const std::string & base_frame_id,
+    const nav2_util::LifecycleNode::WeakPtr & node, const std::string & polygon_name,
+    const std::shared_ptr<tf2_ros::Buffer> tf_buffer, const std::string & base_frame_id,
     const tf2::Duration & transform_tolerance);
   /**
    * @brief Circle class destructor
@@ -70,8 +68,8 @@ protected:
   /**
    * @brief Supporting routine obtaining polygon-specific ROS-parameters
    * @param polygon_pub_topic Output name of polygon publishing topic
-   * @param footprint_topic Output name of footprint topic. For Circle returns empty string,
-   * there is no footprint subscription in this class.
+   * @param footprint_topic Output name of footprint topic. For Circle returns
+   * empty string, there is no footprint subscription in this class.
    * @return True if all parameters were obtained or false in failure case
    */
   bool getParameters(std::string & polygon_pub_topic, std::string & footprint_topic) override;

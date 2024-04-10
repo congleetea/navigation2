@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,8 +26,7 @@ void ConstraintCritic::initialize()
   getParam(power_, "cost_power", 1);
   getParam(weight_, "cost_weight", 4.0);
   RCLCPP_INFO(
-    logger_, "ConstraintCritic instantiated with %d power and %f weight.",
-    power_, weight_);
+    logger_, "ConstraintCritic instantiated with %d power and %f weight.", power_, weight_);
 
   float vx_max, vy_max, vx_min;
   getParentParam(vx_max, "vx_max", 0.5);
@@ -55,23 +55,26 @@ void ConstraintCritic::score(CriticData & data)
   if (acker != nullptr) {
     auto & vx = data.state.vx;
     auto & wz = data.state.wz;
-    auto out_of_turning_rad_motion = xt::maximum(
-      acker->getMinTurningRadius() - (xt::fabs(vx) / xt::fabs(wz)), 0.0);
+    auto out_of_turning_rad_motion =
+      xt::maximum(acker->getMinTurningRadius() - (xt::fabs(vx) / xt::fabs(wz)), 0.0);
 
     data.costs += xt::pow(
       xt::sum(
-        (std::move(out_of_max_bounds_motion) +
-        std::move(out_of_min_bounds_motion) +
-        std::move(out_of_turning_rad_motion)) *
-        data.model_dt, {1}, immediate) * weight_, power_);
+        (std::move(out_of_max_bounds_motion) + std::move(out_of_min_bounds_motion) +
+         std::move(out_of_turning_rad_motion)) *
+          data.model_dt,
+        {1}, immediate) *
+        weight_,
+      power_);
     return;
   }
 
   data.costs += xt::pow(
     xt::sum(
-      (std::move(out_of_max_bounds_motion) +
-      std::move(out_of_min_bounds_motion)) *
-      data.model_dt, {1}, immediate) * weight_, power_);
+      (std::move(out_of_max_bounds_motion) + std::move(out_of_min_bounds_motion)) * data.model_dt,
+      {1}, immediate) *
+      weight_,
+    power_);
 }
 
 }  // namespace mppi::critics

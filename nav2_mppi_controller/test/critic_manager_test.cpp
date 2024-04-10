@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,36 +16,35 @@
 #include <chrono>
 #include <thread>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_mppi_controller/critic_manager.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 // Tests critic manager
 
 class RosLockGuard
 {
 public:
-  RosLockGuard() {rclcpp::init(0, nullptr);}
-  ~RosLockGuard() {rclcpp::shutdown();}
+  RosLockGuard() { rclcpp::init(0, nullptr); }
+  ~RosLockGuard() { rclcpp::shutdown(); }
 };
 RosLockGuard g_rclcpp;
 
-using namespace mppi;  // NOLINT
+using namespace mppi;           // NOLINT
 using namespace mppi::critics;  // NOLINT
 
 class DummyCritic : public CriticFunction
 {
 public:
-  virtual void initialize() {initialized_ = true;}
-  virtual void score(CriticData & /*data*/) {scored_ = true;}
+  virtual void initialize() { initialized_ = true; }
+  virtual void score(CriticData & /*data*/) { scored_ = true; }
   bool initialized_{false}, scored_{false};
 };
 
 class CriticManagerWrapper : public CriticManager
 {
 public:
-  CriticManagerWrapper()
-  : CriticManager() {}
+  CriticManagerWrapper() : CriticManager() {}
 
   virtual void loadCritics()
   {
@@ -52,43 +52,32 @@ public:
     auto instance = std::unique_ptr<critics::CriticFunction>(new DummyCritic);
     critics_.push_back(std::move(instance));
     critics_.back()->on_configure(
-      parent_, name_, name_ + "." + "DummyCritic", costmap_ros_,
-      parameters_handler_);
+      parent_, name_, name_ + "." + "DummyCritic", costmap_ros_, parameters_handler_);
   }
 
-  std::string getFullNameWrapper(const std::string & name)
-  {
-    return getFullName(name);
-  }
+  std::string getFullNameWrapper(const std::string & name) { return getFullName(name); }
 
   bool getDummyCriticInitialized()
   {
     return dynamic_cast<DummyCritic *>(critics_[0].get())->initialized_;
   }
 
-  bool getDummyCriticScored()
-  {
-    return dynamic_cast<DummyCritic *>(critics_[0].get())->scored_;
-  }
+  bool getDummyCriticScored() { return dynamic_cast<DummyCritic *>(critics_[0].get())->scored_; }
 };
 
 class CriticManagerWrapperEnum : public CriticManager
 {
 public:
-  CriticManagerWrapperEnum()
-  : CriticManager() {}
+  CriticManagerWrapperEnum() : CriticManager() {}
 
-  unsigned int getCriticNum()
-  {
-    return critics_.size();
-  }
+  unsigned int getCriticNum() { return critics_.size(); }
 };
 
 TEST(CriticManagerTests, BasicCriticOperations)
 {
   auto node = std::make_shared<rclcpp_lifecycle::LifecycleNode>("my_node");
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State lstate;
   costmap_ros->on_configure(lstate);
@@ -98,16 +87,16 @@ TEST(CriticManagerTests, BasicCriticOperations)
   critic_manager.on_configure(node, "critic_manager", costmap_ros, &param_handler);
   EXPECT_TRUE(critic_manager.getDummyCriticInitialized());
 
-  // Evaluation of critics should score them, but only if failure flag is not set
+  // Evaluation of critics should score them, but only if failure flag is not
+  // set
   models::State state;
   models::ControlSequence control_sequence;
   models::Trajectories generated_trajectories;
   models::Path path;
   xt::xtensor<float, 1> costs;
   float model_dt = 0.1;
-  CriticData data =
-  {state, generated_trajectories, path, costs, model_dt, false, nullptr, nullptr,
-    std::nullopt, std::nullopt};
+  CriticData data = {state,   generated_trajectories, path,        costs, model_dt, false, nullptr,
+                     nullptr, std::nullopt,           std::nullopt};
 
   data.fail_flag = true;
   EXPECT_FALSE(critic_manager.getDummyCriticScored());
@@ -125,8 +114,8 @@ TEST(CriticManagerTests, CriticLoadingTest)
   node->declare_parameter(
     "critic_manager.critics",
     rclcpp::ParameterValue(std::vector<std::string>{"ConstraintCritic", "PreferForwardCritic"}));
-  auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(
-    "dummy_costmap", "", "dummy_costmap");
+  auto costmap_ros =
+    std::make_shared<nav2_costmap_2d::Costmap2DROS>("dummy_costmap", "", "dummy_costmap");
   ParametersHandler param_handler(node);
   rclcpp_lifecycle::State state;
   costmap_ros->on_configure(state);

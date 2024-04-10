@@ -12,27 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <math.h>
 #include <condition_variable>
+#include <math.h>
 #include <memory>
 #include <string>
-#include <vector>
-#include <utility>
 #include <thread>
+#include <utility>
+#include <vector>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_util/lifecycle_node.hpp"
+#include "nav2_waypoint_follower/plugins/input_at_waypoint.hpp"
 #include "nav2_waypoint_follower/plugins/photo_at_waypoint.hpp"
 #include "nav2_waypoint_follower/plugins/wait_at_waypoint.hpp"
-#include "nav2_waypoint_follower/plugins/input_at_waypoint.hpp"
-
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -43,8 +42,7 @@ TEST(WaypointFollowerTest, WaitAtWaypoint)
   node->declare_parameter("WAW.waypoint_pause_duration", 50);
 
   std::unique_ptr<nav2_waypoint_follower::WaitAtWaypoint> waw(
-    new nav2_waypoint_follower::WaitAtWaypoint
-  );
+    new nav2_waypoint_follower::WaitAtWaypoint);
   waw->initialize(node, std::string("WAW"));
 
   auto start_time = node->now();
@@ -70,18 +68,15 @@ TEST(WaypointFollowerTest, InputAtWaypoint)
   auto node = std::make_shared<rclcpp_lifecycle::LifecycleNode>("testWaypointNode");
   auto pub = node->create_publisher<std_msgs::msg::Empty>("input_at_waypoint/input", 1);
   pub->on_activate();
-  auto publish_message =
-    [&, this]() -> void
-    {
-      rclcpp::Rate(5).sleep();
-      auto msg = std::make_unique<std_msgs::msg::Empty>();
-      pub->publish(std::move(msg));
-      rclcpp::spin_some(node->shared_from_this()->get_node_base_interface());
-    };
+  auto publish_message = [&, this]() -> void {
+    rclcpp::Rate(5).sleep();
+    auto msg = std::make_unique<std_msgs::msg::Empty>();
+    pub->publish(std::move(msg));
+    rclcpp::spin_some(node->shared_from_this()->get_node_base_interface());
+  };
 
   std::unique_ptr<nav2_waypoint_follower::InputAtWaypoint> iaw(
-    new nav2_waypoint_follower::InputAtWaypoint
-  );
+    new nav2_waypoint_follower::InputAtWaypoint);
   iaw->initialize(node, std::string("IAW"));
 
   auto start_time = node->now();
@@ -116,33 +111,30 @@ TEST(WaypointFollowerTest, PhotoAtWaypoint)
   std::mutex mtx;
   std::unique_lock<std::mutex> lck(mtx, std::defer_lock);
   bool data_published = false;
-  auto publish_message =
-    [&, this]() -> void
-    {
-      rclcpp::Rate(5).sleep();
-      auto msg = std::make_unique<sensor_msgs::msg::Image>();
-      // fill image msg data.
-      msg->encoding = "rgb8";
-      msg->height = 240;
-      msg->width = 320;
-      msg->step = 960;
-      auto size = msg->height * msg->width * 3;
-      msg->data.reserve(size);
-      int fake_data = 0;
-      for (size_t i = 0; i < size; i++) {
-        msg->data.push_back(fake_data++);
-      }
-      pub->publish(std::move(msg));
-      rclcpp::spin_some(node->shared_from_this()->get_node_base_interface());
-      lck.lock();
-      data_published = true;
-      cv.notify_one();
-      lck.unlock();
-    };
+  auto publish_message = [&, this]() -> void {
+    rclcpp::Rate(5).sleep();
+    auto msg = std::make_unique<sensor_msgs::msg::Image>();
+    // fill image msg data.
+    msg->encoding = "rgb8";
+    msg->height = 240;
+    msg->width = 320;
+    msg->step = 960;
+    auto size = msg->height * msg->width * 3;
+    msg->data.reserve(size);
+    int fake_data = 0;
+    for (size_t i = 0; i < size; i++) {
+      msg->data.push_back(fake_data++);
+    }
+    pub->publish(std::move(msg));
+    rclcpp::spin_some(node->shared_from_this()->get_node_base_interface());
+    lck.lock();
+    data_published = true;
+    cv.notify_one();
+    lck.unlock();
+  };
 
   std::unique_ptr<nav2_waypoint_follower::PhotoAtWaypoint> paw(
-    new nav2_waypoint_follower::PhotoAtWaypoint
-  );
+    new nav2_waypoint_follower::PhotoAtWaypoint);
   paw->initialize(node, std::string("PAW"));
 
   // no images, throws because can't write

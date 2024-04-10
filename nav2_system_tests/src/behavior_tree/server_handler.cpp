@@ -20,10 +20,9 @@
 #include "server_handler.hpp"
 
 using namespace std::chrono_literals;  // NOLINT
-using namespace std::chrono;  // NOLINT
+using namespace std::chrono;           // NOLINT
 
-ServerHandler::ServerHandler()
-: is_active_(false)
+ServerHandler::ServerHandler() : is_active_(false)
 {
   node_ = rclcpp::Node::make_shared("behavior_tree_tester");
 
@@ -32,14 +31,11 @@ ServerHandler::ServerHandler()
   clear_global_costmap_server = std::make_unique<DummyService<nav2_msgs::srv::ClearEntireCostmap>>(
     node_, "global_costmap/clear_entirely_global_costmap");
   compute_path_to_pose_server = std::make_unique<ComputePathToPoseActionServer>(node_);
-  follow_path_server = std::make_unique<DummyActionServer<nav2_msgs::action::FollowPath>>(
-    node_, "follow_path");
-  spin_server = std::make_unique<DummyActionServer<nav2_msgs::action::Spin>>(
-    node_, "spin");
-  wait_server = std::make_unique<DummyActionServer<nav2_msgs::action::Wait>>(
-    node_, "wait");
-  backup_server = std::make_unique<DummyActionServer<nav2_msgs::action::BackUp>>(
-    node_, "backup");
+  follow_path_server =
+    std::make_unique<DummyActionServer<nav2_msgs::action::FollowPath>>(node_, "follow_path");
+  spin_server = std::make_unique<DummyActionServer<nav2_msgs::action::Spin>>(node_, "spin");
+  wait_server = std::make_unique<DummyActionServer<nav2_msgs::action::Wait>>(node_, "wait");
+  backup_server = std::make_unique<DummyActionServer<nav2_msgs::action::BackUp>>(node_, "backup");
   drive_on_heading_server = std::make_unique<DummyActionServer<nav2_msgs::action::DriveOnHeading>>(
     node_, "drive_on_heading");
   ntp_server = std::make_unique<DummyActionServer<nav2_msgs::action::ComputePathThroughPoses>>(
@@ -60,8 +56,7 @@ void ServerHandler::activate()
   }
 
   is_active_ = true;
-  server_thread_ =
-    std::make_shared<std::thread>(std::bind(&ServerHandler::spinThread, this));
+  server_thread_ = std::make_shared<std::thread>(std::bind(&ServerHandler::spinThread, this));
 
   std::cout << "Server handler is active!" << std::endl;
 }
@@ -90,7 +85,4 @@ void ServerHandler::reset() const
   drive_on_heading_server->reset();
 }
 
-void ServerHandler::spinThread()
-{
-  rclcpp::spin(node_);
-}
+void ServerHandler::spinThread() { rclcpp::spin(node_); }

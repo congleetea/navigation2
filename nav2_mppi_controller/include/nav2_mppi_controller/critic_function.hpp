@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,14 +16,14 @@
 #ifndef NAV2_MPPI_CONTROLLER__CRITIC_FUNCTION_HPP_
 #define NAV2_MPPI_CONTROLLER__CRITIC_FUNCTION_HPP_
 
-#include <string>
 #include <memory>
+#include <string>
 
-#include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "nav2_costmap_2d/costmap_2d_ros.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
 
-#include "nav2_mppi_controller/tools/parameters_handler.hpp"
 #include "nav2_mppi_controller/critic_data.hpp"
+#include "nav2_mppi_controller/tools/parameters_handler.hpp"
 
 namespace mppi::critics
 {
@@ -45,28 +46,26 @@ class CriticFunction
 {
 public:
   /**
-    * @brief Constructor for mppi::critics::CriticFunction
-    */
+   * @brief Constructor for mppi::critics::CriticFunction
+   */
   CriticFunction() = default;
 
   /**
-    * @brief Destructor for mppi::critics::CriticFunction
-    */
+   * @brief Destructor for mppi::critics::CriticFunction
+   */
   virtual ~CriticFunction() = default;
 
   /**
-    * @brief Configure critic on bringup
-    * @param parent WeakPtr to node
-    * @param parent_name name of the controller
-    * @param name Name of plugin
-    * @param costmap_ros Costmap2DROS object of environment
-    * @param dynamic_parameter_handler Parameter handler object
-    */
+   * @brief Configure critic on bringup
+   * @param parent WeakPtr to node
+   * @param parent_name name of the controller
+   * @param name Name of plugin
+   * @param costmap_ros Costmap2DROS object of environment
+   * @param dynamic_parameter_handler Parameter handler object
+   */
   void on_configure(
-    rclcpp_lifecycle::LifecycleNode::WeakPtr parent,
-    const std::string & parent_name,
-    const std::string & name,
-    std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros,
+    rclcpp_lifecycle::LifecycleNode::WeakPtr parent, const std::string & parent_name,
+    const std::string & name, std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros,
     ParametersHandler * param_handler)
   {
     parent_ = parent;
@@ -84,23 +83,20 @@ public:
   }
 
   /**
-    * @brief Main function to score trajectory
-    * @param data Critic data to use in scoring
-    */
+   * @brief Main function to score trajectory
+   * @param data Critic data to use in scoring
+   */
   virtual void score(CriticData & data) = 0;
 
   /**
-    * @brief Initialize critic
-    */
+   * @brief Initialize critic
+   */
   virtual void initialize() = 0;
 
   /**
-    * @brief Get name of critic
-    */
-  std::string getName()
-  {
-    return name_;
-  }
+   * @brief Get name of critic
+   */
+  std::string getName() { return name_; }
 
 protected:
   bool enabled_;

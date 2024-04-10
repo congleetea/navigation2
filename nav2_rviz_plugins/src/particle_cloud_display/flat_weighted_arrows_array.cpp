@@ -45,9 +45,9 @@
 
 #include "nav2_rviz_plugins/particle_cloud_display/flat_weighted_arrows_array.hpp"
 
-#include <vector>
-#include <string>
 #include <algorithm>
+#include <string>
+#include <vector>
 
 #include <OgreSceneManager.h>
 #include <OgreTechnique.h>
@@ -58,7 +58,9 @@ namespace nav2_rviz_plugins
 {
 
 FlatWeightedArrowsArray::FlatWeightedArrowsArray(Ogre::SceneManager * scene_manager)
-: scene_manager_(scene_manager), manual_object_(nullptr) {}
+: scene_manager_(scene_manager), manual_object_(nullptr)
+{
+}
 
 FlatWeightedArrowsArray::~FlatWeightedArrowsArray()
 {
@@ -75,10 +77,7 @@ void FlatWeightedArrowsArray::createAndAttachManualObject(Ogre::SceneNode * scen
 }
 
 void FlatWeightedArrowsArray::updateManualObject(
-  Ogre::ColourValue color,
-  float alpha,
-  float min_length,
-  float max_length,
+  Ogre::ColourValue color, float alpha, float min_length, float max_length,
   const std::vector<nav2_rviz_plugins::OgrePoseWithWeight> & poses)
 {
   clear();
@@ -108,9 +107,7 @@ void FlatWeightedArrowsArray::setManualObjectMaterial()
 }
 
 void FlatWeightedArrowsArray::setManualObjectVertices(
-  const Ogre::ColourValue & color,
-  float min_length,
-  float max_length,
+  const Ogre::ColourValue & color, float min_length, float max_length,
   const std::vector<nav2_rviz_plugins::OgrePoseWithWeight> & poses)
 {
   manual_object_->estimateVertexCount(poses.size() * 6);
@@ -120,16 +117,14 @@ void FlatWeightedArrowsArray::setManualObjectVertices(
   for (const auto & pose : poses) {
     length = std::min(std::max(pose.weight * scale + min_length, min_length), max_length);
     Ogre::Vector3 vertices[6];
-    vertices[0] = pose.position;  // back of arrow
-    vertices[1] =
-      pose.position + pose.orientation * Ogre::Vector3(length, 0, 0);  // tip of arrow
+    vertices[0] = pose.position;                                                   // back of arrow
+    vertices[1] = pose.position + pose.orientation * Ogre::Vector3(length, 0, 0);  // tip of arrow
     vertices[2] = vertices[1];
-    vertices[3] = pose.position + pose.orientation * Ogre::Vector3(
-      0.75f * length, 0.2f * length, 0);
+    vertices[3] =
+      pose.position + pose.orientation * Ogre::Vector3(0.75f * length, 0.2f * length, 0);
     vertices[4] = vertices[1];
-    vertices[5] = pose.position + pose.orientation * Ogre::Vector3(
-      0.75f * length, -0.2f * length,
-      0);
+    vertices[5] =
+      pose.position + pose.orientation * Ogre::Vector3(0.75f * length, -0.2f * length, 0);
 
     for (const auto & vertex : vertices) {
       manual_object_->position(vertex);

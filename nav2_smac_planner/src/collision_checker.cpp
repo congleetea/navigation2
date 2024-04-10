@@ -18,8 +18,7 @@ namespace nav2_smac_planner
 {
 
 GridCollisionChecker::GridCollisionChecker(
-  nav2_costmap_2d::Costmap2D * costmap,
-  unsigned int num_quantizations,
+  nav2_costmap_2d::Costmap2D * costmap, unsigned int num_quantizations,
   rclcpp_lifecycle::LifecycleNode::SharedPtr node)
 : FootprintCollisionChecker(costmap)
 {
@@ -45,8 +44,7 @@ GridCollisionChecker::GridCollisionChecker(
 // }
 
 void GridCollisionChecker::setFootprint(
-  const nav2_costmap_2d::Footprint & footprint,
-  const bool & radius,
+  const nav2_costmap_2d::Footprint & footprint, const bool & radius,
   const double & possible_inscribed_cost)
 {
   possible_inscribed_cost_ = possible_inscribed_cost;
@@ -87,15 +85,11 @@ void GridCollisionChecker::setFootprint(
 }
 
 bool GridCollisionChecker::inCollision(
-  const float & x,
-  const float & y,
-  const float & angle_bin,
-  const bool & traverse_unknown)
+  const float & x, const float & y, const float & angle_bin, const bool & traverse_unknown)
 {
   // Check to make sure cell is inside the map
-  if (outsideRange(costmap_->getSizeInCellsX(), x) ||
-    outsideRange(costmap_->getSizeInCellsY(), y))
-  {
+  if (
+    outsideRange(costmap_->getSizeInCellsX(), x) || outsideRange(costmap_->getSizeInCellsY(), y)) {
     return false;
   }
 
@@ -106,8 +100,7 @@ bool GridCollisionChecker::inCollision(
   if (!footprint_is_radius_) {
     // if footprint, then we check for the footprint's points, but first see
     // if the robot is even potentially in an inscribed collision
-    footprint_cost_ = costmap_->getCost(
-      static_cast<unsigned int>(x), static_cast<unsigned int>(y));
+    footprint_cost_ = costmap_->getCost(static_cast<unsigned int>(x), static_cast<unsigned int>(y));
 
     if (footprint_cost_ < possible_inscribed_cost_) {
       if (possible_inscribed_cost_ > 0) {
@@ -115,11 +108,16 @@ bool GridCollisionChecker::inCollision(
       } else {
         RCLCPP_ERROR_THROTTLE(
           logger_, *clock_, 1000,
-          "Inflation layer either not found or inflation is not set sufficiently for "
-          "optimized non-circular collision checking capabilities. It is HIGHLY recommended to set"
-          " the inflation radius to be at MINIMUM half of the robot's largest cross-section. See "
-          "github.com/ros-planning/navigation2/tree/main/nav2_smac_planner#potential-fields"
-          " for full instructions. This will substantially impact run-time performance.");
+          "Inflation layer either not found or inflation "
+          "is not set sufficiently for "
+          "optimized non-circular collision checking "
+          "capabilities. It is HIGHLY recommended to set"
+          " the inflation radius to be at MINIMUM half of "
+          "the robot's largest cross-section. See "
+          "github.com/ros-planning/navigation2/tree/main/"
+          "nav2_smac_planner#potential-fields"
+          " for full instructions. This will substantially "
+          "impact run-time performance.");
       }
     }
 
@@ -155,9 +153,9 @@ bool GridCollisionChecker::inCollision(
     // if occupied or unknown and not to traverse unknown space
     return footprint_cost_ >= OCCUPIED;
   } else {
-    // if radius, then we can check the center of the cost assuming inflation is used
-    footprint_cost_ = costmap_->getCost(
-      static_cast<unsigned int>(x), static_cast<unsigned int>(y));
+    // if radius, then we can check the center of the cost assuming inflation is
+    // used
+    footprint_cost_ = costmap_->getCost(static_cast<unsigned int>(x), static_cast<unsigned int>(y));
 
     if (footprint_cost_ == UNKNOWN && traverse_unknown) {
       return false;
@@ -168,9 +166,7 @@ bool GridCollisionChecker::inCollision(
   }
 }
 
-bool GridCollisionChecker::inCollision(
-  const unsigned int & i,
-  const bool & traverse_unknown)
+bool GridCollisionChecker::inCollision(const unsigned int & i, const bool & traverse_unknown)
 {
   footprint_cost_ = costmap_->getCost(i);
   if (footprint_cost_ == UNKNOWN && traverse_unknown) {

@@ -33,22 +33,23 @@
  */
 
 #include "dwb_plugins/standard_traj_generator.hpp"
-#include <string>
-#include <vector>
+
 #include <algorithm>
 #include <memory>
+#include <string>
+#include <vector>
+
+#include "dwb_core/exceptions.hpp"
 #include "dwb_plugins/xy_theta_iterator.hpp"
+#include "nav2_util/node_utils.hpp"
 #include "nav_2d_utils/parameters.hpp"
 #include "pluginlib/class_list_macros.hpp"
-#include "dwb_core/exceptions.hpp"
-#include "nav2_util/node_utils.hpp"
 
 namespace dwb_plugins
 {
 
 void StandardTrajectoryGenerator::initialize(
-  const nav2_util::LifecycleNode::SharedPtr & nh,
-  const std::string & plugin_name)
+  const nav2_util::LifecycleNode::SharedPtr & nh, const std::string & plugin_name)
 {
   plugin_name_ = plugin_name;
   kinematics_handler_ = std::make_shared<KinematicsHandler>();
@@ -56,32 +57,27 @@ void StandardTrajectoryGenerator::initialize(
   initializeIterator(nh);
 
   nav2_util::declare_parameter_if_not_declared(
-    nh,
-    plugin_name + ".sim_time", rclcpp::ParameterValue(1.7));
+    nh, plugin_name + ".sim_time", rclcpp::ParameterValue(1.7));
   nav2_util::declare_parameter_if_not_declared(
-    nh,
-    plugin_name + ".discretize_by_time", rclcpp::ParameterValue(false));
+    nh, plugin_name + ".discretize_by_time", rclcpp::ParameterValue(false));
 
   nav2_util::declare_parameter_if_not_declared(
-    nh,
-    plugin_name + ".time_granularity", rclcpp::ParameterValue(0.5));
+    nh, plugin_name + ".time_granularity", rclcpp::ParameterValue(0.5));
   nav2_util::declare_parameter_if_not_declared(
-    nh,
-    plugin_name + ".linear_granularity", rclcpp::ParameterValue(0.5));
+    nh, plugin_name + ".linear_granularity", rclcpp::ParameterValue(0.5));
   nav2_util::declare_parameter_if_not_declared(
-    nh,
-    plugin_name + ".angular_granularity", rclcpp::ParameterValue(0.025));
+    nh, plugin_name + ".angular_granularity", rclcpp::ParameterValue(0.025));
   nav2_util::declare_parameter_if_not_declared(
-    nh,
-    plugin_name + ".include_last_point", rclcpp::ParameterValue(true));
+    nh, plugin_name + ".include_last_point", rclcpp::ParameterValue(true));
 
   /*
-   * If discretize_by_time, then sim_granularity represents the amount of time that should be between
-   *  two successive points on the trajectory.
+   * If discretize_by_time, then sim_granularity represents the amount of time
+   * that should be between two successive points on the trajectory.
    *
-   * If discretize_by_time is false, then sim_granularity is the maximum amount of distance between
-   *  two successive points on the trajectory, and angular_sim_granularity is the maximum amount of
-   *  angular distance between two successive points.
+   * If discretize_by_time is false, then sim_granularity is the maximum amount
+   * of distance between two successive points on the trajectory, and
+   * angular_sim_granularity is the maximum amount of angular distance between
+   * two successive points.
    */
   nh->get_parameter(plugin_name + ".sim_time", sim_time_);
   nh->get_parameter(plugin_name + ".discretize_by_time", discretize_by_time_);
@@ -91,8 +87,7 @@ void StandardTrajectoryGenerator::initialize(
   nh->get_parameter(plugin_name + ".include_last_point", include_last_point_);
 }
 
-void StandardTrajectoryGenerator::initializeIterator(
-  const nav2_util::LifecycleNode::SharedPtr & nh)
+void StandardTrajectoryGenerator::initializeIterator(const nav2_util::LifecycleNode::SharedPtr & nh)
 {
   velocity_iterator_ = std::make_shared<XYThetaIterator>();
   velocity_iterator_->initialize(nh, kinematics_handler_, plugin_name_);
@@ -104,16 +99,17 @@ void StandardTrajectoryGenerator::startNewIteration(
   velocity_iterator_->startNewIteration(current_velocity, sim_time_);
 }
 
-bool StandardTrajectoryGenerator::hasMoreTwists()
-{
-  return velocity_iterator_->hasMoreTwists();
-}
+bool StandardTrajectoryGenerator::hasMoreTwists() { return velocity_iterator_->hasMoreTwists(); }
 
 nav_2d_msgs::msg::Twist2D StandardTrajectoryGenerator::nextTwist()
 {
   return velocity_iterator_->nextTwist();
 }
 
+// 获取时间采样间隔的方法：
+// 1. 离散时间：最简单，直接把总的仿真时间按照时间采样间隔进行离散。
+// 2. 以当前速度运行sim_time打到的距离和角度，按照距离和角度的离散间隔进行离散
+//    选择较大的一个间隔数量，然后通过这个数量获得时间离散点。
 std::vector<double> StandardTrajectoryGenerator::getTimeSteps(
   const nav_2d_msgs::msg::Twist2D & cmd_vel)
 {
@@ -123,17 +119,17 @@ std::vector<double> StandardTrajectoryGenerator::getTimeSteps(
   } else {  // discretize by distance
     double vmag = hypot(cmd_vel.x, cmd_vel.y);
 
-    // the distance the robot would travel in sim_time if it did not change velocity
+    // the distance the robot would travel in sim_time if it did not change
+    // velocity
     double projected_linear_distance = vmag * sim_time_;
 
     // the angle the robot would rotate in sim_time
     double projected_angular_distance = fabs(cmd_vel.theta) * sim_time_;
 
     // Pick the maximum of the two
-    int num_steps = ceil(
-      std::max(
-        projected_linear_distance / linear_granularity_,
-        projected_angular_distance / angular_granularity_));
+    int num_steps = ceil(std::max(
+      projected_linear_distance / linear_granularity_,
+      projected_angular_distance / angular_granularity_));
     steps.resize(num_steps);
   }
   if (steps.size() == 0) {
@@ -143,9 +139,10 @@ std::vector<double> StandardTrajectoryGenerator::getTimeSteps(
   return steps;
 }
 
+// 1. 获取时间间隔序列；
+// 2. 通过速度和时间计算每个时间点的位置，进而得到轨迹。
 dwb_msgs::msg::Trajectory2D StandardTrajectoryGenerator::generateTrajectory(
-  const geometry_msgs::msg::Pose2D & start_pose,
-  const nav_2d_msgs::msg::Twist2D & start_vel,
+  const geometry_msgs::msg::Pose2D & start_pose, const nav_2d_msgs::msg::Twist2D & start_vel,
   const nav_2d_msgs::msg::Twist2D & cmd_vel)
 {
   dwb_msgs::msg::Trajectory2D traj;
@@ -180,39 +177,33 @@ dwb_msgs::msg::Trajectory2D StandardTrajectoryGenerator::generateTrajectory(
  * change vel using acceleration limits to converge towards sample_target-vel
  */
 nav_2d_msgs::msg::Twist2D StandardTrajectoryGenerator::computeNewVelocity(
-  const nav_2d_msgs::msg::Twist2D & cmd_vel,
-  const nav_2d_msgs::msg::Twist2D & start_vel, const double dt)
+  const nav_2d_msgs::msg::Twist2D & cmd_vel, const nav_2d_msgs::msg::Twist2D & start_vel,
+  const double dt)
 {
   KinematicParameters kinematics = kinematics_handler_->getKinematics();
   nav_2d_msgs::msg::Twist2D new_vel;
-  new_vel.x = projectVelocity(
-    start_vel.x, kinematics.getAccX(),
-    kinematics.getDecelX(), dt, cmd_vel.x);
-  new_vel.y = projectVelocity(
-    start_vel.y, kinematics.getAccY(),
-    kinematics.getDecelY(), dt, cmd_vel.y);
+  new_vel.x =
+    projectVelocity(start_vel.x, kinematics.getAccX(), kinematics.getDecelX(), dt, cmd_vel.x);
+  new_vel.y =
+    projectVelocity(start_vel.y, kinematics.getAccY(), kinematics.getDecelY(), dt, cmd_vel.y);
   new_vel.theta = projectVelocity(
-    start_vel.theta,
-    kinematics.getAccTheta(), kinematics.getDecelTheta(),
-    dt, cmd_vel.theta);
+    start_vel.theta, kinematics.getAccTheta(), kinematics.getDecelTheta(), dt, cmd_vel.theta);
   return new_vel;
 }
 
 geometry_msgs::msg::Pose2D StandardTrajectoryGenerator::computeNewPosition(
-  const geometry_msgs::msg::Pose2D start_pose,
-  const nav_2d_msgs::msg::Twist2D & vel, const double dt)
+  const geometry_msgs::msg::Pose2D start_pose, const nav_2d_msgs::msg::Twist2D & vel,
+  const double dt)
 {
   geometry_msgs::msg::Pose2D new_pose;
-  new_pose.x = start_pose.x +
-    (vel.x * cos(start_pose.theta) + vel.y * cos(M_PI_2 + start_pose.theta)) * dt;
-  new_pose.y = start_pose.y +
-    (vel.x * sin(start_pose.theta) + vel.y * sin(M_PI_2 + start_pose.theta)) * dt;
+  new_pose.x =
+    start_pose.x + (vel.x * cos(start_pose.theta) + vel.y * cos(M_PI_2 + start_pose.theta)) * dt;
+  new_pose.y =
+    start_pose.y + (vel.x * sin(start_pose.theta) + vel.y * sin(M_PI_2 + start_pose.theta)) * dt;
   new_pose.theta = start_pose.theta + vel.theta * dt;
   return new_pose;
 }
 
 }  // namespace dwb_plugins
 
-PLUGINLIB_EXPORT_CLASS(
-  dwb_plugins::StandardTrajectoryGenerator,
-  dwb_core::TrajectoryGenerator)
+PLUGINLIB_EXPORT_CLASS(dwb_plugins::StandardTrajectoryGenerator, dwb_core::TrajectoryGenerator)

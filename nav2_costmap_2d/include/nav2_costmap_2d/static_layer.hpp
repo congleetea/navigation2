@@ -60,12 +60,12 @@ class StaticLayer : public CostmapLayer
 {
 public:
   /**
-    * @brief Static Layer constructor
-    */
+   * @brief Static Layer constructor
+   */
   StaticLayer();
   /**
-    * @brief Static Layer destructor
-    */
+   * @brief Static Layer destructor
+   */
   virtual ~StaticLayer();
 
   /**
@@ -90,10 +90,11 @@ public:
   /**
    * @brief If clearing operations should be processed on this layer or not
    */
-  virtual bool isClearable() {return false;}
+  virtual bool isClearable() { return false; }
 
   /**
-   * @brief Update the bounds of the master costmap by this layer's update dimensions
+   * @brief Update the bounds of the master costmap by this layer's update
+   * dimensions
    * @param robot_x X pose of robot
    * @param robot_y Y pose of robot
    * @param robot_yaw Robot orientation
@@ -103,8 +104,8 @@ public:
    * @param max_y Y max map coord of the window to update
    */
   virtual void updateBounds(
-    double robot_x, double robot_y, double robot_yaw, double * min_x,
-    double * min_y, double * max_x, double * max_y);
+    double robot_x, double robot_y, double robot_yaw, double * min_x, double * min_y,
+    double * max_x, double * max_y);
 
   /**
    * @brief Update the costs in the master costmap in the window
@@ -115,8 +116,7 @@ public:
    * @param max_y Y max map coord of the window to update
    */
   virtual void updateCosts(
-    nav2_costmap_2d::Costmap2D & master_grid,
-    int min_i, int min_j, int max_i, int max_j);
+    nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i, int max_j);
 
   /**
    * @brief Match the size of the master costmap
@@ -157,11 +157,11 @@ protected:
    * @brief Callback executed when a parameter change is detected
    * @param event ParameterEvent message
    */
-  rcl_interfaces::msg::SetParametersResult
-  dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters);
+  rcl_interfaces::msg::SetParametersResult dynamicParametersCallback(
+    std::vector<rclcpp::Parameter> parameters);
 
   std::string global_frame_;  ///< @brief The global frame for the costmap
-  std::string map_frame_;  /// @brief frame that map is located in
+  std::string map_frame_;     /// @brief frame that map is located in
 
   bool has_updated_data_{false};
 

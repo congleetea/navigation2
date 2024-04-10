@@ -24,7 +24,8 @@ namespace nav2_behavior_tree
 {
 
 /**
- * @brief A nav2_behavior_tree::BtActionNode class that wraps nav2_msgs::action::DriveOnHeading
+ * @brief A nav2_behavior_tree::BtActionNode class that wraps
+ * nav2_msgs::action::DriveOnHeading
  */
 class DriveOnHeadingAction : public BtActionNode<nav2_msgs::action::DriveOnHeading>
 {
@@ -36,8 +37,7 @@ public:
    * @param conf BT node configuration
    */
   DriveOnHeadingAction(
-    const std::string & xml_tag_name,
-    const std::string & action_name,
+    const std::string & xml_tag_name, const std::string & action_name,
     const BT::NodeConfiguration & conf);
 
   /**
@@ -47,11 +47,9 @@ public:
   static BT::PortsList providedPorts()
   {
     return providedBasicPorts(
-      {
-        BT::InputPort<double>("dist_to_travel", 0.15, "Distance to travel"),
-        BT::InputPort<double>("speed", 0.025, "Speed at which to travel"),
-        BT::InputPort<double>("time_allowance", 10.0, "Allowed time for driving on heading")
-      });
+      {BT::InputPort<double>("dist_to_travel", 0.15, "Distance to travel"),
+       BT::InputPort<double>("speed", 0.025, "Speed at which to travel"),
+       BT::InputPort<double>("time_allowance", 10.0, "Allowed time for driving on heading")});
   }
 };
 

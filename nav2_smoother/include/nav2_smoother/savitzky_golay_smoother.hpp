@@ -16,21 +16,21 @@
 #define NAV2_SMOOTHER__SAVITZKY_GOLAY_SMOOTHER_HPP_
 
 #include <cmath>
-#include <vector>
-#include <string>
 #include <iostream>
 #include <memory>
 #include <queue>
+#include <string>
 #include <utility>
+#include <vector>
 
+#include "angles/angles.h"
 #include "nav2_core/smoother.hpp"
-#include "nav2_smoother/smoother_utils.hpp"
-#include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_costmap_2d/cost_values.hpp"
+#include "nav2_costmap_2d/costmap_2d.hpp"
+#include "nav2_smoother/smoother_utils.hpp"
 #include "nav2_util/geometry_utils.hpp"
 #include "nav2_util/node_utils.hpp"
 #include "nav_msgs/msg/path.hpp"
-#include "angles/angles.h"
 #include "tf2/utils.h"
 
 namespace nav2_smoother
@@ -54,9 +54,8 @@ public:
   ~SavitzkyGolaySmoother() override = default;
 
   void configure(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr &,
-    std::string name, std::shared_ptr<tf2_ros::Buffer>,
-    std::shared_ptr<nav2_costmap_2d::CostmapSubscriber>,
+    const rclcpp_lifecycle::LifecycleNode::WeakPtr &, std::string name,
+    std::shared_ptr<tf2_ros::Buffer>, std::shared_ptr<nav2_costmap_2d::CostmapSubscriber>,
     std::shared_ptr<nav2_costmap_2d::FootprintSubscriber>) override;
 
   /**
@@ -79,11 +78,10 @@ public:
    *
    * @param path In-out path to be smoothed
    * @param max_time Maximum duration smoothing should take
-   * @return If smoothing was completed (true) or interrupted by time limit (false)
+   * @return If smoothing was completed (true) or interrupted by time limit
+   * (false)
    */
-  bool smooth(
-    nav_msgs::msg::Path & path,
-    const rclcpp::Duration & max_time) override;
+  bool smooth(nav_msgs::msg::Path & path, const rclcpp::Duration & max_time) override;
 
 protected:
   /**
@@ -94,9 +92,7 @@ protected:
    * @param max_time Maximum time to compute, stop early if over limit
    * @return If smoothing was successful
    */
-  bool smoothImpl(
-    nav_msgs::msg::Path & path,
-    bool & reversing_segment);
+  bool smoothImpl(nav_msgs::msg::Path & path, bool & reversing_segment);
 
   bool do_refinement_;
   int refinement_num_;

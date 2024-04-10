@@ -33,25 +33,21 @@
  */
 
 #include "dwb_critics/oscillation.hpp"
+#include "dwb_core/exceptions.hpp"
+#include "nav2_util/node_utils.hpp"
+#include "nav_2d_utils/parameters.hpp"
+#include "pluginlib/class_list_macros.hpp"
 #include <chrono>
 #include <cmath>
 #include <string>
 #include <vector>
-#include "nav_2d_utils/parameters.hpp"
-#include "nav2_util/node_utils.hpp"
-#include "dwb_core/exceptions.hpp"
-#include "pluginlib/class_list_macros.hpp"
 
 PLUGINLIB_EXPORT_CLASS(dwb_critics::OscillationCritic, dwb_core::TrajectoryCritic)
 
 namespace dwb_critics
 {
 
-
-OscillationCritic::CommandTrend::CommandTrend()
-{
-  reset();
-}
+OscillationCritic::CommandTrend::CommandTrend() { reset(); }
 
 void OscillationCritic::CommandTrend::reset()
 {
@@ -84,10 +80,7 @@ bool OscillationCritic::CommandTrend::isOscillating(double velocity)
   return (positive_only_ && velocity < 0.0) || (negative_only_ && velocity > 0.0);
 }
 
-bool OscillationCritic::CommandTrend::hasSignFlipped()
-{
-  return positive_only_ || negative_only_;
-}
+bool OscillationCritic::CommandTrend::hasSignFlipped() { return positive_only_ || negative_only_; }
 
 void OscillationCritic::onInit()
 {
@@ -99,27 +92,23 @@ void OscillationCritic::onInit()
   clock_ = node->get_clock();
 
   oscillation_reset_dist_ = nav_2d_utils::searchAndGetParam(
-    node,
-    dwb_plugin_name_ + "." + name_ + ".oscillation_reset_dist", 0.05);
+    node, dwb_plugin_name_ + "." + name_ + ".oscillation_reset_dist", 0.05);
   oscillation_reset_dist_sq_ = oscillation_reset_dist_ * oscillation_reset_dist_;
   oscillation_reset_angle_ = nav_2d_utils::searchAndGetParam(
-    node,
-    dwb_plugin_name_ + "." + name_ + ".oscillation_reset_angle", 0.2);
-  oscillation_reset_time_ = rclcpp::Duration::from_seconds(
-    nav_2d_utils::searchAndGetParam(
-      node,
-      dwb_plugin_name_ + "." + name_ + ".oscillation_reset_time", -1.0));
+    node, dwb_plugin_name_ + "." + name_ + ".oscillation_reset_angle", 0.2);
+  oscillation_reset_time_ = rclcpp::Duration::from_seconds(nav_2d_utils::searchAndGetParam(
+    node, dwb_plugin_name_ + "." + name_ + ".oscillation_reset_time", -1.0));
 
   nav2_util::declare_parameter_if_not_declared(
-    node,
-    dwb_plugin_name_ + "." + name_ + ".x_only_threshold", rclcpp::ParameterValue(0.05));
+    node, dwb_plugin_name_ + "." + name_ + ".x_only_threshold", rclcpp::ParameterValue(0.05));
 
   /**
    * Historical Parameter Loading
    * If x_only_threshold is set, use that.
-   * If min_speed_xy is set in the namespace (as it is often used for trajectory generation), use that.
-   * If min_trans_vel is set in the namespace, as it used to be used for trajectory generation, complain then use that.
-   * Otherwise, set x_only_threshold_ to 0.05
+   * If min_speed_xy is set in the namespace (as it is often used for trajectory
+   * generation), use that. If min_trans_vel is set in the namespace, as it used
+   * to be used for trajectory generation, complain then use that. Otherwise,
+   * set x_only_threshold_ to 0.05
    */
   node->get_parameter(dwb_plugin_name_ + "." + name_ + ".x_only_threshold", x_only_threshold_);
   // TODO(crdelsey): How to handle searchParam?
@@ -148,10 +137,8 @@ void OscillationCritic::onInit()
 }
 
 bool OscillationCritic::prepare(
-  const geometry_msgs::msg::Pose2D & pose,
-  const nav_2d_msgs::msg::Twist2D &,
-  const geometry_msgs::msg::Pose2D &,
-  const nav_2d_msgs::msg::Path2D &)
+  const geometry_msgs::msg::Pose2D & pose, const nav_2d_msgs::msg::Twist2D &,
+  const geometry_msgs::msg::Pose2D &, const nav_2d_msgs::msg::Path2D &)
 {
   pose_ = pose;
   return true;
@@ -211,7 +198,8 @@ bool OscillationCritic::setOscillationFlags(const nav_2d_msgs::msg::Twist2D & cm
   // set oscillation flags for moving forward and backward
   flag_set |= x_trend_.update(cmd_vel.x);
 
-  // we'll only set flags for strafing and rotating when we're not moving forward at all
+  // we'll only set flags for strafing and rotating when we're not moving
+  // forward at all
   if (x_only_threshold_ < 0.0 || fabs(cmd_vel.x) <= x_only_threshold_) {
     flag_set |= y_trend_.update(cmd_vel.y);
     flag_set |= theta_trend_.update(cmd_vel.theta);
@@ -221,12 +209,10 @@ bool OscillationCritic::setOscillationFlags(const nav_2d_msgs::msg::Twist2D & cm
 
 double OscillationCritic::scoreTrajectory(const dwb_msgs::msg::Trajectory2D & traj)
 {
-  if (x_trend_.isOscillating(traj.velocity.x) ||
-    y_trend_.isOscillating(traj.velocity.y) ||
-    theta_trend_.isOscillating(traj.velocity.theta))
-  {
-    throw dwb_core::
-          IllegalTrajectoryException(name_, "Trajectory is oscillating.");
+  if (
+    x_trend_.isOscillating(traj.velocity.x) || y_trend_.isOscillating(traj.velocity.y) ||
+    theta_trend_.isOscillating(traj.velocity.theta)) {
+    throw dwb_core::IllegalTrajectoryException(name_, "Trajectory is oscillating.");
   }
   return 0.0;
 }

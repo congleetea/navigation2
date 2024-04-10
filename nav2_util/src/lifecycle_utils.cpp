@@ -21,48 +21,42 @@
 #include "lifecycle_msgs/srv/get_state.hpp"
 #include "nav2_util/lifecycle_service_client.hpp"
 
-using std::string;
 using lifecycle_msgs::msg::Transition;
+using std::string;
 
 namespace nav2_util
 {
 
-#define RETRY(fn, retries) \
-  { \
-    int count = 0; \
-    while (true) { \
-      try { \
-        fn; \
-        break; \
+#define RETRY(fn, retries)               \
+  {                                      \
+    int count = 0;                       \
+    while (true) {                       \
+      try {                              \
+        fn;                              \
+        break;                           \
       } catch (std::runtime_error & e) { \
-        ++count; \
-        if (count > (retries)) { \
-          throw e;} \
-      } \
-    } \
+        ++count;                         \
+        if (count > (retries)) {         \
+          throw e;                       \
+        }                                \
+      }                                  \
+    }                                    \
   }
 
 static void startupLifecycleNode(
-  const std::string & node_name,
-  const std::chrono::seconds service_call_timeout,
-  const int retries)
+  const std::string & node_name, const std::chrono::seconds service_call_timeout, const int retries)
 {
   LifecycleServiceClient sc(node_name);
 
-  // Despite waiting for the service to be available and using reliable transport
-  // service calls still frequently hang. To get reliable startup it's necessary
-  // to timeout the service call and retry it when that happens.
-  RETRY(
-    sc.change_state(Transition::TRANSITION_CONFIGURE, service_call_timeout),
-    retries);
-  RETRY(
-    sc.change_state(Transition::TRANSITION_ACTIVATE, service_call_timeout),
-    retries);
+  // Despite waiting for the service to be available and using reliable
+  // transport service calls still frequently hang. To get reliable startup it's
+  // necessary to timeout the service call and retry it when that happens.
+  RETRY(sc.change_state(Transition::TRANSITION_CONFIGURE, service_call_timeout), retries);
+  RETRY(sc.change_state(Transition::TRANSITION_ACTIVATE, service_call_timeout), retries);
 }
 
 void startup_lifecycle_nodes(
-  const std::vector<std::string> & node_names,
-  const std::chrono::seconds service_call_timeout,
+  const std::vector<std::string> & node_names, const std::chrono::seconds service_call_timeout,
   const int retries)
 {
   for (const auto & node_name : node_names) {
@@ -71,26 +65,19 @@ void startup_lifecycle_nodes(
 }
 
 static void resetLifecycleNode(
-  const std::string & node_name,
-  const std::chrono::seconds service_call_timeout,
-  const int retries)
+  const std::string & node_name, const std::chrono::seconds service_call_timeout, const int retries)
 {
   LifecycleServiceClient sc(node_name);
 
-  // Despite waiting for the service to be available and using reliable transport
-  // service calls still frequently hang. To get reliable reset it's necessary
-  // to timeout the service call and retry it when that happens.
-  RETRY(
-    sc.change_state(Transition::TRANSITION_DEACTIVATE, service_call_timeout),
-    retries);
-  RETRY(
-    sc.change_state(Transition::TRANSITION_CLEANUP, service_call_timeout),
-    retries);
+  // Despite waiting for the service to be available and using reliable
+  // transport service calls still frequently hang. To get reliable reset it's
+  // necessary to timeout the service call and retry it when that happens.
+  RETRY(sc.change_state(Transition::TRANSITION_DEACTIVATE, service_call_timeout), retries);
+  RETRY(sc.change_state(Transition::TRANSITION_CLEANUP, service_call_timeout), retries);
 }
 
 void reset_lifecycle_nodes(
-  const std::vector<std::string> & node_names,
-  const std::chrono::seconds service_call_timeout,
+  const std::vector<std::string> & node_names, const std::chrono::seconds service_call_timeout,
   const int retries)
 {
   for (const auto & node_name : node_names) {

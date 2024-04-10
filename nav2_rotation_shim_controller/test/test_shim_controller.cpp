@@ -12,65 +12,48 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <limits>
 #include <math.h>
 #include <memory>
 #include <string>
 #include <vector>
-#include <limits>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_costmap_2d/costmap_2d.hpp"
-#include "nav2_util/lifecycle_node.hpp"
 #include "nav2_controller/plugins/simple_goal_checker.hpp"
+#include "nav2_costmap_2d/costmap_2d.hpp"
 #include "nav2_rotation_shim_controller/nav2_rotation_shim_controller.hpp"
+#include "nav2_util/lifecycle_node.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "tf2_ros/transform_broadcaster.h"
+#include "gtest/gtest.h"
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
 class RotationShimShim : public nav2_rotation_shim_controller::RotationShimController
 {
 public:
-  RotationShimShim()
-  : nav2_rotation_shim_controller::RotationShimController()
-  {
-  }
+  RotationShimShim() : nav2_rotation_shim_controller::RotationShimController() {}
 
-  nav2_core::Controller::Ptr getPrimaryController()
-  {
-    return primary_controller_;
-  }
+  nav2_core::Controller::Ptr getPrimaryController() { return primary_controller_; }
 
-  nav_msgs::msg::Path getPath()
-  {
-    return current_path_;
-  }
+  nav_msgs::msg::Path getPath() { return current_path_; }
 
-  bool isPathUpdated()
-  {
-    return path_updated_;
-  }
+  bool isPathUpdated() { return path_updated_; }
 
-  geometry_msgs::msg::PoseStamped getSampledPathPtWrapper()
-  {
-    return getSampledPathPt();
-  }
+  geometry_msgs::msg::PoseStamped getSampledPathPtWrapper() { return getSampledPathPt(); }
 
   geometry_msgs::msg::Pose transformPoseToBaseFrameWrapper(geometry_msgs::msg::PoseStamped pt)
   {
     return transformPoseToBaseFrame(pt);
   }
 
-  geometry_msgs::msg::TwistStamped
-  computeRotateToHeadingCommandWrapper(
-    const double & param,
-    const geometry_msgs::msg::PoseStamped & pose,
+  geometry_msgs::msg::TwistStamped computeRotateToHeadingCommandWrapper(
+    const double & param, const geometry_msgs::msg::PoseStamped & pose,
     const geometry_msgs::msg::Twist & velocity)
   {
     return computeRotateToHeadingCommand(param, pose, velocity);
@@ -94,15 +77,11 @@ TEST(RotationShimControllerTest, lifecycleTransitions)
   // Add a controller to the setup
   auto rec_param = std::make_shared<rclcpp::AsyncParametersClient>(
     node->get_node_base_interface(), node->get_node_topics_interface(),
-    node->get_node_graph_interface(),
-    node->get_node_services_interface());
-  auto results = rec_param->set_parameters_atomically(
-    {rclcpp::Parameter(
-        "PathFollower.primary_controller",
-        std::string("nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"))});
-  rclcpp::spin_until_future_complete(
-    node->get_node_base_interface(),
-    results);
+    node->get_node_graph_interface(), node->get_node_services_interface());
+  auto results = rec_param->set_parameters_atomically({rclcpp::Parameter(
+    "PathFollower.primary_controller", std::string("nav2_regulated_pure_pursuit_controller::"
+                                                   "RegulatedPurePursuitController"))});
+  rclcpp::spin_until_future_complete(node->get_node_base_interface(), results);
 
   ctrl->configure(node, name, tf, costmap);
   EXPECT_NE(ctrl->getPrimaryController(), nullptr);
@@ -127,8 +106,8 @@ TEST(RotationShimControllerTest, setPlanAndSampledPointsTests)
 
   // set a valid primary controller so we can do lifecycle
   node->declare_parameter(
-    "PathFollower.primary_controller",
-    std::string("nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"));
+    "PathFollower.primary_controller", std::string("nav2_regulated_pure_pursuit_controller::"
+                                                   "RegulatedPurePursuitController"));
 
   auto controller = std::make_shared<RotationShimShim>();
   controller->configure(node, name, tf, costmap);
@@ -177,8 +156,8 @@ TEST(RotationShimControllerTest, rotationAndTransformTests)
 
   // set a valid primary controller so we can do lifecycle
   node->declare_parameter(
-    "PathFollower.primary_controller",
-    std::string("nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"));
+    "PathFollower.primary_controller", std::string("nav2_regulated_pure_pursuit_controller::"
+                                                   "RegulatedPurePursuitController"));
 
   auto controller = std::make_shared<RotationShimShim>();
   controller->configure(node, name, tf, costmap);
@@ -198,15 +177,15 @@ TEST(RotationShimControllerTest, rotationAndTransformTests)
 
   const geometry_msgs::msg::Twist velocity;
   EXPECT_EQ(
-    controller->computeRotateToHeadingCommandWrapper(
-      0.7, path.poses[0], velocity).twist.angular.z, 1.8);
+    controller->computeRotateToHeadingCommandWrapper(0.7, path.poses[0], velocity).twist.angular.z,
+    1.8);
   EXPECT_EQ(
-    controller->computeRotateToHeadingCommandWrapper(
-      -0.7, path.poses[0], velocity).twist.angular.z, -1.8);
+    controller->computeRotateToHeadingCommandWrapper(-0.7, path.poses[0], velocity).twist.angular.z,
+    -1.8);
 
   EXPECT_EQ(
-    controller->computeRotateToHeadingCommandWrapper(
-      0.87, path.poses[0], velocity).twist.angular.z, 1.8);
+    controller->computeRotateToHeadingCommandWrapper(0.87, path.poses[0], velocity).twist.angular.z,
+    1.8);
 
   // in base_link, so should pass through values without issue
   geometry_msgs::msg::PoseStamped pt;
@@ -247,8 +226,8 @@ TEST(RotationShimControllerTest, computeVelocityTests)
 
   // set a valid primary controller so we can do lifecycle
   node->declare_parameter(
-    "PathFollower.primary_controller",
-    std::string("nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"));
+    "PathFollower.primary_controller", std::string("nav2_regulated_pure_pursuit_controller::"
+                                                   "RegulatedPurePursuitController"));
 
   auto controller = std::make_shared<RotationShimShim>();
   controller->configure(node, name, tf, costmap);
@@ -269,8 +248,9 @@ TEST(RotationShimControllerTest, computeVelocityTests)
   // then it should throw an exception because the path is empty and invalid
   EXPECT_THROW(controller->computeVelocityCommands(pose, velocity, &checker), std::runtime_error);
 
-  // Set with a path -- should attempt to find a sampled point but throw exception
-  // because it cannot be found, then go to RPP and throw exception because it cannot be transformed
+  // Set with a path -- should attempt to find a sampled point but throw
+  // exception because it cannot be found, then go to RPP and throw exception
+  // because it cannot be transformed
   controller->setPlan(path);
   EXPECT_THROW(controller->computeVelocityCommands(pose, velocity, &checker), std::runtime_error);
 
@@ -284,8 +264,8 @@ TEST(RotationShimControllerTest, computeVelocityTests)
   path.poses[3].pose.position.y = 10.0;
 
   // this should allow it to find the sampled point, then transform to base_link
-  // validly because we setup the TF for it. The -1.0 should be selected since default min
-  // is 0.5 and that should cause a rotation in place
+  // validly because we setup the TF for it. The -1.0 should be selected since
+  // default min is 0.5 and that should cause a rotation in place
   controller->setPlan(path);
   tf_broadcaster->sendTransform(transform);
   auto effort = controller->computeVelocityCommands(pose, velocity, &checker);
@@ -301,9 +281,9 @@ TEST(RotationShimControllerTest, computeVelocityTests)
   path.poses[3].pose.position.y = 10.0;
 
   // this should allow it to find the sampled point, then transform to base_link
-  // validly because we setup the TF for it. The 1.0 should be selected since default min
-  // is 0.5 and that should cause a pass off to the RPP controller which will throw
-  // and exception because the costmap is bogus
+  // validly because we setup the TF for it. The 1.0 should be selected since
+  // default min is 0.5 and that should cause a pass off to the RPP controller
+  // which will throw and exception because the costmap is bogus
   controller->setPlan(path);
   tf_broadcaster->sendTransform(transform);
   EXPECT_THROW(controller->computeVelocityCommands(pose, velocity, &checker), std::runtime_error);
@@ -320,8 +300,8 @@ TEST(RotationShimControllerTest, testDynamicParameter)
 
   // set a valid primary controller so we can do lifecycle
   node->declare_parameter(
-    "test.primary_controller",
-    std::string("nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"));
+    "test.primary_controller", std::string("nav2_regulated_pure_pursuit_controller::"
+                                           "RegulatedPurePursuitController"));
 
   auto controller = std::make_shared<RotationShimShim>();
   controller->configure(node, name, tf, costmap);
@@ -329,20 +309,17 @@ TEST(RotationShimControllerTest, testDynamicParameter)
 
   auto rec_param = std::make_shared<rclcpp::AsyncParametersClient>(
     node->get_node_base_interface(), node->get_node_topics_interface(),
-    node->get_node_graph_interface(),
-    node->get_node_services_interface());
+    node->get_node_graph_interface(), node->get_node_services_interface());
 
   auto results = rec_param->set_parameters_atomically(
     {rclcpp::Parameter("test.angular_dist_threshold", 7.0),
-      rclcpp::Parameter("test.forward_sampling_distance", 7.0),
-      rclcpp::Parameter("test.rotate_to_heading_angular_vel", 7.0),
-      rclcpp::Parameter("test.max_angular_accel", 7.0),
-      rclcpp::Parameter("test.simulate_ahead_time", 7.0),
-      rclcpp::Parameter("test.primary_controller", std::string("HI"))});
+     rclcpp::Parameter("test.forward_sampling_distance", 7.0),
+     rclcpp::Parameter("test.rotate_to_heading_angular_vel", 7.0),
+     rclcpp::Parameter("test.max_angular_accel", 7.0),
+     rclcpp::Parameter("test.simulate_ahead_time", 7.0),
+     rclcpp::Parameter("test.primary_controller", std::string("HI"))});
 
-  rclcpp::spin_until_future_complete(
-    node->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(node->get_node_base_interface(), results);
 
   EXPECT_EQ(node->get_parameter("test.angular_dist_threshold").as_double(), 7.0);
   EXPECT_EQ(node->get_parameter("test.forward_sampling_distance").as_double(), 7.0);

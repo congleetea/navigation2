@@ -18,10 +18,10 @@
 #include <string>
 #include <vector>
 
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_costmap_2d/footprint.hpp"
 #include "nav2_util/lifecycle_node.hpp"
 #include "nav2_util/robot_utils.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_costmap_2d
 {
@@ -37,21 +37,16 @@ public:
    * @brief A constructor
    */
   FootprintSubscriber(
-    const nav2_util::LifecycleNode::WeakPtr & parent,
-    const std::string & topic_name,
-    tf2_ros::Buffer & tf,
-    std::string robot_base_frame = "base_link",
+    const nav2_util::LifecycleNode::WeakPtr & parent, const std::string & topic_name,
+    tf2_ros::Buffer & tf, std::string robot_base_frame = "base_link",
     double transform_tolerance = 0.1);
 
   /**
    * @brief A constructor
    */
   FootprintSubscriber(
-    const rclcpp::Node::WeakPtr & parent,
-    const std::string & topic_name,
-    tf2_ros::Buffer & tf,
-    std::string robot_base_frame = "base_link",
-    double transform_tolerance = 0.1);
+    const rclcpp::Node::WeakPtr & parent, const std::string & topic_name, tf2_ros::Buffer & tf,
+    std::string robot_base_frame = "base_link", double transform_tolerance = 0.1);
 
   /**
    * @brief A destructor
@@ -59,26 +54,26 @@ public:
   ~FootprintSubscriber() {}
 
   /**
-   * @brief Returns the latest robot footprint, in the form as received from topic (oriented).
+   * @brief Returns the latest robot footprint, in the form as received from
+   * topic (oriented).
    *
    * @param footprint Output param. Latest received footprint
    * @param footprint_header Output param. Header associated with the footprint
    * @return False if no footprint has been received
    */
   bool getFootprintRaw(
-    std::vector<geometry_msgs::msg::Point> & footprint,
-    std_msgs::msg::Header & footprint_header);
+    std::vector<geometry_msgs::msg::Point> & footprint, std_msgs::msg::Header & footprint_header);
 
   /**
-   * @brief Returns the latest robot footprint, transformed into robot base frame (unoriented).
+   * @brief Returns the latest robot footprint, transformed into robot base
+   * frame (unoriented).
    *
    * @param footprint Output param. Latest received footprint, unoriented
    * @param footprint_header Output param. Header associated with the footprint
    * @return False if no footprint has been received or if transformation failed
    */
   bool getFootprintInRobotFrame(
-    std::vector<geometry_msgs::msg::Point> & footprint,
-    std_msgs::msg::Header & footprint_header);
+    std::vector<geometry_msgs::msg::Point> & footprint, std_msgs::msg::Header & footprint_header);
 
 protected:
   /**

@@ -15,8 +15,8 @@
 #ifndef NAV2_CONSTRAINED_SMOOTHER__UTILS_HPP_
 #define NAV2_CONSTRAINED_SMOOTHER__UTILS_HPP_
 
-#include <limits>
 #include "Eigen/Core"
+#include <limits>
 
 #define EPSILON 0.0001
 
@@ -25,9 +25,9 @@
  * used in Ceres Solver 2.1.0+ and 2.0.0- versions respectively
  */
 #if defined(USE_OLD_CERES_API)
-  #define CERES_ISINF(x) ceres::IsInfinite(x)
+#define CERES_ISINF(x) ceres::IsInfinite(x)
 #else
-  #define CERES_ISINF(x) ceres::isinf(x)
+#define CERES_ISINF(x) ceres::isinf(x)
 #endif
 
 namespace nav2_constrained_smoother
@@ -39,13 +39,12 @@ namespace nav2_constrained_smoother
  * @param pt Mid point of the arc
  * @param pt_next Last point of the arc
  * @param is_cusp True if pt is a cusp point
- * @result position of the center or Vector2(inf, inf) for straight lines and 180 deg turns
+ * @result position of the center or Vector2(inf, inf) for straight lines and
+ * 180 deg turns
  */
-template<typename T>
+template <typename T>
 inline Eigen::Matrix<T, 2, 1> arcCenter(
-  Eigen::Matrix<T, 2, 1> pt_prev,
-  Eigen::Matrix<T, 2, 1> pt,
-  Eigen::Matrix<T, 2, 1> pt_next,
+  Eigen::Matrix<T, 2, 1> pt_prev, Eigen::Matrix<T, 2, 1> pt, Eigen::Matrix<T, 2, 1> pt_next,
   bool is_cusp)
 {
   Eigen::Matrix<T, 2, 1> d1 = pt - pt_prev;
@@ -72,8 +71,8 @@ inline Eigen::Matrix<T, 2, 1> arcCenter(
   Eigen::Matrix<T, 2, 1> n2(-d2[1], d2[0]);
   T det1 = (mid1[0] + n1[0]) * mid1[1] - (mid1[1] + n1[1]) * mid1[0];
   T det2 = (mid2[0] + n2[0]) * mid2[1] - (mid2[1] + n2[1]) * mid2[0];
-  Eigen::Matrix<T, 2, 1> center((det1 * n2[0] - det2 * n1[0]) / det,
-    (det1 * n2[1] - det2 * n1[1]) / det);
+  Eigen::Matrix<T, 2, 1> center(
+    (det1 * n2[0] - det2 * n1[0]) / det, (det1 * n2[1] - det2 * n1[1]) / det);
   return center;
 }
 
@@ -85,14 +84,13 @@ inline Eigen::Matrix<T, 2, 1> arcCenter(
  * @param pt_next Last point of the arc
  * @param is_cusp True if pt is a cusp point
  * @result Tangential line direction.
- * Note: the sign of tangentDir is undefined here, should be assigned in post-process
- * depending on movement direction. Also, for speed reasons, direction vector is not normalized.
+ * Note: the sign of tangentDir is undefined here, should be assigned in
+ * post-process depending on movement direction. Also, for speed reasons,
+ * direction vector is not normalized.
  */
-template<typename T>
+template <typename T>
 inline Eigen::Matrix<T, 2, 1> tangentDir(
-  Eigen::Matrix<T, 2, 1> pt_prev,
-  Eigen::Matrix<T, 2, 1> pt,
-  Eigen::Matrix<T, 2, 1> pt_next,
+  Eigen::Matrix<T, 2, 1> pt_prev, Eigen::Matrix<T, 2, 1> pt, Eigen::Matrix<T, 2, 1> pt_next,
   bool is_cusp)
 {
   Eigen::Matrix<T, 2, 1> center = arcCenter(pt_prev, pt, pt_next, is_cusp);
@@ -113,7 +111,8 @@ inline Eigen::Matrix<T, 2, 1> tangentDir(
   }
 
   // tangent is prependicular to (pt - center)
-  // Note: not determining + or - direction here, this should be handled at the caller side
+  // Note: not determining + or - direction here, this should be handled at the
+  // caller side
   return Eigen::Matrix<T, 2, 1>(center[1] - pt[1], pt[0] - center[0]);
 }
 

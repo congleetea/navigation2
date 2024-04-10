@@ -16,32 +16,26 @@
 #define NAV2_WAYPOINT_FOLLOWER__WAYPOINT_FOLLOWER_HPP_
 
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
-#include <mutex>
 
-#include "nav2_util/lifecycle_node.hpp"
-#include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "nav2_msgs/action/follow_waypoints.hpp"
-#include "nav_msgs/msg/path.hpp"
+#include "nav2_msgs/action/navigate_to_pose.hpp"
+#include "nav2_util/lifecycle_node.hpp"
 #include "nav2_util/simple_action_server.hpp"
+#include "nav_msgs/msg/path.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
-#include "nav2_util/node_utils.hpp"
 #include "nav2_core/waypoint_task_executor.hpp"
-#include "pluginlib/class_loader.hpp"
+#include "nav2_util/node_utils.hpp"
 #include "pluginlib/class_list_macros.hpp"
+#include "pluginlib/class_loader.hpp"
 
 namespace nav2_waypoint_follower
 {
 
-enum class ActionStatus
-{
-  UNKNOWN = 0,
-  PROCESSING = 1,
-  FAILED = 2,
-  SUCCEEDED = 3
-};
+enum class ActionStatus { UNKNOWN = 0, PROCESSING = 1, FAILED = 2, SUCCEEDED = 3 };
 
 /**
  * @class nav2_waypoint_follower::WaypointFollower
@@ -121,8 +115,8 @@ protected:
    * @brief Callback executed when a parameter change is detected
    * @param event ParameterEvent message
    */
-  rcl_interfaces::msg::SetParametersResult
-  dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters);
+  rcl_interfaces::msg::SetParametersResult dynamicParametersCallback(
+    std::vector<rclcpp::Parameter> parameters);
 
   // Dynamic parameters handler
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr dyn_params_handler_;
@@ -139,10 +133,8 @@ protected:
   std::vector<int> failed_ids_;
 
   // Task Execution At Waypoint Plugin
-  pluginlib::ClassLoader<nav2_core::WaypointTaskExecutor>
-  waypoint_task_executor_loader_;
-  pluginlib::UniquePtr<nav2_core::WaypointTaskExecutor>
-  waypoint_task_executor_;
+  pluginlib::ClassLoader<nav2_core::WaypointTaskExecutor> waypoint_task_executor_loader_;
+  pluginlib::UniquePtr<nav2_core::WaypointTaskExecutor> waypoint_task_executor_;
   std::string waypoint_task_executor_id_;
   std::string waypoint_task_executor_type_;
 };

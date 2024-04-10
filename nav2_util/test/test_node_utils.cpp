@@ -16,22 +16,22 @@
 #include <string>
 
 #include "nav2_util/node_utils.hpp"
-#include "gtest/gtest.h"
 #include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
-using nav2_util::sanitize_node_name;
-using nav2_util::generate_internal_node_name;
-using nav2_util::generate_internal_node;
 using nav2_util::add_namespaces;
-using nav2_util::time_to_string;
 using nav2_util::declare_parameter_if_not_declared;
+using nav2_util::generate_internal_node;
+using nav2_util::generate_internal_node_name;
 using nav2_util::get_plugin_type_param;
+using nav2_util::sanitize_node_name;
+using nav2_util::time_to_string;
 
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -116,7 +116,8 @@ TEST(TestParamCopying, TestParamCopying)
 
   nav2_util::copy_all_parameters(node1, node2);
 
-  // Test new parameters exist, of expected value, and original param is not overridden
+  // Test new parameters exist, of expected value, and original param is not
+  // overridden
   EXPECT_TRUE(node2->has_parameter("Foo1"));
   EXPECT_EQ(node2->get_parameter("Foo1").as_string(), std::string("bar1"));
   EXPECT_TRUE(node2->has_parameter("Foo2"));

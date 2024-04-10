@@ -35,23 +35,20 @@
 #include <memory>
 #include <string>
 
-#include "gtest/gtest.h"
-#include "nav2_controller/plugins/simple_progress_checker.hpp"
 #include "nav2_controller/plugins/pose_progress_checker.hpp"
-#include "nav_2d_utils/conversions.hpp"
-#include "nav2_util/lifecycle_node.hpp"
+#include "nav2_controller/plugins/simple_progress_checker.hpp"
 #include "nav2_util/geometry_utils.hpp"
+#include "nav2_util/lifecycle_node.hpp"
+#include "nav_2d_utils/conversions.hpp"
+#include "gtest/gtest.h"
 
-using nav2_controller::SimpleProgressChecker;
 using nav2_controller::PoseProgressChecker;
+using nav2_controller::SimpleProgressChecker;
 
 class TestLifecycleNode : public nav2_util::LifecycleNode
 {
 public:
-  explicit TestLifecycleNode(const std::string & name)
-  : nav2_util::LifecycleNode(name)
-  {
-  }
+  explicit TestLifecycleNode(const std::string & name) : nav2_util::LifecycleNode(name) {}
 
   nav2_util::CallbackReturn on_configure(const rclcpp_lifecycle::State &)
   {
@@ -85,11 +82,8 @@ public:
 };
 
 void checkMacro(
-  nav2_core::ProgressChecker & pc,
-  double x0, double y0, double theta0,
-  double x1, double y1, double theta1,
-  int delay,
-  bool expected_result)
+  nav2_core::ProgressChecker & pc, double x0, double y0, double theta0, double x1, double y1,
+  double theta1, int delay, bool expected_result)
 {
   pc.reset();
   geometry_msgs::msg::PoseStamped pose0, pose1;
@@ -130,20 +124,16 @@ TEST(SimpleProgressChecker, unit_tests)
   int twice_time_allowance_ms = static_cast<int>(time_allowance * 2.0 * 1000);
 
   auto rec_param = std::make_shared<rclcpp::AsyncParametersClient>(
-    x->get_node_base_interface(), x->get_node_topics_interface(),
-    x->get_node_graph_interface(),
+    x->get_node_base_interface(), x->get_node_topics_interface(), x->get_node_graph_interface(),
     x->get_node_services_interface());
 
   auto results = rec_param->set_parameters_atomically(
     {rclcpp::Parameter("nav2_controller.movement_time_allowance", time_allowance)});
 
-  rclcpp::spin_until_future_complete(
-    x->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(x->get_node_base_interface(), results);
 
   EXPECT_EQ(
-    x->get_parameter("nav2_controller.movement_time_allowance").as_double(),
-    time_allowance);
+    x->get_parameter("nav2_controller.movement_time_allowance").as_double(), time_allowance);
 
   // BELOW time allowance (set to time_allowance)
   // no movement
@@ -188,20 +178,16 @@ TEST(PoseProgressChecker, unit_tests)
   int twice_time_allowance_ms = static_cast<int>(time_allowance * 2.0 * 1000);
 
   auto rec_param = std::make_shared<rclcpp::AsyncParametersClient>(
-    x->get_node_base_interface(), x->get_node_topics_interface(),
-    x->get_node_graph_interface(),
+    x->get_node_base_interface(), x->get_node_topics_interface(), x->get_node_graph_interface(),
     x->get_node_services_interface());
 
   auto results = rec_param->set_parameters_atomically(
     {rclcpp::Parameter("nav2_controller.movement_time_allowance", time_allowance)});
 
-  rclcpp::spin_until_future_complete(
-    x->get_node_base_interface(),
-    results);
+  rclcpp::spin_until_future_complete(x->get_node_base_interface(), results);
 
   EXPECT_EQ(
-    x->get_parameter("nav2_controller.movement_time_allowance").as_double(),
-    time_allowance);
+    x->get_parameter("nav2_controller.movement_time_allowance").as_double(), time_allowance);
 
   // BELOW time allowance (set to time_allowance)
   // no movement

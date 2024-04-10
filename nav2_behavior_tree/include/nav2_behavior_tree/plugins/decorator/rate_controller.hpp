@@ -34,20 +34,13 @@ public:
    * @param name Name for the XML tag for this node
    * @param conf BT node configuration
    */
-  RateController(
-    const std::string & name,
-    const BT::NodeConfiguration & conf);
+  RateController(const std::string & name, const BT::NodeConfiguration & conf);
 
   /**
    * @brief Creates list of BT ports
    * @return BT::PortsList Containing node-specific ports
    */
-  static BT::PortsList providedPorts()
-  {
-    return {
-      BT::InputPort<double>("hz", 10.0, "Rate")
-    };
-  }
+  static BT::PortsList providedPorts() { return {BT::InputPort<double>("hz", 10.0, "Rate")}; }
 
 private:
   /**

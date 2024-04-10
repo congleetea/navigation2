@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "std_msgs/msg/string.hpp"
 
@@ -27,15 +27,12 @@ namespace nav2_behavior_tree
 
 using std::placeholders::_1;
 
-ControllerSelector::ControllerSelector(
-  const std::string & name,
-  const BT::NodeConfiguration & conf)
+ControllerSelector::ControllerSelector(const std::string & name, const BT::NodeConfiguration & conf)
 : BT::SyncActionNode(name, conf)
 {
   node_ = config().blackboard->get<rclcpp::Node::SharedPtr>("node");
-  callback_group_ = node_->create_callback_group(
-    rclcpp::CallbackGroupType::MutuallyExclusive,
-    false);
+  callback_group_ =
+    node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false);
   callback_group_executor_.add_callback_group(callback_group_, node_->get_node_base_interface());
 
   getInput("topic_name", topic_name_);
@@ -46,9 +43,7 @@ ControllerSelector::ControllerSelector(
   rclcpp::SubscriptionOptions sub_option;
   sub_option.callback_group = callback_group_;
   controller_selector_sub_ = node_->create_subscription<std_msgs::msg::String>(
-    topic_name_,
-    qos,
-    std::bind(&ControllerSelector::callbackControllerSelect, this, _1),
+    topic_name_, qos, std::bind(&ControllerSelector::callbackControllerSelect, this, _1),
     sub_option);
 }
 
@@ -56,11 +51,11 @@ BT::NodeStatus ControllerSelector::tick()
 {
   callback_group_executor_.spin_some();
 
-  // This behavior always use the last selected controller received from the topic input.
-  // When no input is specified it uses the default controller.
-  // If the default controller is not specified then we work in "required controller mode":
-  // In this mode, the behavior returns failure if the controller selection is not received from
-  // the topic input.
+  // This behavior always use the last selected controller received from the
+  // topic input. When no input is specified it uses the default controller. If
+  // the default controller is not specified then we work in "required
+  // controller mode": In this mode, the behavior returns failure if the
+  // controller selection is not received from the topic input.
   if (last_selected_controller_.empty()) {
     std::string default_controller;
     getInput("default_controller", default_controller);
@@ -76,8 +71,7 @@ BT::NodeStatus ControllerSelector::tick()
   return BT::NodeStatus::SUCCESS;
 }
 
-void
-ControllerSelector::callbackControllerSelect(const std_msgs::msg::String::SharedPtr msg)
+void ControllerSelector::callbackControllerSelect(const std_msgs::msg::String::SharedPtr msg)
 {
   last_selected_controller_ = msg->data;
 }

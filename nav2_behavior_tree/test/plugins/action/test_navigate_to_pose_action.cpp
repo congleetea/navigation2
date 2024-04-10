@@ -18,8 +18,8 @@
 #include <set>
 #include <string>
 
-#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/point.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
 
 #include "behaviortree_cpp_v3/bt_factory.h"
@@ -30,15 +30,12 @@
 class NavigateToPoseActionServer : public TestActionServer<nav2_msgs::action::NavigateToPose>
 {
 public:
-  NavigateToPoseActionServer()
-  : TestActionServer("navigate_to_pose")
-  {}
+  NavigateToPoseActionServer() : TestActionServer("navigate_to_pose") {}
 
 protected:
-  void execute(
-    const typename std::shared_ptr<
-      rclcpp_action::ServerGoalHandle<nav2_msgs::action::NavigateToPose>> goal_handle)
-  override
+  void execute(const typename std::shared_ptr<
+               rclcpp_action::ServerGoalHandle<nav2_msgs::action::NavigateToPose>>
+                 goal_handle) override
   {
     const auto goal = goal_handle->get_goal();
     auto result = std::make_shared<nav2_msgs::action::NavigateToPose::Result>();
@@ -59,26 +56,19 @@ public:
     // Create the blackboard that will be shared by all of the nodes in the tree
     config_->blackboard = BT::Blackboard::create();
     // Put items on the blackboard
-    config_->blackboard->set<rclcpp::Node::SharedPtr>(
-      "node",
-      node_);
+    config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
     config_->blackboard->set<std::chrono::milliseconds>(
-      "server_timeout",
-      std::chrono::milliseconds(20));
+      "server_timeout", std::chrono::milliseconds(20));
     config_->blackboard->set<std::chrono::milliseconds>(
-      "bt_loop_duration",
-      std::chrono::milliseconds(10));
+      "bt_loop_duration", std::chrono::milliseconds(10));
     config_->blackboard->set<bool>("initial_pose_received", false);
 
-    BT::NodeBuilder builder =
-      [](const std::string & name, const BT::NodeConfiguration & config)
-      {
-        return std::make_unique<nav2_behavior_tree::NavigateToPoseAction>(
-          name, "navigate_to_pose", config);
-      };
+    BT::NodeBuilder builder = [](const std::string & name, const BT::NodeConfiguration & config) {
+      return std::make_unique<nav2_behavior_tree::NavigateToPoseAction>(
+        name, "navigate_to_pose", config);
+    };
 
-    factory_->registerBuilder<nav2_behavior_tree::NavigateToPoseAction>(
-      "NavigateToPose", builder);
+    factory_->registerBuilder<nav2_behavior_tree::NavigateToPoseAction>("NavigateToPose", builder);
   }
 
   static void TearDownTestCase()
@@ -90,10 +80,7 @@ public:
     factory_.reset();
   }
 
-  void TearDown() override
-  {
-    tree_.reset();
-  }
+  void TearDown() override { tree_.reset(); }
 
   static std::shared_ptr<NavigateToPoseActionServer> action_server_;
 
@@ -105,8 +92,8 @@ protected:
 };
 
 rclcpp::Node::SharedPtr NavigateToPoseActionTestFixture::node_ = nullptr;
-std::shared_ptr<NavigateToPoseActionServer>
-NavigateToPoseActionTestFixture::action_server_ = nullptr;
+std::shared_ptr<NavigateToPoseActionServer> NavigateToPoseActionTestFixture::action_server_ =
+  nullptr;
 BT::NodeConfiguration * NavigateToPoseActionTestFixture::config_ = nullptr;
 std::shared_ptr<BT::BehaviorTreeFactory> NavigateToPoseActionTestFixture::factory_ = nullptr;
 std::shared_ptr<BT::Tree> NavigateToPoseActionTestFixture::tree_ = nullptr;
@@ -160,12 +147,10 @@ int main(int argc, char ** argv)
   rclcpp::init(argc, argv);
 
   // initialize action server and spin on new thread
-  NavigateToPoseActionTestFixture::action_server_ =
-    std::make_shared<NavigateToPoseActionServer>();
+  NavigateToPoseActionTestFixture::action_server_ = std::make_shared<NavigateToPoseActionServer>();
 
-  std::thread server_thread([]() {
-      rclcpp::spin(NavigateToPoseActionTestFixture::action_server_);
-    });
+  std::thread server_thread(
+    []() { rclcpp::spin(NavigateToPoseActionTestFixture::action_server_); });
 
   int all_successful = RUN_ALL_TESTS();
 

@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #include <chrono>
-#include <thread>
 #include <memory>
+#include <thread>
 
 #include "dummy_planner.hpp"
 
@@ -23,8 +23,7 @@ using namespace std::chrono_literals;
 namespace nav2_system_tests
 {
 
-DummyPlanner::DummyPlanner()
-: Node("DummyPlanner")
+DummyPlanner::DummyPlanner() : Node("DummyPlanner")
 {
   RCLCPP_INFO(get_logger(), "Initializing DummyPlanner...");
 
@@ -41,18 +40,15 @@ DummyPlanner::DummyPlanner()
   RCLCPP_INFO(get_logger(), "Initialized DummyPlanner");
 }
 
-DummyPlanner::~DummyPlanner()
-{
-  RCLCPP_INFO(get_logger(), "Shutting down DummyPlanner");
-}
+DummyPlanner::~DummyPlanner() { RCLCPP_INFO(get_logger(), "Shutting down DummyPlanner"); }
 
-void
-DummyPlanner::computePlan(const nav2_behavior_tree::ComputePathToPoseCommand::SharedPtr cmd)
+void DummyPlanner::computePlan(const nav2_behavior_tree::ComputePathToPoseCommand::SharedPtr cmd)
 {
   RCLCPP_INFO(
-    get_logger(), "Attempting to a find path from (%.2f, %.2f) to "
-    "(%.2f, %.2f).", cmd->start.position.x, cmd->start.position.y,
-    cmd->goal.position.x, cmd->goal.position.y);
+    get_logger(),
+    "Attempting to a find path from (%.2f, %.2f) to "
+    "(%.2f, %.2f).",
+    cmd->start.position.x, cmd->start.position.y, cmd->goal.position.x, cmd->goal.position.y);
 
   // Dummy path computation time
   std::this_thread::sleep_for(500ms);

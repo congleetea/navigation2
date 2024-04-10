@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-#include <cmath>
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_util/robot_utils.hpp"
-#include "tf2_ros/transform_listener.h"
-#include "tf2_ros/transform_broadcaster.h"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "gtest/gtest.h"
 #include "nav2_util/node_thread.hpp"
+#include "nav2_util/robot_utils.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "tf2_ros/create_timer_ros.h"
+#include "tf2_ros/transform_broadcaster.h"
+#include "tf2_ros/transform_listener.h"
+#include "gtest/gtest.h"
+#include <cmath>
+#include <memory>
 
 TEST(RobotUtils, LookupExceptionError)
 {

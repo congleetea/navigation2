@@ -13,11 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
 #include <memory>
+#include <string>
 
-#include "nav2_util/robot_utils.hpp"
 #include "nav2_util/geometry_utils.hpp"
+#include "nav2_util/robot_utils.hpp"
 
 #include "nav2_behavior_tree/plugins/condition/distance_traveled_condition.hpp"
 
@@ -25,8 +25,7 @@ namespace nav2_behavior_tree
 {
 
 DistanceTraveledCondition::DistanceTraveledCondition(
-  const std::string & condition_name,
-  const BT::NodeConfiguration & conf)
+  const std::string & condition_name, const BT::NodeConfiguration & conf)
 : BT::ConditionNode(condition_name, conf),
   distance_(1.0),
   transform_tolerance_(0.1),
@@ -45,9 +44,7 @@ BT::NodeStatus DistanceTraveledCondition::tick()
 {
   if (status() == BT::NodeStatus::IDLE) {
     if (!nav2_util::getCurrentPose(
-        start_pose_, *tf_, global_frame_, robot_base_frame_,
-        transform_tolerance_))
-    {
+          start_pose_, *tf_, global_frame_, robot_base_frame_, transform_tolerance_)) {
       RCLCPP_DEBUG(node_->get_logger(), "Current robot pose is not available.");
     }
     return BT::NodeStatus::FAILURE;
@@ -56,16 +53,14 @@ BT::NodeStatus DistanceTraveledCondition::tick()
   // Determine distance travelled since we've started this iteration
   geometry_msgs::msg::PoseStamped current_pose;
   if (!nav2_util::getCurrentPose(
-      current_pose, *tf_, global_frame_, robot_base_frame_,
-      transform_tolerance_))
-  {
+        current_pose, *tf_, global_frame_, robot_base_frame_, transform_tolerance_)) {
     RCLCPP_DEBUG(node_->get_logger(), "Current robot pose is not available.");
     return BT::NodeStatus::FAILURE;
   }
 
   // Get euclidean distance
-  auto travelled = nav2_util::geometry_utils::euclidean_distance(
-    start_pose_.pose, current_pose.pose);
+  auto travelled =
+    nav2_util::geometry_utils::euclidean_distance(start_pose_.pose, current_pose.pose);
 
   if (travelled < distance_) {
     return BT::NodeStatus::FAILURE;

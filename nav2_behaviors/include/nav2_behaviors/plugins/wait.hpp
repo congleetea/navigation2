@@ -16,8 +16,8 @@
 #define NAV2_BEHAVIORS__PLUGINS__WAIT_HPP_
 
 #include <chrono>
-#include <string>
 #include <memory>
+#include <string>
 
 #include "nav2_behaviors/timed_behavior.hpp"
 #include "nav2_msgs/action/wait.hpp"

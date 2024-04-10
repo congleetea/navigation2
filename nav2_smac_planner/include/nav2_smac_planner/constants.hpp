@@ -19,8 +19,7 @@
 
 namespace nav2_smac_planner
 {
-enum class MotionModel
-{
+enum class MotionModel {
   UNKNOWN = 0,
   TWOD = 1,
   DUBIN = 2,

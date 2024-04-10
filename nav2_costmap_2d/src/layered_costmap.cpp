@@ -39,13 +39,12 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <limits>
 #include <memory>
 #include <string>
 #include <vector>
-#include <limits>
 
 #include "nav2_costmap_2d/footprint.hpp"
-
 
 using std::vector;
 
@@ -53,7 +52,8 @@ namespace nav2_costmap_2d
 {
 
 LayeredCostmap::LayeredCostmap(std::string global_frame, bool rolling_window, bool track_unknown)
-: primary_costmap_(), combined_costmap_(),
+: primary_costmap_(),
+  combined_costmap_(),
   global_frame_(global_frame),
   rolling_window_(rolling_window),
   current_(false),
@@ -102,23 +102,19 @@ void LayeredCostmap::addFilter(std::shared_ptr<Layer> filter)
 }
 
 void LayeredCostmap::resizeMap(
-  unsigned int size_x, unsigned int size_y, double resolution,
-  double origin_x,
-  double origin_y,
+  unsigned int size_x, unsigned int size_y, double resolution, double origin_x, double origin_y,
   bool size_locked)
 {
   std::unique_lock<Costmap2D::mutex_t> lock(*(combined_costmap_.getMutex()));
   size_locked_ = size_locked;
   primary_costmap_.resizeMap(size_x, size_y, resolution, origin_x, origin_y);
   combined_costmap_.resizeMap(size_x, size_y, resolution, origin_x, origin_y);
-  for (vector<std::shared_ptr<Layer>>::iterator plugin = plugins_.begin();
-    plugin != plugins_.end(); ++plugin)
-  {
+  for (vector<std::shared_ptr<Layer>>::iterator plugin = plugins_.begin(); plugin != plugins_.end();
+       ++plugin) {
     (*plugin)->matchSize();
   }
-  for (vector<std::shared_ptr<Layer>>::iterator filter = filters_.begin();
-    filter != filters_.end(); ++filter)
-  {
+  for (vector<std::shared_ptr<Layer>>::iterator filter = filters_.begin(); filter != filters_.end();
+       ++filter) {
     (*filter)->matchSize();
   }
 }
@@ -145,9 +141,7 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
   }
 
   if (isOutofBounds(robot_x, robot_y)) {
-    RCLCPP_WARN(
-      rclcpp::get_logger("nav2_costmap_2d"),
-      "Robot is out of bounds of the costmap!");
+    RCLCPP_WARN(rclcpp::get_logger("nav2_costmap_2d"), "Robot is out of bounds of the costmap!");
   }
 
   if (plugins_.size() == 0 && filters_.size() == 0) {
@@ -157,9 +151,8 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
   minx_ = miny_ = std::numeric_limits<double>::max();
   maxx_ = maxy_ = std::numeric_limits<double>::lowest();
 
-  for (vector<std::shared_ptr<Layer>>::iterator plugin = plugins_.begin();
-    plugin != plugins_.end(); ++plugin)
-  {
+  for (vector<std::shared_ptr<Layer>>::iterator plugin = plugins_.begin(); plugin != plugins_.end();
+       ++plugin) {
     double prev_minx = minx_;
     double prev_miny = miny_;
     double prev_maxx = maxx_;
@@ -167,17 +160,15 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
     (*plugin)->updateBounds(robot_x, robot_y, robot_yaw, &minx_, &miny_, &maxx_, &maxy_);
     if (minx_ > prev_minx || miny_ > prev_miny || maxx_ < prev_maxx || maxy_ < prev_maxy) {
       RCLCPP_WARN(
-        rclcpp::get_logger(
-          "nav2_costmap_2d"), "Illegal bounds change, was [tl: (%f, %f), br: (%f, %f)], but "
+        rclcpp::get_logger("nav2_costmap_2d"),
+        "Illegal bounds change, was [tl: (%f, %f), br: (%f, %f)], but "
         "is now [tl: (%f, %f), br: (%f, %f)]. The offending layer is %s",
-        prev_minx, prev_miny, prev_maxx, prev_maxy,
-        minx_, miny_, maxx_, maxy_,
+        prev_minx, prev_miny, prev_maxx, prev_maxy, minx_, miny_, maxx_, maxy_,
         (*plugin)->getName().c_str());
     }
   }
-  for (vector<std::shared_ptr<Layer>>::iterator filter = filters_.begin();
-    filter != filters_.end(); ++filter)
-  {
+  for (vector<std::shared_ptr<Layer>>::iterator filter = filters_.begin(); filter != filters_.end();
+       ++filter) {
     double prev_minx = minx_;
     double prev_miny = miny_;
     double prev_maxx = maxx_;
@@ -185,11 +176,10 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
     (*filter)->updateBounds(robot_x, robot_y, robot_yaw, &minx_, &miny_, &maxx_, &maxy_);
     if (minx_ > prev_minx || miny_ > prev_miny || maxx_ < prev_maxx || maxy_ < prev_maxy) {
       RCLCPP_WARN(
-        rclcpp::get_logger(
-          "nav2_costmap_2d"), "Illegal bounds change, was [tl: (%f, %f), br: (%f, %f)], but "
+        rclcpp::get_logger("nav2_costmap_2d"),
+        "Illegal bounds change, was [tl: (%f, %f), br: (%f, %f)], but "
         "is now [tl: (%f, %f), br: (%f, %f)]. The offending filter is %s",
-        prev_minx, prev_miny, prev_maxx, prev_maxy,
-        minx_, miny_, maxx_, maxy_,
+        prev_minx, prev_miny, prev_maxx, prev_maxy, minx_, miny_, maxx_, maxy_,
         (*filter)->getName().c_str());
     }
   }
@@ -204,19 +194,18 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
   yn = std::min(static_cast<int>(combined_costmap_.getSizeInCellsY()), yn + 1);
 
   RCLCPP_DEBUG(
-    rclcpp::get_logger(
-      "nav2_costmap_2d"), "Updating area x: [%d, %d] y: [%d, %d]", x0, xn, y0, yn);
+    rclcpp::get_logger("nav2_costmap_2d"), "Updating area x: [%d, %d] y: [%d, %d]", x0, xn, y0, yn);
 
   if (xn < x0 || yn < y0) {
     return;
   }
 
   if (filters_.size() == 0) {
-    // If there are no filters enabled just update costmap sequentially by each plugin
+    // If there are no filters enabled just update costmap sequentially by each
+    // plugin
     combined_costmap_.resetMap(x0, y0, xn, yn);
     for (vector<std::shared_ptr<Layer>>::iterator plugin = plugins_.begin();
-      plugin != plugins_.end(); ++plugin)
-    {
+         plugin != plugins_.end(); ++plugin) {
       (*plugin)->updateCosts(combined_costmap_, x0, y0, xn, yn);
     }
   } else {
@@ -224,8 +213,7 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
     // 1. Update costmap by plugins
     primary_costmap_.resetMap(x0, y0, xn, yn);
     for (vector<std::shared_ptr<Layer>>::iterator plugin = plugins_.begin();
-      plugin != plugins_.end(); ++plugin)
-    {
+         plugin != plugins_.end(); ++plugin) {
       (*plugin)->updateCosts(primary_costmap_, x0, y0, xn, yn);
     }
 
@@ -233,17 +221,15 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
     // primary_costmap_ remain to be untouched for further usage by plugins.
     if (!combined_costmap_.copyWindow(primary_costmap_, x0, y0, xn, yn, x0, y0)) {
       RCLCPP_ERROR(
-        rclcpp::get_logger("nav2_costmap_2d"),
-        "Can not copy costmap (%i,%i)..(%i,%i) window",
-        x0, y0, xn, yn);
+        rclcpp::get_logger("nav2_costmap_2d"), "Can not copy costmap (%i,%i)..(%i,%i) window", x0,
+        y0, xn, yn);
       throw std::runtime_error{"Can not copy costmap"};
     }
 
     // 3. Apply filters over the plugins in order to make filters' work
     // not being considered by plugins on next updateMap() calls
     for (vector<std::shared_ptr<Layer>>::iterator filter = filters_.begin();
-      filter != filters_.end(); ++filter)
-    {
+         filter != filters_.end(); ++filter) {
       (*filter)->updateCosts(combined_costmap_, x0, y0, xn, yn);
     }
   }
@@ -259,14 +245,12 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
 bool LayeredCostmap::isCurrent()
 {
   current_ = true;
-  for (vector<std::shared_ptr<Layer>>::iterator plugin = plugins_.begin();
-    plugin != plugins_.end(); ++plugin)
-  {
+  for (vector<std::shared_ptr<Layer>>::iterator plugin = plugins_.begin(); plugin != plugins_.end();
+       ++plugin) {
     current_ = current_ && ((*plugin)->isCurrent() || !(*plugin)->isEnabled());
   }
-  for (vector<std::shared_ptr<Layer>>::iterator filter = filters_.begin();
-    filter != filters_.end(); ++filter)
-  {
+  for (vector<std::shared_ptr<Layer>>::iterator filter = filters_.begin(); filter != filters_.end();
+       ++filter) {
     current_ = current_ && ((*filter)->isCurrent() || !(*filter)->isEnabled());
   }
   return current_;
@@ -276,19 +260,14 @@ void LayeredCostmap::setFootprint(const std::vector<geometry_msgs::msg::Point> &
 {
   footprint_ = footprint_spec;
   nav2_costmap_2d::calculateMinAndMaxDistances(
-    footprint_spec,
-    inscribed_radius_, circumscribed_radius_);
+    footprint_spec, inscribed_radius_, circumscribed_radius_);
 
-  for (vector<std::shared_ptr<Layer>>::iterator plugin = plugins_.begin();
-    plugin != plugins_.end();
-    ++plugin)
-  {
+  for (vector<std::shared_ptr<Layer>>::iterator plugin = plugins_.begin(); plugin != plugins_.end();
+       ++plugin) {
     (*plugin)->onFootprintChanged();
   }
-  for (vector<std::shared_ptr<Layer>>::iterator filter = filters_.begin();
-    filter != filters_.end();
-    ++filter)
-  {
+  for (vector<std::shared_ptr<Layer>>::iterator filter = filters_.begin(); filter != filters_.end();
+       ++filter) {
     (*filter)->onFootprintChanged();
   }
 }

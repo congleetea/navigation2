@@ -54,8 +54,8 @@
 
 #include "rviz_common/logging.hpp"
 #include "rviz_common/msg_conversions.hpp"
-#include "rviz_common/properties/enum_property.hpp"
 #include "rviz_common/properties/color_property.hpp"
+#include "rviz_common/properties/enum_property.hpp"
 #include "rviz_common/properties/float_property.hpp"
 #include "rviz_common/validate_floats.hpp"
 
@@ -70,8 +70,7 @@ namespace
 {
 struct ShapeType
 {
-  enum
-  {
+  enum {
     Arrow2d,
     Arrow3d,
     Axes,
@@ -81,8 +80,7 @@ struct ShapeType
 }  // namespace
 
 ParticleCloudDisplay::ParticleCloudDisplay(
-  rviz_common::DisplayContext * display_context,
-  Ogre::SceneNode * scene_node)
+  rviz_common::DisplayContext * display_context, Ogre::SceneNode * scene_node)
 : ParticleCloudDisplay()
 {
   context_ = display_context;
@@ -96,8 +94,7 @@ ParticleCloudDisplay::ParticleCloudDisplay(
   updateShapeChoice();
 }
 
-ParticleCloudDisplay::ParticleCloudDisplay()
-: min_length_(0.02f), max_length_(0.3f)
+ParticleCloudDisplay::ParticleCloudDisplay() : min_length_(0.02f), max_length_(0.3f)
 {
   initializeProperties();
 
@@ -119,10 +116,7 @@ void ParticleCloudDisplay::initializeProperties()
     "Color", QColor(255, 25, 0), "Color to draw the arrows.", this, SLOT(updateArrowColor()));
 
   arrow_alpha_property_ = new rviz_common::properties::FloatProperty(
-    "Alpha",
-    1.0f,
-    "Amount of transparency to apply to the displayed poses.",
-    this,
+    "Alpha", 1.0f, "Amount of transparency to apply to the displayed poses.", this,
     SLOT(updateArrowColor()));
 
   arrow_min_length_property_ = new rviz_common::properties::FloatProperty(
@@ -140,8 +134,8 @@ void ParticleCloudDisplay::initializeProperties()
 
 ParticleCloudDisplay::~ParticleCloudDisplay()
 {
-  // because of forward declaration of arrow and axes, destructor cannot be declared in .hpp as
-  // default
+  // because of forward declaration of arrow and axes, destructor cannot be
+  // declared in .hpp as default
 }
 
 void ParticleCloudDisplay::onInitialize()
@@ -158,8 +152,7 @@ void ParticleCloudDisplay::processMessage(const nav2_msgs::msg::ParticleCloud::C
 {
   if (!validateFloats(*msg)) {
     setStatus(
-      rviz_common::properties::StatusProperty::Error,
-      "Topic",
+      rviz_common::properties::StatusProperty::Error, "Topic",
       "Message contained invalid floating point values (nans or infs)");
     return;
   }
@@ -184,9 +177,9 @@ void ParticleCloudDisplay::processMessage(const nav2_msgs::msg::ParticleCloud::C
 bool ParticleCloudDisplay::validateFloats(const nav2_msgs::msg::ParticleCloud & msg)
 {
   for (auto & particle : msg.particles) {
-    if (!rviz_common::validateFloats(particle.pose) ||
-      !rviz_common::validateFloats(particle.weight))
-    {
+    if (
+      !rviz_common::validateFloats(particle.pose) ||
+      !rviz_common::validateFloats(particle.weight)) {
       return false;
     }
   }
@@ -233,11 +226,8 @@ void ParticleCloudDisplay::updateDisplay()
 void ParticleCloudDisplay::updateArrows2d()
 {
   arrows2d_->updateManualObject(
-    arrow_color_property_->getOgreColor(),
-    arrow_alpha_property_->getFloat(),
-    min_length_,
-    max_length_,
-    poses_);
+    arrow_color_property_->getOgreColor(), arrow_alpha_property_->getFloat(), min_length_,
+    max_length_, poses_);
 }
 
 void ParticleCloudDisplay::updateArrows3d()
@@ -252,16 +242,11 @@ void ParticleCloudDisplay::updateArrows3d()
   Ogre::Quaternion adjust_orientation(Ogre::Degree(-90), Ogre::Vector3::UNIT_Y);
   float shaft_length;
   for (std::size_t i = 0; i < poses_.size(); ++i) {
-    shaft_length = std::min(
-      std::max(
-        poses_[i].weight * length_scale_ + min_length_,
-        min_length_), max_length_);
+    shaft_length =
+      std::min(std::max(poses_[i].weight * length_scale_ + min_length_, min_length_), max_length_);
     arrows3d_[i]->set(
-      shaft_length,
-      shaft_length * shaft_radius_scale_,
-      shaft_length * head_length_scale_,
-      shaft_length * head_radius_scale_
-    );
+      shaft_length, shaft_length * shaft_radius_scale_, shaft_length * head_length_scale_,
+      shaft_length * head_radius_scale_);
     arrows3d_[i]->setPosition(poses_[i].position);
     arrows3d_[i]->setOrientation(poses_[i].orientation * adjust_orientation);
   }
@@ -277,10 +262,8 @@ void ParticleCloudDisplay::updateAxes()
   }
   float shaft_length;
   for (std::size_t i = 0; i < poses_.size(); ++i) {
-    shaft_length = std::min(
-      std::max(
-        poses_[i].weight * length_scale_ + min_length_,
-        min_length_), max_length_);
+    shaft_length =
+      std::min(std::max(poses_[i].weight * length_scale_ + min_length_, min_length_), max_length_);
     axes_[i]->set(shaft_length, shaft_length * shaft_radius_scale_);
     axes_[i]->setPosition(poses_[i].position);
     axes_[i]->setOrientation(poses_[i].orientation);
@@ -293,13 +276,8 @@ std::unique_ptr<rviz_rendering::Arrow> ParticleCloudDisplay::makeArrow3d()
   color.a = arrow_alpha_property_->getFloat();
 
   auto arrow = std::make_unique<rviz_rendering::Arrow>(
-    scene_manager_,
-    arrow_node_,
-    min_length_,
-    min_length_ * shaft_radius_scale_,
-    min_length_ * head_length_scale_,
-    min_length_ * head_radius_scale_
-  );
+    scene_manager_, arrow_node_, min_length_, min_length_ * shaft_radius_scale_,
+    min_length_ * head_length_scale_, min_length_ * head_radius_scale_);
 
   arrow->setColor(color);
   return arrow;
@@ -308,11 +286,7 @@ std::unique_ptr<rviz_rendering::Arrow> ParticleCloudDisplay::makeArrow3d()
 std::unique_ptr<rviz_rendering::Axes> ParticleCloudDisplay::makeAxes()
 {
   return std::make_unique<rviz_rendering::Axes>(
-    scene_manager_,
-    axes_node_,
-    min_length_,
-    min_length_ * shaft_radius_scale_
-  );
+    scene_manager_, axes_node_, min_length_, min_length_ * shaft_radius_scale_);
 }
 
 void ParticleCloudDisplay::reset()
@@ -387,16 +361,11 @@ void ParticleCloudDisplay::updateArrow3dGeometry()
 {
   float shaft_length;
   for (std::size_t i = 0; i < poses_.size() && i < arrows3d_.size(); ++i) {
-    shaft_length = std::min(
-      std::max(
-        poses_[i].weight * length_scale_ + min_length_,
-        min_length_), max_length_);
+    shaft_length =
+      std::min(std::max(poses_[i].weight * length_scale_ + min_length_, min_length_), max_length_);
     arrows3d_[i]->set(
-      shaft_length,
-      shaft_length * shaft_radius_scale_,
-      shaft_length * head_length_scale_,
-      shaft_length * head_radius_scale_
-    );
+      shaft_length, shaft_length * shaft_radius_scale_, shaft_length * head_length_scale_,
+      shaft_length * head_radius_scale_);
   }
 }
 
@@ -404,18 +373,13 @@ void ParticleCloudDisplay::updateAxesGeometry()
 {
   float shaft_length;
   for (std::size_t i = 0; i < poses_.size() && i < axes_.size(); ++i) {
-    shaft_length = std::min(
-      std::max(
-        poses_[i].weight * length_scale_ + min_length_,
-        min_length_), max_length_);
+    shaft_length =
+      std::min(std::max(poses_[i].weight * length_scale_ + min_length_, min_length_), max_length_);
     axes_[i]->set(shaft_length, shaft_length * shaft_radius_scale_);
   }
 }
 
-void ParticleCloudDisplay::setShape(QString shape)
-{
-  shape_property_->setValue(shape);
-}
+void ParticleCloudDisplay::setShape(QString shape) { shape_property_->setValue(shape); }
 
 }  // namespace nav2_rviz_plugins
 

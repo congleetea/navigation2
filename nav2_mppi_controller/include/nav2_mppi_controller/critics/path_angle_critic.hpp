@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,15 +25,15 @@ namespace mppi::critics
 
 /**
  * @class mppi::critics::ConstraintCritic
- * @brief Critic objective function for aligning to path in cases of extreme misalignment
- * or turning
+ * @brief Critic objective function for aligning to path in cases of extreme
+ * misalignment or turning
  */
 class PathAngleCritic : public CriticFunction
 {
 public:
   /**
-    * @brief Initialize critic
-    */
+   * @brief Initialize critic
+   */
   void initialize() override;
 
   /**

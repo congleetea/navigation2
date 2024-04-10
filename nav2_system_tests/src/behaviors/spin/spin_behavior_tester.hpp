@@ -16,25 +16,25 @@
 #ifndef BEHAVIORS__SPIN__SPIN_BEHAVIOR_TESTER_HPP_
 #define BEHAVIORS__SPIN__SPIN_BEHAVIOR_TESTER_HPP_
 
+#include <algorithm>
 #include <gtest/gtest.h>
 #include <memory>
 #include <string>
 #include <thread>
-#include <algorithm>
 
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
 #include "angles/angles.h"
-#include "nav2_msgs/action/spin.hpp"
-#include "nav2_msgs/msg/costmap.hpp"
-#include "nav2_util/robot_utils.hpp"
-#include "nav2_util/node_thread.hpp"
 #include "geometry_msgs/msg/point32.hpp"
 #include "geometry_msgs/msg/polygon_stamped.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
-#include "geometry_msgs/msg/transform_stamped.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
+#include "geometry_msgs/msg/transform_stamped.hpp"
+#include "nav2_msgs/action/spin.hpp"
+#include "nav2_msgs/msg/costmap.hpp"
+#include "nav2_util/node_thread.hpp"
+#include "nav2_util/robot_utils.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
 
 #include "tf2/utils.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
@@ -55,18 +55,13 @@ public:
   ~SpinBehaviorTester();
 
   // Runs a single test with given target yaw
-  bool defaultSpinBehaviorTest(
-    float target_yaw,
-    double tolerance = 0.1);
+  bool defaultSpinBehaviorTest(float target_yaw, double tolerance = 0.1);
 
   void activate();
 
   void deactivate();
 
-  bool isActive() const
-  {
-    return is_active_;
-  }
+  bool isActive() const { return is_active_; }
 
 private:
   void sendInitialPose();

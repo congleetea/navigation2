@@ -16,33 +16,34 @@
 #ifndef NAV2_SMAC_PLANNER__A_STAR_HPP_
 #define NAV2_SMAC_PLANNER__A_STAR_HPP_
 
-#include <vector>
+#include "Eigen/Core"
 #include <iostream>
-#include <unordered_map>
 #include <memory>
 #include <queue>
+#include <unordered_map>
 #include <utility>
-#include "Eigen/Core"
+#include <vector>
 
 #include "nav2_costmap_2d/costmap_2d.hpp"
 
-#include "nav2_smac_planner/thirdparty/robin_hood.h"
 #include "nav2_smac_planner/analytic_expansion.hpp"
+#include "nav2_smac_planner/constants.hpp"
 #include "nav2_smac_planner/node_2d.hpp"
+#include "nav2_smac_planner/node_basic.hpp"
 #include "nav2_smac_planner/node_hybrid.hpp"
 #include "nav2_smac_planner/node_lattice.hpp"
-#include "nav2_smac_planner/node_basic.hpp"
+#include "nav2_smac_planner/thirdparty/robin_hood.h"
 #include "nav2_smac_planner/types.hpp"
-#include "nav2_smac_planner/constants.hpp"
 
 namespace nav2_smac_planner
 {
 
 /**
  * @class nav2_smac_planner::AStarAlgorithm
- * @brief An A* implementation for planning in a costmap. Templated based on the Node type.
+ * @brief An A* implementation for planning in a costmap. Templated based on the
+ * Node type.
  */
-template<typename NodeT>
+template <typename NodeT>
 class AStarAlgorithm
 {
 public:
@@ -53,7 +54,7 @@ public:
   typedef typename NodeT::Coordinates Coordinates;
   typedef typename NodeT::CoordinateVector CoordinateVector;
   typedef typename NodeVector::iterator NeighborIterator;
-  typedef std::function<bool (const unsigned int &, NodeT * &)> NodeGetter;
+  typedef std::function<bool(const unsigned int &, NodeT *&)> NodeGetter;
 
   /**
    * @struct nav2_smac_planner::NodeComparator
@@ -71,7 +72,8 @@ public:
 
   /**
    * @brief A constructor for nav2_smac_planner::PlannerServer
-   * @param neighborhood The type of neighborhood to use for search (4 or 8 connected)
+   * @param neighborhood The type of neighborhood to use for search (4 or 8
+   * connected)
    */
   explicit AStarAlgorithm(const MotionModel & motion_model, const SearchInfo & search_info);
 
@@ -82,20 +84,19 @@ public:
 
   /**
    * @brief Initialization of the planner with defaults
-   * @param allow_unknown Allow search in unknown space, good for navigation while mapping
-   * @param max_iterations Maximum number of iterations to use while expanding search
-   * @param max_on_approach_iterations Maximum number of iterations before returning a valid
-   * path once within thresholds to refine path
-   * comes at more compute time but smoother paths.
-   * @param max_planning_time Maximum time (in seconds) to wait for a plan, createPath returns
-   * false after this timeout
+   * @param allow_unknown Allow search in unknown space, good for navigation
+   * while mapping
+   * @param max_iterations Maximum number of iterations to use while expanding
+   * search
+   * @param max_on_approach_iterations Maximum number of iterations before
+   * returning a valid path once within thresholds to refine path comes at more
+   * compute time but smoother paths.
+   * @param max_planning_time Maximum time (in seconds) to wait for a plan,
+   * createPath returns false after this timeout
    */
   void initialize(
-    const bool & allow_unknown,
-    int & max_iterations,
-    const int & max_on_approach_iterations,
-    const double & max_planning_time,
-    const float & lookup_table_size,
+    const bool & allow_unknown, int & max_iterations, const int & max_on_approach_iterations,
+    const double & max_planning_time, const float & lookup_table_size,
     const unsigned int & dim_3_size);
 
   /**
@@ -109,7 +110,8 @@ public:
 
   /**
    * @brief Sets the collision checker to use
-   * @param collision_checker Collision checker to use for checking state validity
+   * @param collision_checker Collision checker to use for checking state
+   * validity
    */
   void setCollisionChecker(GridCollisionChecker * collision_checker);
 
@@ -119,10 +121,7 @@ public:
    * @param my The node Y index of the goal
    * @param dim_3 The node dim_3 index of the goal
    */
-  void setGoal(
-    const unsigned int & mx,
-    const unsigned int & my,
-    const unsigned int & dim_3);
+  void setGoal(const unsigned int & mx, const unsigned int & my, const unsigned int & dim_3);
 
   /**
    * @brief Set the starting pose for planning, as a node index
@@ -130,10 +129,7 @@ public:
    * @param my The node Y index of the goal
    * @param dim_3 The node dim_3 index of the goal
    */
-  void setStart(
-    const unsigned int & mx,
-    const unsigned int & my,
-    const unsigned int & dim_3);
+  void setStart(const unsigned int & mx, const unsigned int & my, const unsigned int & dim_3);
 
   /**
    * @brief Get maximum number of iterations to plan

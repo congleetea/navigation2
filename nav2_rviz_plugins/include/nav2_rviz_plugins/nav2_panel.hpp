@@ -15,8 +15,8 @@
 #ifndef NAV2_RVIZ_PLUGINS__NAV2_PANEL_HPP_
 #define NAV2_RVIZ_PLUGINS__NAV2_PANEL_HPP_
 
-#include <QtWidgets>
 #include <QBasicTimer>
+#include <QtWidgets>
 #undef NO_ERROR
 
 #include <memory>
@@ -24,16 +24,16 @@
 #include <vector>
 
 #include "nav2_lifecycle_manager/lifecycle_manager_client.hpp"
-#include "nav2_msgs/action/navigate_to_pose.hpp"
-#include "nav2_msgs/action/navigate_through_poses.hpp"
 #include "nav2_msgs/action/follow_waypoints.hpp"
+#include "nav2_msgs/action/navigate_through_poses.hpp"
+#include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "nav2_rviz_plugins/ros_action_qevent.hpp"
+#include "nav2_util/geometry_utils.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "rviz_common/panel.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
-#include "nav2_util/geometry_utils.hpp"
 
 class QPushButton;
 
@@ -74,14 +74,13 @@ private:
   void onCancelButtonPressed();
   void timerEvent(QTimerEvent * event) override;
 
-  int unique_id {0};
+  int unique_id{0};
 
   // Call to send NavigateToPose action request for goal poses
   void startWaypointFollowing(std::vector<geometry_msgs::msg::PoseStamped> poses);
   void startNavigation(geometry_msgs::msg::PoseStamped);
   void startNavThroughPoses(std::vector<geometry_msgs::msg::PoseStamped> poses);
-  using NavigationGoalHandle =
-    rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>;
+  using NavigationGoalHandle = rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>;
   using WaypointFollowerGoalHandle =
     rclcpp_action::ClientGoalHandle<nav2_msgs::action::FollowWaypoints>;
   using NavThroughPosesGoalHandle =
@@ -143,14 +142,15 @@ private:
   QState * reset_{nullptr};
   QState * paused_{nullptr};
   QState * resumed_{nullptr};
-  // The following states are added to allow for the state of the button to only expose reset
-  // while the NavigateToPoses action is not active. While running, the user will be allowed to
-  // cancel the action. The ROSActionTransition allows for the state of the action to be detected
-  // and the button state to change automatically.
+  // The following states are added to allow for the state of the button to only
+  // expose reset while the NavigateToPoses action is not active. While running,
+  // the user will be allowed to cancel the action. The ROSActionTransition
+  // allows for the state of the action to be detected and the button state to
+  // change automatically.
   QState * running_{nullptr};
   QState * canceled_{nullptr};
-  // The following states are added to allow to collect several poses to perform a waypoint-mode
-  // navigation or navigate through poses mode.
+  // The following states are added to allow to collect several poses to perform
+  // a waypoint-mode navigation or navigate through poses mode.
   QState * accumulating_{nullptr};
   QState * accumulated_wp_{nullptr};
   QState * accumulated_nav_through_poses_{nullptr};
@@ -172,11 +172,11 @@ private:
   // create label string from feedback msg
   static inline QString getNavToPoseFeedbackLabel(
     nav2_msgs::action::NavigateToPose::Feedback msg =
-    nav2_msgs::action::NavigateToPose::Feedback());
+      nav2_msgs::action::NavigateToPose::Feedback());
   static inline QString getNavThroughPosesFeedbackLabel(
     nav2_msgs::action::NavigateThroughPoses::Feedback =
-    nav2_msgs::action::NavigateThroughPoses::Feedback());
-  template<typename T>
+      nav2_msgs::action::NavigateThroughPoses::Feedback());
+  template <typename T>
   static inline std::string toLabel(T & msg);
 
   // round off double to the specified precision and convert to string
@@ -197,7 +197,8 @@ public:
     std::shared_ptr<nav2_lifecycle_manager::LifecycleManagerClient> & client_nav,
     std::shared_ptr<nav2_lifecycle_manager::LifecycleManagerClient> & client_loc)
   : client_nav_(client_nav), client_loc_(client_loc)
-  {}
+  {
+  }
 
   void run() override
   {

@@ -37,10 +37,8 @@ extern "C" {
 // Forward declarations
 struct _rtk_fig_t;
 
-
 // Limits
 #define MAP_WIFI_MAX_LEVELS 8
-
 
 // Description for a single map cell.
 typedef struct
@@ -54,7 +52,6 @@ typedef struct
   // Wifi levels
   // int wifi_levels[MAP_WIFI_MAX_LEVELS];
 } map_cell_t;
-
 
 // Description for a map
 typedef struct
@@ -76,7 +73,6 @@ typedef struct
   double max_occ_dist;
 } map_t;
 
-
 /**************************************************************************
  * Basic map functions
  **************************************************************************/
@@ -90,14 +86,12 @@ void map_free(map_t * map);
 // Update the cspace distances
 void map_update_cspace(map_t * map, double max_occ_dist);
 
-
 /**************************************************************************
  * Range functions
  **************************************************************************/
 
 // Extract a single range reading from the map
 double map_calc_range(map_t * map, double ox, double oy, double oa, double max_range);
-
 
 /**************************************************************************
  * GUI/diagnostic functions
@@ -112,14 +106,13 @@ void map_draw_cspace(map_t * map, struct _rtk_fig_t * fig);
 // Draw a wifi map
 void map_draw_wifi(map_t * map, struct _rtk_fig_t * fig, int index);
 
-
 /**************************************************************************
  * Map manipulation macros
  **************************************************************************/
 
 // Convert from map index to world coords
-#define MAP_WXGX(map, i) (map->origin_x + ((i) - map->size_x / 2) * map->scale)
-#define MAP_WYGY(map, j) (map->origin_y + ((j) - map->size_y / 2) * map->scale)
+#define MAP_WXGX(map, i) (map->origin_x + ((i)-map->size_x / 2) * map->scale)
+#define MAP_WYGY(map, j) (map->origin_y + ((j)-map->size_y / 2) * map->scale)
 
 // Convert from world coords to map coords
 #define MAP_GXWX(map, x) (floor((x - map->origin_x) / map->scale + 0.5) + map->size_x / 2)
@@ -129,7 +122,7 @@ void map_draw_wifi(map_t * map, struct _rtk_fig_t * fig, int index);
 #define MAP_VALID(map, i, j) ((i >= 0) && (i < map->size_x) && (j >= 0) && (j < map->size_y))
 
 // Compute the cell index for the given map coords.
-#define MAP_INDEX(map, i, j) ((i) + (j) * map->size_x)
+#define MAP_INDEX(map, i, j) ((i) + (j)*map->size_x)
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,9 +17,9 @@
 #define NAV2_MPPI_CONTROLLER__CRITIC_MANAGER_HPP_
 
 #include <memory>
+#include <pluginlib/class_loader.hpp>
 #include <string>
 #include <vector>
-#include <pluginlib/class_loader.hpp>
 #include <xtensor/xtensor.hpp>
 
 #include "geometry_msgs/msg/twist.hpp"
@@ -27,10 +28,10 @@
 #include "nav2_costmap_2d/costmap_2d_ros.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 
-#include "nav2_mppi_controller/tools/parameters_handler.hpp"
-#include "nav2_mppi_controller/tools/utils.hpp"
 #include "nav2_mppi_controller/critic_data.hpp"
 #include "nav2_mppi_controller/critic_function.hpp"
+#include "nav2_mppi_controller/tools/parameters_handler.hpp"
+#include "nav2_mppi_controller/tools/utils.hpp"
 
 namespace mppi
 {
@@ -43,46 +44,47 @@ class CriticManager
 {
 public:
   /**
-    * @brief Constructor for mppi::CriticManager
-    */
+   * @brief Constructor for mppi::CriticManager
+   */
   CriticManager() = default;
-  
+
   /**
-    * @brief Virtual Destructor for mppi::CriticManager
-    */
+   * @brief Virtual Destructor for mppi::CriticManager
+   */
   virtual ~CriticManager() = default;
-  
+
   /**
-    * @brief Configure critic manager on bringup and load plugins
-    * @param parent WeakPtr to node
-    * @param name Name of plugin
-    * @param costmap_ros Costmap2DROS object of environment
-    * @param dynamic_parameter_handler Parameter handler object
-    */
+   * @brief Configure critic manager on bringup and load plugins
+   * @param parent WeakPtr to node
+   * @param name Name of plugin
+   * @param costmap_ros Costmap2DROS object of environment
+   * @param dynamic_parameter_handler Parameter handler object
+   */
   void on_configure(
     rclcpp_lifecycle::LifecycleNode::WeakPtr parent, const std::string & name,
     std::shared_ptr<nav2_costmap_2d::Costmap2DROS>, ParametersHandler *);
 
   /**
-    * @brief Score trajectories by the set of loaded critic functions
-    * @param CriticData Struct of necessary information to pass to the critic functions
-    */
+   * @brief Score trajectories by the set of loaded critic functions
+   * @param CriticData Struct of necessary information to pass to the critic
+   * functions
+   */
   void evalTrajectoriesScores(CriticData & data) const;
 
 protected:
   /**
-    * @brief Get parameters (critics to load)
-    */
+   * @brief Get parameters (critics to load)
+   */
   void getParams();
 
   /**
-    * @brief Load the critic plugins
-    */
+   * @brief Load the critic plugins
+   */
   virtual void loadCritics();
 
   /**
-    * @brief Get full-name namespaced critic IDs
-    */
+   * @brief Get full-name namespaced critic IDs
+   */
   std::string getFullName(const std::string & name);
 
 protected:

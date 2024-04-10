@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,16 +25,15 @@ void TwirlingCritic::initialize()
   getParam(power_, "cost_power", 1);
   getParam(weight_, "cost_weight", 10.0);
 
-  RCLCPP_INFO(
-    logger_, "TwirlingCritic instantiated with %d power and %f weight.", power_, weight_);
+  RCLCPP_INFO(logger_, "TwirlingCritic instantiated with %d power and %f weight.", power_, weight_);
 }
 
 void TwirlingCritic::score(CriticData & data)
 {
   using xt::evaluation_strategy::immediate;
-  if (!enabled_ ||
-    utils::withinPositionGoalTolerance(data.goal_checker, data.state.pose.pose, data.path))
-  {
+  if (
+    !enabled_ ||
+    utils::withinPositionGoalTolerance(data.goal_checker, data.state.pose.pose, data.path)) {
     return;
   }
 
@@ -45,6 +45,4 @@ void TwirlingCritic::score(CriticData & data)
 
 #include <pluginlib/class_list_macros.hpp>
 
-PLUGINLIB_EXPORT_CLASS(
-  mppi::critics::TwirlingCritic,
-  mppi::critics::CriticFunction)
+PLUGINLIB_EXPORT_CLASS(mppi::critics::TwirlingCritic, mppi::critics::CriticFunction)

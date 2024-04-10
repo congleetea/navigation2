@@ -15,58 +15,41 @@
 #ifndef TEST_ACTION_SERVER_HPP_
 #define TEST_ACTION_SERVER_HPP_
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
-template<class ActionT>
+template <class ActionT>
 class TestActionServer : public rclcpp::Node
 {
 public:
   explicit TestActionServer(
-    std::string action_name,
-    const rclcpp::NodeOptions & options = rclcpp::NodeOptions())
+    std::string action_name, const rclcpp::NodeOptions & options = rclcpp::NodeOptions())
   : Node("test_action_server", options)
   {
     using namespace std::placeholders;  // NOLINT
 
     this->action_server_ = rclcpp_action::create_server<ActionT>(
-      this->get_node_base_interface(),
-      this->get_node_clock_interface(),
-      this->get_node_logging_interface(),
-      this->get_node_waitables_interface(),
-      action_name,
+      this->get_node_base_interface(), this->get_node_clock_interface(),
+      this->get_node_logging_interface(), this->get_node_waitables_interface(), action_name,
       std::bind(&TestActionServer::handle_goal, this, _1, _2),
       std::bind(&TestActionServer::handle_cancel, this, _1),
       std::bind(&TestActionServer::handle_accepted, this, _1));
   }
 
-  std::shared_ptr<const typename ActionT::Goal> getCurrentGoal() const
-  {
-    return current_goal_;
-  }
+  std::shared_ptr<const typename ActionT::Goal> getCurrentGoal() const { return current_goal_; }
 
-  void setReturnSuccess(bool return_success)
-  {
-    return_success_ = return_success;
-  }
+  void setReturnSuccess(bool return_success) { return_success_ = return_success; }
 
-  bool getReturnSuccess(void)
-  {
-    return return_success_;
-  }
+  bool getReturnSuccess(void) { return return_success_; }
 
-  bool isGoalCancelled()
-  {
-    return goal_cancelled_;
-  }
+  bool isGoalCancelled() { return goal_cancelled_; }
 
 protected:
   virtual rclcpp_action::GoalResponse handle_goal(
-    const rclcpp_action::GoalUUID &,
-    std::shared_ptr<const typename ActionT::Goal> goal)
+    const rclcpp_action::GoalUUID &, std::shared_ptr<const typename ActionT::Goal> goal)
   {
     current_goal_ = goal;
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
@@ -82,11 +65,11 @@ protected:
   virtual void execute(
     const typename std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionT>> goal_handle) = 0;
 
-  void handle_accepted(
-    const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionT>> goal_handle)
+  void handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionT>> goal_handle)
   {
     using namespace std::placeholders;  // NOLINT
-    // this needs to return quickly to avoid blocking the executor, so spin up a new thread
+    // this needs to return quickly to avoid blocking the executor, so spin up a
+    // new thread
     std::thread{std::bind(&TestActionServer::execute, this, _1), goal_handle}.detach();
   }
 

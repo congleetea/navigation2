@@ -12,41 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <string>
-#include <memory>
-#include <chrono>
-#include <iostream>
-#include <future>
-#include <thread>
 #include <algorithm>
+#include <chrono>
+#include <future>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <thread>
 #include <vector>
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_constrained_smoother/smoother_cost_function.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "gtest/gtest.h"
 
 class TestableSmootherCostFunction : nav2_constrained_smoother::SmootherCostFunction
 {
 public:
   TestableSmootherCostFunction(
-    const Eigen::Vector2d & original_pos,
-    double next_to_last_length_ratio,
-    bool reversing,
+    const Eigen::Vector2d & original_pos, double next_to_last_length_ratio, bool reversing,
     const nav2_costmap_2d::Costmap2D * costmap,
     const std::shared_ptr<ceres::BiCubicInterpolator<ceres::Grid2D<u_char>>> & costmap_interpolator,
-    const nav2_constrained_smoother::SmootherParams & params,
-    double costmap_weight)
+    const nav2_constrained_smoother::SmootherParams & params, double costmap_weight)
   : SmootherCostFunction(
-      original_pos, next_to_last_length_ratio, reversing,
-      costmap, costmap_interpolator,
-      params, costmap_weight)
+      original_pos, next_to_last_length_ratio, reversing, costmap, costmap_interpolator, params,
+      costmap_weight)
   {
   }
 
   inline double getCurvatureResidual(
-    const double & weight,
-    const Eigen::Vector2d & pt,
-    const Eigen::Vector2d & pt_next,
+    const double & weight, const Eigen::Vector2d & pt, const Eigen::Vector2d & pt_next,
     const Eigen::Vector2d & pt_prev) const
   {
     double r = 0.0;
@@ -58,19 +52,16 @@ public:
 class Test : public ::testing::Test
 {
 protected:
-  void SetUp()
-  {
-  }
+  void SetUp() {}
 };
 
 TEST_F(Test, testingCurvatureResidual)
 {
   nav2_costmap_2d::Costmap2D costmap;
   TestableSmootherCostFunction fn(
-    Eigen::Vector2d(1.0, 0.0), 1.0, false,
-    &costmap, std::shared_ptr<ceres::BiCubicInterpolator<ceres::Grid2D<u_char>>>(),
-    nav2_constrained_smoother::SmootherParams(), 0.0
-  );
+    Eigen::Vector2d(1.0, 0.0), 1.0, false, &costmap,
+    std::shared_ptr<ceres::BiCubicInterpolator<ceres::Grid2D<u_char>>>(),
+    nav2_constrained_smoother::SmootherParams(), 0.0);
 
   // test for edge values
   Eigen::Vector2d pt(1.0, 0.0);
@@ -80,10 +71,9 @@ TEST_F(Test, testingCurvatureResidual)
   nav2_constrained_smoother::SmootherParams params_no_min_turning_radius;
   params_no_min_turning_radius.max_curvature = 1.0f / 0.0;
   TestableSmootherCostFunction fn_no_min_turning_radius(
-    Eigen::Vector2d(1.0, 0.0), 1.0, false,
-    &costmap, std::shared_ptr<ceres::BiCubicInterpolator<ceres::Grid2D<u_char>>>(),
-    params_no_min_turning_radius, 0.0
-  );
+    Eigen::Vector2d(1.0, 0.0), 1.0, false, &costmap,
+    std::shared_ptr<ceres::BiCubicInterpolator<ceres::Grid2D<u_char>>>(),
+    params_no_min_turning_radius, 0.0);
   EXPECT_EQ(fn_no_min_turning_radius.getCurvatureResidual(1.0, pt, pt_other, pt_other), 0.0);
 }
 
@@ -97,12 +87,12 @@ TEST_F(Test, testingUtils)
   auto center = nav2_constrained_smoother::arcCenter(pt_prev, pt, pt_next, false);
   // although in this situation the center would be at (0.5, 0.0),
   // cases where pt_prev == pt_next are very rare and thus unhandled
-  // during the smoothing points will be separated (and thus made valid) by smoothness cost anyways
+  // during the smoothing points will be separated (and thus made valid) by
+  // smoothness cost anyways
   EXPECT_EQ(center[0], std::numeric_limits<double>::infinity());
   EXPECT_EQ(center[1], std::numeric_limits<double>::infinity());
 
-  auto tangent =
-    nav2_constrained_smoother::tangentDir(pt_prev, pt, pt_next, false).normalized();
+  auto tangent = nav2_constrained_smoother::tangentDir(pt_prev, pt, pt_next, false).normalized();
   EXPECT_NEAR(tangent[0], 0, 1e-10);
   EXPECT_NEAR(std::abs(tangent[1]), 1, 1e-10);
 

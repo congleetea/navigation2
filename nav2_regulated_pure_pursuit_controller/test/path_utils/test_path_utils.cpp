@@ -17,7 +17,7 @@
 #include "path_utils.hpp"
 #include "gtest/gtest.h"
 
-using namespace path_utils; // NOLINT
+using namespace path_utils;  // NOLINT
 
 TEST(PathUtils, test_generate_straight)
 {
@@ -27,10 +27,7 @@ TEST(PathUtils, test_generate_straight)
   constexpr double path_length = 2.0;
   constexpr double spacing = 1.0;
 
-  auto path = generate_path(
-    start, spacing, {
-    std::make_unique<Straight>(path_length)
-  });
+  auto path = generate_path(start, spacing, {std::make_unique<Straight>(path_length)});
   EXPECT_EQ(path.poses.size(), 3u);
   for (const auto & pose : path.poses) {
     EXPECT_EQ(pose.header.frame_id, start.header.frame_id);
@@ -64,9 +61,10 @@ TEST(PathUtils, test_half_turn)
   constexpr double radius = 2.0;
 
   auto path = generate_path(
-    start, spacing, {
-    std::make_unique<RightTurnAround>(radius),
-  });
+    start, spacing,
+    {
+      std::make_unique<RightTurnAround>(radius),
+    });
   constexpr double expected_path_length = M_PI * radius;
   EXPECT_NEAR(path.poses.size(), 1 + static_cast<std::size_t>(expected_path_length / spacing), 10);
   for (const auto & pose : path.poses) {
@@ -96,18 +94,15 @@ TEST(PathUtils, test_generate_all)
   constexpr double spacing = 0.1;
 
   auto path = generate_path(
-    start, spacing, {
-    std::make_unique<Straight>(1.0),
-    std::make_unique<LeftTurn>(1.0),
-    std::make_unique<RightTurn>(1.0),
-    std::make_unique<LeftTurnAround>(1.0),
-    std::make_unique<RightTurnAround>(1.0),
-    std::make_unique<LeftCircle>(1.0),
-    std::make_unique<RightCircle>(1.0),
-    std::make_unique<Arc>(1.0, 2 * M_PI),  // another circle
-  });
-  constexpr double expected_path_length = 1.0 + 2.0 * (M_PI_2 + M_PI_2) + 2.0 * (M_PI) +3.0 *
-    (2.0 * M_PI);
+    start, spacing,
+    {
+      std::make_unique<Straight>(1.0), std::make_unique<LeftTurn>(1.0),
+      std::make_unique<RightTurn>(1.0), std::make_unique<LeftTurnAround>(1.0),
+      std::make_unique<RightTurnAround>(1.0), std::make_unique<LeftCircle>(1.0),
+      std::make_unique<RightCircle>(1.0), std::make_unique<Arc>(1.0, 2 * M_PI),  // another circle
+    });
+  constexpr double expected_path_length =
+    1.0 + 2.0 * (M_PI_2 + M_PI_2) + 2.0 * (M_PI) + 3.0 * (2.0 * M_PI);
   EXPECT_NEAR(path.poses.size(), 1 + static_cast<std::size_t>(expected_path_length / spacing), 50);
   for (const auto & pose : path.poses) {
     EXPECT_EQ(pose.header.frame_id, start.header.frame_id);

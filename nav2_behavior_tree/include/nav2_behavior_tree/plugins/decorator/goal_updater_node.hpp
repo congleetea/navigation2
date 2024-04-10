@@ -40,9 +40,7 @@ public:
    * @param xml_tag_name Name for the XML tag for this node
    * @param conf BT node configuration
    */
-  GoalUpdater(
-    const std::string & xml_tag_name,
-    const BT::NodeConfiguration & conf);
+  GoalUpdater(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
 
   /**
    * @brief Creates list of BT ports
@@ -53,8 +51,7 @@ public:
     return {
       BT::InputPort<geometry_msgs::msg::PoseStamped>("input_goal", "Original Goal"),
       BT::OutputPort<geometry_msgs::msg::PoseStamped>(
-        "output_goal",
-        "Received Goal by subscription"),
+        "output_goal", "Received Goal by subscription"),
     };
   }
 

@@ -15,13 +15,13 @@
 #ifndef NAV2_SMAC_PLANNER__TYPES_HPP_
 #define NAV2_SMAC_PLANNER__TYPES_HPP_
 
-#include <vector>
-#include <utility>
-#include <string>
 #include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "nav2_util/node_utils.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
 
 namespace nav2_smac_planner
 {
@@ -57,10 +57,7 @@ struct SmootherParams
   /**
    * @brief A constructor for nav2_smac_planner::SmootherParams
    */
-  SmootherParams()
-  : holonomic_(false)
-  {
-  }
+  SmootherParams() : holonomic_(false) {}
 
   /**
    * @brief Get params from ROS parameter
@@ -114,9 +111,7 @@ struct MotionPose
    * @param y Y pose
    * @param theta Angle of pose
    */
-  MotionPose(const float & x, const float & y, const float & theta)
-  : _x(x), _y(y), _theta(theta)
-  {}
+  MotionPose(const float & x, const float & y, const float & theta) : _x(x), _y(y), _theta(theta) {}
 
   MotionPose operator-(const MotionPose & p2)
   {

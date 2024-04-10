@@ -37,9 +37,7 @@ public:
    * @param xml_tag_name Name for the XML tag for this node
    * @param conf BT node configuration
    */
-  TruncatePath(
-    const std::string & xml_tag_name,
-    const BT::NodeConfiguration & conf);
+  TruncatePath(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
 
   /**
    * @brief Creates list of BT ports

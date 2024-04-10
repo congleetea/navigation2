@@ -41,8 +41,7 @@ namespace nav2_costmap_2d
 {
 
 void calculateMinAndMaxDistances(
-  const std::vector<geometry_msgs::msg::Point> & footprint,
-  double & min_dist, double & max_dist)
+  const std::vector<geometry_msgs::msg::Point> & footprint, double & min_dist, double & max_dist)
 {
   min_dist = std::numeric_limits<double>::max();
   max_dist = 0.0;
@@ -55,8 +54,7 @@ void calculateMinAndMaxDistances(
     // check the distance from the robot center point to the first vertex
     double vertex_dist = distance(0.0, 0.0, footprint[i].x, footprint[i].y);
     double edge_dist = distanceToLine(
-      0.0, 0.0, footprint[i].x, footprint[i].y,
-      footprint[i + 1].x, footprint[i + 1].y);
+      0.0, 0.0, footprint[i].x, footprint[i].y, footprint[i + 1].x, footprint[i + 1].y);
     min_dist = std::min(min_dist, std::min(vertex_dist, edge_dist));
     max_dist = std::max(max_dist, std::max(vertex_dist, edge_dist));
   }
@@ -64,8 +62,7 @@ void calculateMinAndMaxDistances(
   // we also need to do the last vertex and the first vertex
   double vertex_dist = distance(0.0, 0.0, footprint.back().x, footprint.back().y);
   double edge_dist = distanceToLine(
-    0.0, 0.0, footprint.back().x, footprint.back().y,
-    footprint.front().x, footprint.front().y);
+    0.0, 0.0, footprint.back().x, footprint.back().y, footprint.front().x, footprint.front().y);
   min_dist = std::min(min_dist, std::min(vertex_dist, edge_dist));
   max_dist = std::max(max_dist, std::max(vertex_dist, edge_dist));
 }
@@ -107,8 +104,7 @@ std::vector<geometry_msgs::msg::Point> toPointVector(geometry_msgs::msg::Polygon
 }
 
 void transformFootprint(
-  double x, double y, double theta,
-  const std::vector<geometry_msgs::msg::Point> & footprint_spec,
+  double x, double y, double theta, const std::vector<geometry_msgs::msg::Point> & footprint_spec,
   std::vector<geometry_msgs::msg::Point> & oriented_footprint)
 {
   // build the oriented footprint at a given location
@@ -125,8 +121,7 @@ void transformFootprint(
 }
 
 void transformFootprint(
-  double x, double y, double theta,
-  const std::vector<geometry_msgs::msg::Point> & footprint_spec,
+  double x, double y, double theta, const std::vector<geometry_msgs::msg::Point> & footprint_spec,
   geometry_msgs::msg::PolygonStamped & oriented_footprint)
 {
   // build the oriented footprint at a given location
@@ -151,7 +146,6 @@ void padFootprint(std::vector<geometry_msgs::msg::Point> & footprint, double pad
   }
 }
 
-
 std::vector<geometry_msgs::msg::Point> makeFootprintFromRadius(double radius)
 {
   std::vector<geometry_msgs::msg::Point> points;
@@ -170,30 +164,28 @@ std::vector<geometry_msgs::msg::Point> makeFootprintFromRadius(double radius)
   return points;
 }
 
-
 bool makeFootprintFromString(
-  const std::string & footprint_string,
-  std::vector<geometry_msgs::msg::Point> & footprint)
+  const std::string & footprint_string, std::vector<geometry_msgs::msg::Point> & footprint)
 {
   std::string error;
   std::vector<std::vector<float>> vvf = parseVVF(footprint_string, error);
 
   if (error != "") {
     RCLCPP_ERROR(
-      rclcpp::get_logger(
-        "nav2_costmap_2d"), "Error parsing footprint parameter: '%s'", error.c_str());
+      rclcpp::get_logger("nav2_costmap_2d"), "Error parsing footprint parameter: '%s'",
+      error.c_str());
     RCLCPP_ERROR(
-      rclcpp::get_logger(
-        "nav2_costmap_2d"), "  Footprint string was '%s'.", footprint_string.c_str());
+      rclcpp::get_logger("nav2_costmap_2d"), "  Footprint string was '%s'.",
+      footprint_string.c_str());
     return false;
   }
 
   // convert vvf into points.
   if (vvf.size() < 3) {
     RCLCPP_ERROR(
-      rclcpp::get_logger(
-        "nav2_costmap_2d"),
-      "You must specify at least three points for the robot footprint, reverting to previous footprint."); //NOLINT
+      rclcpp::get_logger("nav2_costmap_2d"),
+      "You must specify at least three points for the robot "
+      "footprint, reverting to previous footprint.");  // NOLINT
     return false;
   }
   footprint.reserve(vvf.size());
@@ -206,9 +198,9 @@ bool makeFootprintFromString(
       footprint.push_back(point);
     } else {
       RCLCPP_ERROR(
-        rclcpp::get_logger(
-          "nav2_costmap_2d"),
-        "Points in the footprint specification must be pairs of numbers. Found a point with %d numbers.", //NOLINT
+        rclcpp::get_logger("nav2_costmap_2d"),
+        "Points in the footprint specification must be pairs of "
+        "numbers. Found a point with %d numbers.",  // NOLINT
         static_cast<int>(vvf[i].size()));
       return false;
     }

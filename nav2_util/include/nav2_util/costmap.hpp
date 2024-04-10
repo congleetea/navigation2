@@ -15,19 +15,18 @@
 #ifndef NAV2_UTIL__COSTMAP_HPP_
 #define NAV2_UTIL__COSTMAP_HPP_
 
-#include <vector>
 #include <cstdint>
+#include <vector>
 
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_msgs/msg/costmap.hpp"
 #include "nav2_msgs/msg/costmap_meta_data.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_util
 {
 
-enum class TestCostmap
-{
+enum class TestCostmap {
   open_space,
   bounded,
   bottom_left_obstacle,
@@ -83,7 +82,7 @@ public:
    * @brief Get a metadata message from this object
    * @return Costmap metadata of this costmap
    */
-  nav2_msgs::msg::CostmapMetaData get_properties() {return costmap_properties_;}
+  nav2_msgs::msg::CostmapMetaData get_properties() { return costmap_properties_; }
 
   /**
    * @brief Get whether some coordinates are free

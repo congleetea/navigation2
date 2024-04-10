@@ -38,13 +38,13 @@
 #ifndef NAV2_COSTMAP_2D__COSTMAP_FILTERS__KEEPOUT_FILTER_HPP_
 #define NAV2_COSTMAP_2D__COSTMAP_FILTERS__KEEPOUT_FILTER_HPP_
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "nav2_costmap_2d/costmap_filters/costmap_filter.hpp"
 
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_msgs/msg/costmap_filter_info.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_costmap_2d
 {
@@ -65,15 +65,13 @@ public:
   /**
    * @brief Initialize the filter and subscribe to the info topic
    */
-  void initializeFilter(
-    const std::string & filter_info_topic);
+  void initializeFilter(const std::string & filter_info_topic);
 
   /**
    * @brief Process the keepout layer at the current pose / bounds / grid
    */
   void process(
-    nav2_costmap_2d::Costmap2D & master_grid,
-    int min_i, int min_j, int max_i, int max_j,
+    nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i, int max_j,
     const geometry_msgs::msg::Pose2D & pose);
 
   /**
@@ -101,7 +99,7 @@ private:
 
   std::unique_ptr<Costmap2D> mask_costmap_;
 
-  std::string mask_frame_;  // Frame where mask located in
+  std::string mask_frame_;    // Frame where mask located in
   std::string global_frame_;  // Frame of currnet layer (master_grid)
 };
 

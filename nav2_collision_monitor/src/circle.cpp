@@ -14,9 +14,9 @@
 
 #include "nav2_collision_monitor/circle.hpp"
 
-#include <math.h>
 #include <cmath>
 #include <exception>
+#include <math.h>
 
 #include "nav2_util/node_utils.hpp"
 
@@ -24,20 +24,15 @@ namespace nav2_collision_monitor
 {
 
 Circle::Circle(
-  const nav2_util::LifecycleNode::WeakPtr & node,
-  const std::string & polygon_name,
-  const std::shared_ptr<tf2_ros::Buffer> tf_buffer,
-  const std::string & base_frame_id,
+  const nav2_util::LifecycleNode::WeakPtr & node, const std::string & polygon_name,
+  const std::shared_ptr<tf2_ros::Buffer> tf_buffer, const std::string & base_frame_id,
   const tf2::Duration & transform_tolerance)
 : Polygon::Polygon(node, polygon_name, tf_buffer, base_frame_id, transform_tolerance)
 {
   RCLCPP_INFO(logger_, "[%s]: Creating Circle", polygon_name_.c_str());
 }
 
-Circle::~Circle()
-{
-  RCLCPP_INFO(logger_, "[%s]: Destroying Circle", polygon_name_.c_str());
-}
+Circle::~Circle() { RCLCPP_INFO(logger_, "[%s]: Destroying Circle", polygon_name_.c_str()); }
 
 void Circle::getPolygon(std::vector<Point> & poly) const
 {
@@ -81,7 +76,8 @@ bool Circle::getParameters(std::string & polygon_pub_topic, std::string & footpr
     return false;
   }
 
-  // There is no footprint subscription for the Circle. Thus, set string as empty.
+  // There is no footprint subscription for the Circle. Thus, set string as
+  // empty.
   footprint_topic.clear();
 
   try {
@@ -92,9 +88,7 @@ bool Circle::getParameters(std::string & polygon_pub_topic, std::string & footpr
     radius_squared_ = radius_ * radius_;
   } catch (const std::exception & ex) {
     RCLCPP_ERROR(
-      logger_,
-      "[%s]: Error while getting circle parameters: %s",
-      polygon_name_.c_str(), ex.what());
+      logger_, "[%s]: Error while getting circle parameters: %s", polygon_name_.c_str(), ex.what());
     return false;
   }
 

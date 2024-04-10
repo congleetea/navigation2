@@ -43,10 +43,11 @@ namespace dwb_critics
  * @class TwirlingCritic
  * @brief Penalize trajectories with rotational velocities
  *
- * This class provides a cost based on how much a robot "twirls" on its way to the goal. With
- * differential-drive robots, there isn't a choice, but with holonomic or near-holonomic robots,
- * sometimes a robot spins more than you'd like on its way to a goal. This class provides a way
- * to assign a penalty purely to rotational velocities.
+ * This class provides a cost based on how much a robot "twirls" on its way to
+ * the goal. With differential-drive robots, there isn't a choice, but with
+ * holonomic or near-holonomic robots, sometimes a robot spins more than you'd
+ * like on its way to a goal. This class provides a way to assign a penalty
+ * purely to rotational velocities.
  */
 class TwirlingCritic : public dwb_core::TrajectoryCritic
 {

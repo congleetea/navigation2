@@ -13,14 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "nav2_util/geometry_utils.hpp"
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose.hpp"
+#include "nav2_util/geometry_utils.hpp"
 #include "nav_msgs/msg/path.hpp"
 #include "gtest/gtest.h"
 
-using nav2_util::geometry_utils::euclidean_distance;
 using nav2_util::geometry_utils::calculate_path_length;
+using nav2_util::geometry_utils::euclidean_distance;
 
 TEST(GeometryUtils, euclidean_distance_point_3d)
 {
@@ -99,12 +99,10 @@ TEST(GeometryUtils, calculate_path_length)
   }
 
   ASSERT_NEAR(
-    calculate_path_length(straight_line_path),
-    (nb_path_points - 1) * distance_between_poses, 1e-5);
+    calculate_path_length(straight_line_path), (nb_path_points - 1) * distance_between_poses, 1e-5);
 
   ASSERT_NEAR(
-    calculate_path_length(straight_line_path, straight_line_path.poses.size()),
-    0.0, 1e-5);
+    calculate_path_length(straight_line_path, straight_line_path.poses.size()), 0.0, 1e-5);
 
   nav_msgs::msg::Path circle_path;
   float polar_distance = 2.0;
@@ -124,7 +122,5 @@ TEST(GeometryUtils, calculate_path_length)
     current_polar_angle_deg += 1;
   }
 
-  ASSERT_NEAR(
-    calculate_path_length(circle_path),
-    2 * pi * polar_distance, 1e-1);
+  ASSERT_NEAR(calculate_path_length(circle_path), 2 * pi * polar_distance, 1e-1);
 }

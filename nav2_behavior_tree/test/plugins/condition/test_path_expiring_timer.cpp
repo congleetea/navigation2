@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <chrono>
+#include <gtest/gtest.h>
 #include <memory>
 #include <set>
 
@@ -23,7 +23,7 @@
 #include "../../test_behavior_tree_fixture.hpp"
 #include "nav2_behavior_tree/plugins/condition/path_expiring_timer_condition.hpp"
 
-using namespace std::chrono;  // NOLINT
+using namespace std::chrono;           // NOLINT
 using namespace std::chrono_literals;  // NOLINT
 
 class PathExpiringTimerConditionTestFixture : public nav2_behavior_tree::BehaviorTreeTestFixture
@@ -35,8 +35,8 @@ public:
     config_ = new BT::NodeConfiguration();
     config_->blackboard = BT::Blackboard::create();
     config_->blackboard->set<rclcpp::Node::SharedPtr>("node", node_);
-    bt_node_ = std::make_shared<nav2_behavior_tree::PathExpiringTimerCondition>(
-      "time_expired", *config_);
+    bt_node_ =
+      std::make_shared<nav2_behavior_tree::PathExpiringTimerCondition>("time_expired", *config_);
   }
 
   void TearDown()
@@ -55,7 +55,7 @@ protected:
 
 rclcpp::Node::SharedPtr PathExpiringTimerConditionTestFixture::node_ = nullptr;
 std::shared_ptr<nav2_behavior_tree::PathExpiringTimerCondition>
-PathExpiringTimerConditionTestFixture::bt_node_ = nullptr;
+  PathExpiringTimerConditionTestFixture::bt_node_ = nullptr;
 BT::NodeConfiguration * PathExpiringTimerConditionTestFixture::config_ = nullptr;
 
 TEST_F(PathExpiringTimerConditionTestFixture, test_behavior)

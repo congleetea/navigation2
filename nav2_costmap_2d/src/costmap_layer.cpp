@@ -36,16 +36,15 @@
  *         David V. Lu!!
  *********************************************************************/
 
+#include <algorithm>
 #include <nav2_costmap_2d/costmap_layer.hpp>
 #include <stdexcept>
-#include <algorithm>
 
 namespace nav2_costmap_2d
 {
 
 void CostmapLayer::touch(
-  double x, double y, double * min_x, double * min_y, double * max_x,
-  double * max_y)
+  double x, double y, double * min_x, double * min_y, double * max_x, double * max_y)
 {
   *min_x = std::min(x, *min_x);
   *min_y = std::min(y, *min_y);
@@ -107,9 +106,7 @@ void CostmapLayer::useExtraBounds(double * min_x, double * min_y, double * max_x
 }
 
 void CostmapLayer::updateWithMax(
-  nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j,
-  int max_i,
-  int max_j)
+  nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i, int max_j)
 {
   if (!enabled_) {
     return;
@@ -136,10 +133,7 @@ void CostmapLayer::updateWithMax(
 }
 
 void CostmapLayer::updateWithTrueOverwrite(
-  nav2_costmap_2d::Costmap2D & master_grid, int min_i,
-  int min_j,
-  int max_i,
-  int max_j)
+  nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i, int max_j)
 {
   if (!enabled_) {
     return;
@@ -162,8 +156,7 @@ void CostmapLayer::updateWithTrueOverwrite(
 }
 
 void CostmapLayer::updateWithOverwrite(
-  nav2_costmap_2d::Costmap2D & master_grid,
-  int min_i, int min_j, int max_i, int max_j)
+  nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i, int max_j)
 {
   if (!enabled_) {
     return;
@@ -183,8 +176,7 @@ void CostmapLayer::updateWithOverwrite(
 }
 
 void CostmapLayer::updateWithAddition(
-  nav2_costmap_2d::Costmap2D & master_grid,
-  int min_i, int min_j, int max_i, int max_j)
+  nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i, int max_j)
 {
   if (!enabled_) {
     return;

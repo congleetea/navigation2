@@ -19,8 +19,8 @@
  *
  */
 
-#include <math.h>
 #include <assert.h>
+#include <math.h>
 
 #include "nav2_amcl/sensors/laser/laser.hpp"
 
@@ -28,8 +28,8 @@ namespace nav2_amcl
 {
 
 BeamModel::BeamModel(
-  double z_hit, double z_short, double z_max, double z_rand, double sigma_hit,
-  double lambda_short, double chi_outlier, size_t max_beams, map_t * map)
+  double z_hit, double z_short, double z_max, double z_rand, double sigma_hit, double lambda_short,
+  double chi_outlier, size_t max_beams, map_t * map)
 : Laser(max_beams, map)
 {
   z_hit_ = z_hit;
@@ -42,8 +42,7 @@ BeamModel::BeamModel(
 }
 
 // Determine the probability for the given pose
-double
-BeamModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
+double BeamModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
 {
   BeamModel * self;
   int i, j, step;
@@ -81,9 +80,8 @@ BeamModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
       obs_bearing = data->ranges[i][1];
 
       // Compute the range according to the map
-      map_range = map_calc_range(
-        self->map_, pose.v[0], pose.v[1],
-        pose.v[2] + obs_bearing, data->range_max);
+      map_range =
+        map_calc_range(self->map_, pose.v[0], pose.v[1], pose.v[2] + obs_bearing, data->range_max);
       pz = 0.0;
 
       // Part 1: good, but noisy, hit
@@ -122,13 +120,12 @@ BeamModel::sensorFunction(LaserData * data, pf_sample_set_t * set)
   return total_weight;
 }
 
-bool
-BeamModel::sensorUpdate(pf_t * pf, LaserData * data)
+bool BeamModel::sensorUpdate(pf_t * pf, LaserData * data)
 {
   if (max_beams_ < 2) {
     return false;
   }
-  pf_update_sensor(pf, (pf_sensor_model_fn_t) sensorFunction, data);
+  pf_update_sensor(pf, (pf_sensor_model_fn_t)sensorFunction, data);
 
   return true;
 }

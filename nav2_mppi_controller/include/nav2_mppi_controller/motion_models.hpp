@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,10 +20,10 @@
 
 #include "nav2_mppi_controller/models/control_sequence.hpp"
 #include "nav2_mppi_controller/models/state.hpp"
-#include <xtensor/xmath.hpp>
 #include <xtensor/xmasked_view.hpp>
-#include <xtensor/xview.hpp>
+#include <xtensor/xmath.hpp>
 #include <xtensor/xnoalias.hpp>
+#include <xtensor/xview.hpp>
 
 #include "nav2_mppi_controller/tools/parameters_handler.hpp"
 
@@ -37,18 +38,19 @@ class MotionModel
 {
 public:
   /**
-    * @brief Constructor for mppi::MotionModel
-    */
+   * @brief Constructor for mppi::MotionModel
+   */
   MotionModel() = default;
 
   /**
-    * @brief Destructor for mppi::MotionModel
-    */
+   * @brief Destructor for mppi::MotionModel
+   */
   virtual ~MotionModel() = default;
 
   /**
    * @brief With input velocities, find the vehicle's output velocities
-   * @param state Contains control velocities to use to populate vehicle velocities
+   * @param state Contains control velocities to use to populate vehicle
+   * velocities
    */
   virtual void predict(models::State & state)
   {
@@ -86,8 +88,8 @@ class AckermannMotionModel : public MotionModel
 {
 public:
   /**
-    * @brief Constructor for mppi::AckermannMotionModel
-    */
+   * @brief Constructor for mppi::AckermannMotionModel
+   */
   explicit AckermannMotionModel(ParametersHandler * param_handler)
   {
     auto getParam = param_handler->getParamGetter("AckermannConstraints");
@@ -98,10 +100,7 @@ public:
    * @brief Whether the motion model is holonomic, using Y axis
    * @return Bool If holonomic
    */
-  bool isHolonomic() override
-  {
-    return false;
-  }
+  bool isHolonomic() override { return false; }
 
   /**
    * @brief Apply hard vehicle constraints to a control sequence
@@ -120,7 +119,7 @@ public:
    * @brief Get minimum turning radius of ackermann drive
    * @return Minimum turning radius
    */
-  float getMinTurningRadius() {return min_turning_r_;}
+  float getMinTurningRadius() { return min_turning_r_; }
 
 private:
   float min_turning_r_{0};
@@ -134,18 +133,15 @@ class DiffDriveMotionModel : public MotionModel
 {
 public:
   /**
-    * @brief Constructor for mppi::DiffDriveMotionModel
-    */
+   * @brief Constructor for mppi::DiffDriveMotionModel
+   */
   DiffDriveMotionModel() = default;
 
   /**
    * @brief Whether the motion model is holonomic, using Y axis
    * @return Bool If holonomic
    */
-  bool isHolonomic() override
-  {
-    return false;
-  }
+  bool isHolonomic() override { return false; }
 };
 
 /**
@@ -156,18 +152,15 @@ class OmniMotionModel : public MotionModel
 {
 public:
   /**
-    * @brief Constructor for mppi::OmniMotionModel
-    */
+   * @brief Constructor for mppi::OmniMotionModel
+   */
   OmniMotionModel() = default;
 
   /**
    * @brief Whether the motion model is holonomic, using Y axis
    * @return Bool If holonomic
    */
-  bool isHolonomic() override
-  {
-    return true;
-  }
+  bool isHolonomic() override { return true; }
 };
 
 }  // namespace mppi

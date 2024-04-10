@@ -37,10 +37,10 @@ static int n = 3;
 
 static void tred2(double V[n][n], double d[n], double e[n])
 {
-//  This is derived from the Algol procedures tred2 by
-//  Bowdler, Martin, Reinsch, and Wilkinson, Handbook for
-//  Auto. Comp., Vol.ii-Linear Algebra, and the corresponding
-//  Fortran subroutine in EISPACK.
+  //  This is derived from the Algol procedures tred2 by
+  //  Bowdler, Martin, Reinsch, and Wilkinson, Handbook for
+  //  Auto. Comp., Vol.ii-Linear Algebra, and the corresponding
+  //  Fortran subroutine in EISPACK.
 
   int i, j, k;
   double f, g, h, hh;
@@ -153,10 +153,10 @@ static void tred2(double V[n][n], double d[n], double e[n])
 
 static void tql2(double V[n][n], double d[n], double e[n])
 {
-//  This is derived from the Algol procedures tql2, by
-//  Bowdler, Martin, Reinsch, and Wilkinson, Handbook for
-//  Auto. Comp., Vol.ii-Linear Algebra, and the corresponding
-//  Fortran subroutine in EISPACK.
+  //  This is derived from the Algol procedures tql2, by
+  //  Bowdler, Martin, Reinsch, and Wilkinson, Handbook for
+  //  Auto. Comp., Vol.ii-Linear Algebra, and the corresponding
+  //  Fortran subroutine in EISPACK.
   int i, j, m, l, k;
   double g, p, r, dl1, h, f, tst1, eps;
   double c, c2, c3, el1, s, s2;

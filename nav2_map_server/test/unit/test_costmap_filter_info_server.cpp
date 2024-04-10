@@ -14,11 +14,11 @@
 
 #include <gtest/gtest.h>
 
-#include <string>
-#include <memory>
 #include <chrono>
 #include <limits>
+#include <memory>
 #include <mutex>
+#include <string>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -39,8 +39,8 @@ static const double EPSILON = std::numeric_limits<float>::epsilon();
 class RclCppFixture
 {
 public:
-  RclCppFixture() {rclcpp::init(0, nullptr);}
-  ~RclCppFixture() {rclcpp::shutdown();}
+  RclCppFixture() { rclcpp::init(0, nullptr); }
+  ~RclCppFixture() { rclcpp::shutdown(); }
 };
 RclCppFixture g_rclcppfixture;
 
@@ -60,22 +60,15 @@ public:
     on_shutdown(get_current_state());
   }
 
-  void deactivate()
-  {
-    on_deactivate(get_current_state());
-  }
+  void deactivate() { on_deactivate(get_current_state()); }
 
-  void activate()
-  {
-    on_activate(get_current_state());
-  }
+  void activate() { on_activate(get_current_state()); }
 };
 
 class InfoServerTester : public ::testing::Test
 {
 public:
-  InfoServerTester()
-  : info_server_(nullptr), info_(nullptr), subscription_(nullptr)
+  InfoServerTester() : info_server_(nullptr), info_(nullptr), subscription_(nullptr)
   {
     access_ = new mutex_t();
 
@@ -117,10 +110,7 @@ public:
     }
   }
 
-  mutex_t * getMutex()
-  {
-    return access_;
-  }
+  mutex_t * getMutex() { return access_; }
 
 protected:
   std::shared_ptr<InfoServerWrapper> info_server_;

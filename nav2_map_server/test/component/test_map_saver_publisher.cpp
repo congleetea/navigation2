@@ -13,11 +13,11 @@
 // limitations under the License.
 
 #include <experimental/filesystem>
-#include <string>
 #include <memory>
+#include <string>
 
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_map_server/map_io.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "test_constants/test_constants.h"
 
 #define TEST_DIR TEST_DIRECTORY
@@ -28,8 +28,7 @@ using std::experimental::filesystem::path;
 class TestPublisher : public rclcpp::Node
 {
 public:
-  TestPublisher()
-  : Node("map_publisher")
+  TestPublisher() : Node("map_publisher")
   {
     std::string pub_map_file = path(TEST_DIR) / path(g_valid_yaml_file);
     nav_msgs::msg::OccupancyGrid msg;
@@ -40,8 +39,7 @@ public:
     }
 
     map_pub_ = create_publisher<nav_msgs::msg::OccupancyGrid>(
-      "map",
-      rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable());
+      "map", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable());
     map_pub_->publish(msg);
   }
 

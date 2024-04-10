@@ -15,14 +15,14 @@
 #ifndef NAV2_BEHAVIOR_TREE__ROS_TOPIC_LOGGER_HPP_
 #define NAV2_BEHAVIOR_TREE__ROS_TOPIC_LOGGER_HPP_
 
-#include <vector>
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "behaviortree_cpp_v3/loggers/abstract_logger.h"
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_msgs/msg/behavior_tree_log.hpp"
 #include "nav2_msgs/msg/behavior_tree_status_change.h"
+#include "rclcpp/rclcpp.hpp"
 #include "tf2_ros/buffer_interface.h"
 
 namespace nav2_behavior_tree
@@ -45,9 +45,8 @@ public:
     auto node = ros_node.lock();
     clock_ = node->get_clock();
     logger_ = node->get_logger();
-    log_pub_ = node->create_publisher<nav2_msgs::msg::BehaviorTreeLog>(
-      "behavior_tree_log",
-      rclcpp::QoS(10));
+    log_pub_ =
+      node->create_publisher<nav2_msgs::msg::BehaviorTreeLog>("behavior_tree_log", rclcpp::QoS(10));
   }
 
   /**
@@ -58,15 +57,13 @@ public:
    * @param status Current status of the node
    */
   void callback(
-    BT::Duration timestamp,
-    const BT::TreeNode & node,
-    BT::NodeStatus prev_status,
+    BT::Duration timestamp, const BT::TreeNode & node, BT::NodeStatus prev_status,
     BT::NodeStatus status) override
   {
     nav2_msgs::msg::BehaviorTreeStatusChange event;
 
-    // BT timestamps are a duration since the epoch. Need to convert to a time_point
-    // before converting to a msg.
+    // BT timestamps are a duration since the epoch. Need to convert to a
+    // time_point before converting to a msg.
     event.timestamp = tf2_ros::toMsg(tf2::TimePoint(timestamp));
     event.node_name = node.name();
     event.previous_status = toStr(prev_status, false);
@@ -74,11 +71,8 @@ public:
     event_log_.push_back(std::move(event));
 
     RCLCPP_DEBUG(
-      logger_, "[%.3f]: %25s %s -> %s",
-      std::chrono::duration<double>(timestamp).count(),
-      node.name().c_str(),
-      toStr(prev_status, true).c_str(),
-      toStr(status, true).c_str() );
+      logger_, "[%.3f]: %25s %s -> %s", std::chrono::duration<double>(timestamp).count(),
+      node.name().c_str(), toStr(prev_status, true).c_str(), toStr(status, true).c_str());
   }
 
   /**
@@ -102,6 +96,6 @@ protected:
   std::vector<nav2_msgs::msg::BehaviorTreeStatusChange> event_log_;
 };
 
-}   // namespace nav2_behavior_tree
+}  // namespace nav2_behavior_tree
 
-#endif   // NAV2_BEHAVIOR_TREE__ROS_TOPIC_LOGGER_HPP_
+#endif  // NAV2_BEHAVIOR_TREE__ROS_TOPIC_LOGGER_HPP_

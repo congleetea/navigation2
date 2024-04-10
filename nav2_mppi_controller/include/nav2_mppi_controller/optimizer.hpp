@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,28 +16,28 @@
 #ifndef NAV2_MPPI_CONTROLLER__OPTIMIZER_HPP_
 #define NAV2_MPPI_CONTROLLER__OPTIMIZER_HPP_
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include <xtensor/xtensor.hpp>
 #include <xtensor/xview.hpp>
 
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 
-#include "nav2_costmap_2d/costmap_2d_ros.hpp"
 #include "nav2_core/goal_checker.hpp"
+#include "nav2_costmap_2d/costmap_2d_ros.hpp"
 
-#include "geometry_msgs/msg/twist.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/twist.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "nav_msgs/msg/path.hpp"
 
-#include "nav2_mppi_controller/models/optimizer_settings.hpp"
-#include "nav2_mppi_controller/motion_models.hpp"
 #include "nav2_mppi_controller/critic_manager.hpp"
+#include "nav2_mppi_controller/models/optimizer_settings.hpp"
+#include "nav2_mppi_controller/models/path.hpp"
 #include "nav2_mppi_controller/models/state.hpp"
 #include "nav2_mppi_controller/models/trajectories.hpp"
-#include "nav2_mppi_controller/models/path.hpp"
+#include "nav2_mppi_controller/motion_models.hpp"
 #include "nav2_mppi_controller/tools/noise_generator.hpp"
 #include "nav2_mppi_controller/tools/parameters_handler.hpp"
 #include "nav2_mppi_controller/tools/utils.hpp"
@@ -52,15 +53,14 @@ class Optimizer
 {
 public:
   /**
-    * @brief Constructor for mppi::Optimizer
-    */
+   * @brief Constructor for mppi::Optimizer
+   */
   Optimizer() = default;
 
   /**
    * @brief Destructor for mppi::Optimizer
    */
-  ~Optimizer() {shutdown();}
-
+  ~Optimizer() { shutdown(); }
 
   /**
    * @brief Initializes optimizer on startup
@@ -131,8 +131,8 @@ protected:
    */
   void prepare(
     const geometry_msgs::msg::PoseStamped & robot_pose,
-    const geometry_msgs::msg::Twist & robot_speed,
-    const nav_msgs::msg::Path & plan, nav2_core::GoalChecker * goal_checker);
+    const geometry_msgs::msg::Twist & robot_speed, const nav_msgs::msg::Path & plan,
+    nav2_core::GoalChecker * goal_checker);
 
   /**
    * @brief Obtain the main controller's parameters
@@ -187,8 +187,7 @@ protected:
    * @param state fill state
    */
   void integrateStateVelocities(
-    models::Trajectories & trajectories,
-    const models::State & state) const;
+    models::Trajectories & trajectories, const models::State & state) const;
 
   /**
    * @brief Rollout velocities in state to poses
@@ -196,8 +195,7 @@ protected:
    * @param state fill state
    */
   void integrateStateVelocities(
-    xt::xtensor<float, 2> & trajectories,
-    const xt::xtensor<float, 2> & state) const;
+    xt::xtensor<float, 2> & trajectories, const xt::xtensor<float, 2> & state) const;
 
   /**
    * @brief Update control sequence with state controls weighted by costs
@@ -210,8 +208,8 @@ protected:
    * @param stamp Timestamp to use
    * @return TwistStamped of command to send to robot base
    */
-  geometry_msgs::msg::TwistStamped
-  getControlFromSequenceAsTwist(const builtin_interfaces::msg::Time & stamp);
+  geometry_msgs::msg::TwistStamped getControlFromSequenceAsTwist(
+    const builtin_interfaces::msg::Time & stamp);
 
   /**
    * @brief Whether the motion model is holonomic
@@ -226,7 +224,8 @@ protected:
   void setOffset(double controller_frequency);
 
   /**
-   * @brief Perform fallback behavior to try to recover from a set of trajectories in collision
+   * @brief Perform fallback behavior to try to recover from a set of
+   * trajectories in collision
    * @param fail Whether the system failed to recover from
    */
   bool fallback(bool fail);
@@ -252,9 +251,17 @@ protected:
   models::Path path_;
   xt::xtensor<float, 1> costs_;
 
-  CriticData critics_data_ =
-  {state_, generated_trajectories_, path_, costs_, settings_.model_dt, false, nullptr, nullptr,
-    std::nullopt, std::nullopt};  /// Caution, keep references
+  CriticData critics_data_ = {
+    state_,
+    generated_trajectories_,
+    path_,
+    costs_,
+    settings_.model_dt,
+    false,
+    nullptr,
+    nullptr,
+    std::nullopt,
+    std::nullopt};  /// Caution, keep references
 
   rclcpp::Logger logger_{rclcpp::get_logger("MPPIController")};
 };

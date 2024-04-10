@@ -14,11 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <gtest/gtest.h>
-#include <cmath>
-#include <tuple>
-#include <string>
 #include <algorithm>
+#include <cmath>
+#include <gtest/gtest.h>
+#include <string>
+#include <tuple>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -35,7 +35,6 @@ struct TestParameters
   float ang_vel;
 };
 
-
 std::string testNameGenerator(const testing::TestParamInfo<TestParameters> &)
 {
   static int test_index = 0;
@@ -44,8 +43,7 @@ std::string testNameGenerator(const testing::TestParamInfo<TestParameters> &)
   return name;
 }
 
-class AssistedTeleopBehaviorTestFixture
-  : public ::testing::TestWithParam<TestParameters>
+class AssistedTeleopBehaviorTestFixture : public ::testing::TestWithParam<TestParameters>
 {
 public:
   static void SetUpTestCase()
@@ -66,8 +64,8 @@ protected:
   static AssistedTeleopBehaviorTester * assisted_teleop_behavior_tester;
 };
 
-AssistedTeleopBehaviorTester *
-AssistedTeleopBehaviorTestFixture::assisted_teleop_behavior_tester = nullptr;
+AssistedTeleopBehaviorTester * AssistedTeleopBehaviorTestFixture::assisted_teleop_behavior_tester =
+  nullptr;
 
 TEST_P(AssistedTeleopBehaviorTestFixture, testAssistedTeleopBehavior)
 {
@@ -79,24 +77,16 @@ TEST_P(AssistedTeleopBehaviorTestFixture, testAssistedTeleopBehavior)
 
   bool success = false;
   success = assisted_teleop_behavior_tester->defaultAssistedTeleopTest(
-    test_params.lin_vel,
-    test_params.ang_vel);
+    test_params.lin_vel, test_params.ang_vel);
 
   EXPECT_TRUE(success);
 }
 
-std::vector<TestParameters> test_params = {TestParameters{-0.1, 0.0},
-  TestParameters{0.35, 0.05}};
+std::vector<TestParameters> test_params = {TestParameters{-0.1, 0.0}, TestParameters{0.35, 0.05}};
 
 INSTANTIATE_TEST_SUITE_P(
-  TestAssistedTeleopBehavior,
-  AssistedTeleopBehaviorTestFixture,
-  ::testing::Values(
-    test_params[0],
-    test_params[1]),
-  testNameGenerator
-);
-
+  TestAssistedTeleopBehavior, AssistedTeleopBehaviorTestFixture,
+  ::testing::Values(test_params[0], test_params[1]), testNameGenerator);
 
 int main(int argc, char ** argv)
 {

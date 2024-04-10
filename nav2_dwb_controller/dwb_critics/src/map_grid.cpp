@@ -33,18 +33,18 @@
  */
 
 #include "dwb_critics/map_grid.hpp"
-#include <cmath>
-#include <string>
-#include <vector>
-#include <utility>
-#include <algorithm>
-#include <memory>
 #include "dwb_core/exceptions.hpp"
 #include "nav2_costmap_2d/cost_values.hpp"
 #include "nav2_util/node_utils.hpp"
+#include <algorithm>
+#include <cmath>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
-using std::abs;
 using costmap_queue::CellData;
+using std::abs;
 
 namespace dwb_critics
 {
@@ -69,8 +69,7 @@ void MapGridCritic::onInit()
   }
 
   nav2_util::declare_parameter_if_not_declared(
-    node,
-    dwb_plugin_name_ + "." + name_ + ".aggregation_type",
+    node, dwb_plugin_name_ + "." + name_ + ".aggregation_type",
     rclcpp::ParameterValue(std::string("last")));
 
   std::string aggro_str;
@@ -84,17 +83,13 @@ void MapGridCritic::onInit()
     aggregationType_ = ScoreAggregationType::Product;
   } else {
     RCLCPP_ERROR(
-      rclcpp::get_logger(
-        "MapGridCritic"), "aggregation_type parameter \"%s\" invalid. Using Last.",
+      rclcpp::get_logger("MapGridCritic"), "aggregation_type parameter \"%s\" invalid. Using Last.",
       aggro_str.c_str());
     aggregationType_ = ScoreAggregationType::Last;
   }
 }
 
-void MapGridCritic::setAsObstacle(unsigned int index)
-{
-  cell_values_[index] = obstacle_score_;
-}
+void MapGridCritic::setAsObstacle(unsigned int index) { cell_values_[index] = obstacle_score_; }
 
 void MapGridCritic::reset()
 {
@@ -110,7 +105,7 @@ void MapGridCritic::propogateManhattanDistances()
   while (!queue_->isEmpty()) {
     costmap_queue::CellData cell = queue_->getNextCell();
     cell_values_[cell.index_] = CellData::absolute_difference(cell.src_x_, cell.x_) +
-      CellData::absolute_difference(cell.src_y_, cell.y_);
+                                CellData::absolute_difference(cell.src_y_, cell.y_);
   }
 }
 
@@ -129,11 +124,9 @@ double MapGridCritic::scoreTrajectory(const dwb_msgs::msg::Trajectory2D & traj)
     grid_dist = scorePose(traj.poses[i]);
     if (stop_on_failure_) {
       if (grid_dist == obstacle_score_) {
-        throw dwb_core::
-              IllegalTrajectoryException(name_, "Trajectory Hits Obstacle.");
+        throw dwb_core::IllegalTrajectoryException(name_, "Trajectory Hits Obstacle.");
       } else if (grid_dist == unreachable_score_) {
-        throw dwb_core::
-              IllegalTrajectoryException(name_, "Trajectory Hits Unreachable Area.");
+        throw dwb_core::IllegalTrajectoryException(name_, "Trajectory Hits Unreachable Area.");
       }
     }
 
@@ -158,10 +151,10 @@ double MapGridCritic::scoreTrajectory(const dwb_msgs::msg::Trajectory2D & traj)
 double MapGridCritic::scorePose(const geometry_msgs::msg::Pose2D & pose)
 {
   unsigned int cell_x, cell_y;
-  // we won't allow trajectories that go off the map... shouldn't happen that often anyways
+  // we won't allow trajectories that go off the map... shouldn't happen that
+  // often anyways
   if (!costmap_->worldToMap(pose.x, pose.y, cell_x, cell_y)) {
-    throw dwb_core::
-          IllegalTrajectoryException(name_, "Trajectory Goes Off Grid.");
+    throw dwb_core::IllegalTrajectoryException(name_, "Trajectory Goes Off Grid.");
   }
   return getScore(cell_x, cell_y);
 }

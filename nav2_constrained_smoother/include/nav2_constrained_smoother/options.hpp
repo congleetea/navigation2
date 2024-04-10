@@ -16,12 +16,12 @@
 #ifndef NAV2_CONSTRAINED_SMOOTHER__OPTIONS_HPP_
 #define NAV2_CONSTRAINED_SMOOTHER__OPTIONS_HPP_
 
+#include "ceres/ceres.h"
+#include "nav2_util/node_utils.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include <map>
 #include <string>
 #include <vector>
-#include "rclcpp_lifecycle/lifecycle_node.hpp"
-#include "nav2_util/node_utils.hpp"
-#include "ceres/ceres.h"
 
 namespace nav2_constrained_smoother
 {
@@ -35,9 +35,7 @@ struct SmootherParams
   /**
    * @brief A constructor for nav2_smac_planner::SmootherParams
    */
-  SmootherParams()
-  {
-  }
+  SmootherParams() {}
 
   /**
    * @brief Get params from ROS parameter
@@ -79,8 +77,7 @@ struct SmootherParams
     node->get_parameter(local_name + "cost_check_points", cost_check_points);
     if (cost_check_points.size() % 3 != 0) {
       RCLCPP_ERROR(
-        rclcpp::get_logger(
-          "constrained_smoother"),
+        rclcpp::get_logger("constrained_smoother"),
         "cost_check_points parameter must contain values as follows: "
         "[x1, y1, weight1, x2, y2, weight2, ...]");
       throw std::runtime_error("Invalid parameter: cost_check_points");
@@ -133,11 +130,7 @@ struct SmootherParams
 struct OptimizerParams
 {
   OptimizerParams()
-  : debug(false),
-    max_iterations(50),
-    param_tol(1e-8),
-    fn_tol(1e-6),
-    gradient_tol(1e-10)
+  : debug(false), max_iterations(50), param_tol(1e-8), fn_tol(1e-6), gradient_tol(1e-10)
   {
   }
 
@@ -185,15 +178,14 @@ struct OptimizerParams
   }
 
   const std::map<std::string, ceres::LinearSolverType> solver_types = {
-    {"DENSE_QR", ceres::DENSE_QR},
-    {"SPARSE_NORMAL_CHOLESKY", ceres::SPARSE_NORMAL_CHOLESKY}};
+    {"DENSE_QR", ceres::DENSE_QR}, {"SPARSE_NORMAL_CHOLESKY", ceres::SPARSE_NORMAL_CHOLESKY}};
 
   bool debug;
   std::string linear_solver_type;
   int max_iterations;  // Ceres default: 50
 
-  double param_tol;  // Ceres default: 1e-8
-  double fn_tol;  // Ceres default: 1e-6
+  double param_tol;     // Ceres default: 1e-8
+  double fn_tol;        // Ceres default: 1e-6
   double gradient_tol;  // Ceres default: 1e-10
 };
 

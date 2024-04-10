@@ -21,8 +21,8 @@
 
 #include "lifecycle_msgs/srv/change_state.hpp"
 #include "lifecycle_msgs/srv/get_state.hpp"
-#include "nav2_util/service_client.hpp"
 #include "nav2_util/node_utils.hpp"
+#include "nav2_util/service_client.hpp"
 
 namespace nav2_util
 {
@@ -33,8 +33,7 @@ class LifecycleServiceClient
 public:
   explicit LifecycleServiceClient(const std::string & lifecycle_node_name);
   LifecycleServiceClient(
-    const std::string & lifecycle_node_name,
-    rclcpp::Node::SharedPtr parent_node);
+    const std::string & lifecycle_node_name, rclcpp::Node::SharedPtr parent_node);
 
   /// Trigger a state change
   /**

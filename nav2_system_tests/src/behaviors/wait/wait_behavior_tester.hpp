@@ -17,20 +17,20 @@
 #ifndef BEHAVIORS__WAIT__WAIT_BEHAVIOR_TESTER_HPP_
 #define BEHAVIORS__WAIT__WAIT_BEHAVIOR_TESTER_HPP_
 
+#include <algorithm>
 #include <gtest/gtest.h>
 #include <memory>
 #include <string>
 #include <thread>
-#include <algorithm>
 
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
 #include "angles/angles.h"
-#include "nav2_msgs/action/wait.hpp"
-#include "nav2_util/robot_utils.hpp"
-#include "nav2_util/node_thread.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include "nav2_msgs/action/wait.hpp"
+#include "nav2_util/node_thread.hpp"
+#include "nav2_util/robot_utils.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
 
 #include "tf2/utils.h"
 #include "tf2_ros/buffer.h"
@@ -49,8 +49,7 @@ public:
   ~WaitBehaviorTester();
 
   // Runs a single test with given target yaw
-  bool behaviorTest(
-    float time);
+  bool behaviorTest(float time);
 
   bool behaviorTestCancel(float time);
 
@@ -58,10 +57,7 @@ public:
 
   void deactivate();
 
-  bool isActive() const
-  {
-    return is_active_;
-  }
+  bool isActive() const { return is_active_; }
 
 private:
   void sendInitialPose();

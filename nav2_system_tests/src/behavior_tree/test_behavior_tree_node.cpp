@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
-#include <vector>
-#include <string>
+#include <boost/filesystem.hpp>
 #include <fstream>
 #include <memory>
+#include <string>
 #include <utility>
-#include <boost/filesystem.hpp>
+#include <vector>
 
 #include "gtest/gtest.h"
 
@@ -26,13 +26,13 @@
 #include "behaviortree_cpp_v3/utils/shared_library.h"
 
 #include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_listener.h"
 #include "tf2_ros/create_timer_ros.h"
+#include "tf2_ros/transform_listener.h"
 
 #include "nav2_util/odometry_utils.hpp"
 
-#include "rclcpp/rclcpp.hpp"
 #include "ament_index_cpp/get_package_share_directory.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "server_handler.hpp"
 
@@ -101,8 +101,7 @@ public:
       "nav2_spin_cancel_bt_node",
       "nav2_back_up_cancel_bt_node",
       "nav2_drive_on_heading_cancel_bt_node",
-      "nav2_goal_updated_controller_bt_node"
-    };
+      "nav2_goal_updated_controller_bt_node"};
     for (const auto & p : plugin_libs) {
       factory_.registerFromPlugin(BT::SharedLibrary::getOSName(p));
     }
@@ -118,9 +117,8 @@ public:
       return false;
     }
 
-    auto xml_string = std::string(
-      std::istreambuf_iterator<char>(xml_file),
-      std::istreambuf_iterator<char>());
+    auto xml_string =
+      std::string(std::istreambuf_iterator<char>(xml_file), std::istreambuf_iterator<char>());
 
     // Create the blackboard that will be shared by all of the nodes in the tree
     blackboard = BT::Blackboard::create();
@@ -131,10 +129,12 @@ public:
       "server_timeout", std::chrono::milliseconds(20));  // NOLINT
     blackboard->set<std::chrono::milliseconds>(
       "bt_loop_duration", std::chrono::milliseconds(10));  // NOLINT
-    blackboard->set<std::shared_ptr<tf2_ros::Buffer>>("tf_buffer", tf_);  // NOLINT
-    blackboard->set<bool>("initial_pose_received", false);  // NOLINT
-    blackboard->set<int>("number_recoveries", 0);  // NOLINT
-    blackboard->set<std::shared_ptr<nav2_util::OdomSmoother>>("odom_smoother", odom_smoother_);  // NOLINT
+    blackboard->set<std::shared_ptr<tf2_ros::Buffer>>("tf_buffer",
+                                                      tf_);  // NOLINT
+    blackboard->set<bool>("initial_pose_received", false);   // NOLINT
+    blackboard->set<int>("number_recoveries", 0);            // NOLINT
+    blackboard->set<std::shared_ptr<nav2_util::OdomSmoother>>(
+      "odom_smoother", odom_smoother_);  // NOLINT
 
     // set dummy goal on blackboard
     geometry_msgs::msg::PoseStamped goal;
@@ -205,10 +205,7 @@ public:
     bt_handler = std::make_shared<BehaviorTreeHandler>();
   }
 
-  void TearDown() override
-  {
-    bt_handler.reset();
-  }
+  void TearDown() override { bt_handler.reset(); }
 
 protected:
   static std::shared_ptr<ServerHandler> server_handler;
@@ -254,10 +251,12 @@ TEST_F(BehaviorTreeTestFixture, TestAllSuccess)
     std::this_thread::sleep_for(10ms);
   }
 
-  // The final result should be success since all action servers returned success
+  // The final result should be success since all action servers returned
+  // success
   EXPECT_EQ(result, BT::NodeStatus::SUCCESS);
 
-  // Goal count should be 1 since only one goal is sent to ComputePathToPose and FollowPath servers
+  // Goal count should be 1 since only one goal is sent to ComputePathToPose and
+  // FollowPath servers
   EXPECT_EQ(server_handler->compute_path_to_pose_server->getGoalCount(), 1);
   EXPECT_EQ(server_handler->follow_path_server->getGoalCount(), 1);
 
@@ -272,9 +271,9 @@ TEST_F(BehaviorTreeTestFixture, TestAllSuccess)
 /**
  * Test scenario:
  *
- * ComputePathToPose returns FAILURE and ClearGlobalCostmap-Context returns FAILURE
- * PipelineSequence returns FAILURE and NavigateRecovery triggers RecoveryFallback
- * GoalUpdated returns FAILURE and RoundRobin is triggered
+ * ComputePathToPose returns FAILURE and ClearGlobalCostmap-Context returns
+ * FAILURE PipelineSequence returns FAILURE and NavigateRecovery triggers
+ * RecoveryFallback GoalUpdated returns FAILURE and RoundRobin is triggered
  * RoundRobin triggers ClearingActions Sequence which returns FAILURE
  * RoundRobin triggers Spin, Wait, and BackUp which return FAILURE
  * RoundRobin returns FAILURE hence RecoveryCallbackk returns FAILURE
@@ -331,11 +330,12 @@ TEST_F(BehaviorTreeTestFixture, TestAllFailure)
 /**
  * Test scenario:
  *
- * ComputePathToPose returns FAILURE on the first try triggering the planner recovery
- * ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose returns SUCCESS when retried
- * FollowPath returns FAILURE on the first try triggering the controller recovery
- * ClearLocalCostmap-Context returns SUCCESS and FollowPath returns SUCCESS when retried
- * The behavior tree should return SUCCESS
+ * ComputePathToPose returns FAILURE on the first try triggering the planner
+ * recovery ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose
+ * returns SUCCESS when retried FollowPath returns FAILURE on the first try
+ * triggering the controller recovery ClearLocalCostmap-Context returns SUCCESS
+ * and FollowPath returns SUCCESS when retried The behavior tree should return
+ * SUCCESS
  */
 TEST_F(BehaviorTreeTestFixture, TestNavigateSubtreeRecoveries)
 {
@@ -345,7 +345,8 @@ TEST_F(BehaviorTreeTestFixture, TestNavigateSubtreeRecoveries)
   bt_file /= "navigate_to_pose_w_replanning_and_recovery.xml";
   EXPECT_EQ(bt_handler->loadBehaviorTree(bt_file.string()), true);
 
-  // Set ComputePathToPose and FollowPath action servers to fail for the first action
+  // Set ComputePathToPose and FollowPath action servers to fail for the first
+  // action
   std::vector<std::pair<int, int>> failureRange;
   failureRange.emplace_back(std::pair<int, int>(0, 1));
   server_handler->compute_path_to_pose_server->setFailureRanges(failureRange);
@@ -361,7 +362,8 @@ TEST_F(BehaviorTreeTestFixture, TestNavigateSubtreeRecoveries)
   // The final result should be success
   EXPECT_EQ(result, BT::NodeStatus::SUCCESS);
 
-  // Goal count should be 2 since only two goals were sent to ComputePathToPose and FollowPath
+  // Goal count should be 2 since only two goals were sent to ComputePathToPose
+  // and FollowPath
   EXPECT_EQ(server_handler->compute_path_to_pose_server->getGoalCount(), 2);
   EXPECT_EQ(server_handler->follow_path_server->getGoalCount(), 2);
 
@@ -378,18 +380,18 @@ TEST_F(BehaviorTreeTestFixture, TestNavigateSubtreeRecoveries)
 /**
  * Test scenario:
  *
- * ComputePathToPose returns FAILURE on the first try triggering the planner recovery
- * ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose returns SUCCESS when retried
- * FollowPath returns FAILURE on the first try triggering the controller recovery
- * ClearLocalCostmap-Context returns SUCCESS and FollowPath is retried
- * FollowPath returns FAILURE again and PipelineSequence returns FAILURE
- * NavigateRecovery triggers RecoveryFallback and GoalUpdated returns FAILURE
- * RoundRobin triggers ClearingActions Sequence which returns SUCCESS
- * RoundRobin returns SUCCESS and RecoveryFallback returns SUCCESS
- * PipelineSequence is triggered again and ComputePathToPose returns SUCCESS
- * FollowPath returns FAILURE on the third try triggering the controller recovery
- * ClearLocalCostmap-Context returns SUCCESS and FollowPath returns SUCCESS on the fourth try
- * The behavior tree should return SUCCESS
+ * ComputePathToPose returns FAILURE on the first try triggering the planner
+ * recovery ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose
+ * returns SUCCESS when retried FollowPath returns FAILURE on the first try
+ * triggering the controller recovery ClearLocalCostmap-Context returns SUCCESS
+ * and FollowPath is retried FollowPath returns FAILURE again and
+ * PipelineSequence returns FAILURE NavigateRecovery triggers RecoveryFallback
+ * and GoalUpdated returns FAILURE RoundRobin triggers ClearingActions Sequence
+ * which returns SUCCESS RoundRobin returns SUCCESS and RecoveryFallback returns
+ * SUCCESS PipelineSequence is triggered again and ComputePathToPose returns
+ * SUCCESS FollowPath returns FAILURE on the third try triggering the controller
+ * recovery ClearLocalCostmap-Context returns SUCCESS and FollowPath returns
+ * SUCCESS on the fourth try The behavior tree should return SUCCESS
  */
 TEST_F(BehaviorTreeTestFixture, TestNavigateRecoverySimple)
 {
@@ -440,52 +442,57 @@ TEST_F(BehaviorTreeTestFixture, TestNavigateRecoverySimple)
 /**
  * Test scenario:
  *
- * ComputePathToPose returns FAILURE on the first try triggering the planner recovery
- * ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose returns FAILURE when retried
- * PipelineSequence returns FAILURE and NavigateRecovery triggers RecoveryFallback
- * GoalUpdated returns FAILURE, RoundRobin triggers ClearingActions Sequence which returns SUCCESS
+ * ComputePathToPose returns FAILURE on the first try triggering the planner
+ * recovery ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose
+ * returns FAILURE when retried PipelineSequence returns FAILURE and
+ * NavigateRecovery triggers RecoveryFallback GoalUpdated returns FAILURE,
+ * RoundRobin triggers ClearingActions Sequence which returns SUCCESS RoundRobin
+ * returns SUCCESS and RecoveryFallback returns SUCCESS
+ *
+ * PipelineSequence is triggered again and ComputePathToPose returns SUCCESS
+ * (retry #1) FollowPath returns FAILURE on the first try triggering the
+ * controller recovery ClearLocalCostmap-Context returns SUCCESS and FollowPath
+ * is retried FollowPath returns FAILURE again and PipelineSequence returns
+ * FAILURE NavigateRecovery triggers RecoveryFallback and GoalUpdated returns
+ * FAILURE RoundRobin triggers Spin which returns FAILURE RoundRobin triggers
+ * Wait which returns SUCCESS RoundRobin returns SUCCESS and RecoveryFallback
+ * returns SUCCESS
+ *
+ * PipelineSequence is triggered again and ComputePathToPose returns FAILURE
+ * (retry #2) ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose
+ * returns FAILURE when retried PipelineSequence returns FAILURE
+ * NavigateRecovery triggers RecoveryFallback GoalUpdated returns FAILURE and
+ * RoundRobin triggers BackUp which returns FAILURE RoundRobin triggers
+ * ClearingActions Sequence which returns SUCCESS RoundRobin returns SUCCESS and
+ * RecoveryFallback returns SUCCESS
+ *
+ * PipelineSequence is triggered again and ComputePathToPose returns FAILURE
+ * (retry #3) ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose
+ * returns FAILURE when retried PipelineSequence returns FAILURE
+ * NavigateRecovery triggers RecoveryFallback GoalUpdated returns FAILURE and
+ * RoundRobin triggers Spin which returns SUCCESS RoundRobin returns SUCCESS and
+ * RecoveryFallback returns SUCCESS
+ *
+ * PipelineSequence is triggered again and ComputePathToPose returns FAILURE
+ * (retry #4) ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose
+ * returns FAILURE when retried PipelineSequence returns FAILURE
+ * NavigateRecovery triggers RecoveryFallback GoalUpdated returns FAILURE and
+ * RoundRobin triggers Wait which returns FAILURE RoundRobin triggers BackUp
+ * which returns SUCCESS RoundRobin returns SUCCESS and RecoveryFallback returns
+ * SUCCESS
+ *
+ * PipelineSequence is triggered again and ComputePathToPose returns SUCCESS
+ * (retry #5) FollowPath returns FAILURE on the first try triggering the
+ * controller recovery ClearLocalCostmap-Context returns SUCCESS and FollowPath
+ * is retried FollowPath returns FAILURE again and PipelineSequence returns
+ * FAILURE NavigateRecovery triggers RecoveryFallback and GoalUpdated returns
+ * FAILURE RoundRobin triggers ClearingActions Sequence which returns SUCCESS
  * RoundRobin returns SUCCESS and RecoveryFallback returns SUCCESS
  *
- * PipelineSequence is triggered again and ComputePathToPose returns SUCCESS (retry #1)
- * FollowPath returns FAILURE on the first try triggering the controller recovery
- * ClearLocalCostmap-Context returns SUCCESS and FollowPath is retried
- * FollowPath returns FAILURE again and PipelineSequence returns FAILURE
- * NavigateRecovery triggers RecoveryFallback and GoalUpdated returns FAILURE
- * RoundRobin triggers Spin which returns FAILURE
- * RoundRobin triggers Wait which returns SUCCESS
- * RoundRobin returns SUCCESS and RecoveryFallback returns SUCCESS
- *
- * PipelineSequence is triggered again and ComputePathToPose returns FAILURE (retry #2)
- * ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose returns FAILURE when retried
- * PipelineSequence returns FAILURE NavigateRecovery triggers RecoveryFallback
- * GoalUpdated returns FAILURE and RoundRobin triggers BackUp which returns FAILURE
- * RoundRobin triggers ClearingActions Sequence which returns SUCCESS
- * RoundRobin returns SUCCESS and RecoveryFallback returns SUCCESS
- *
- * PipelineSequence is triggered again and ComputePathToPose returns FAILURE (retry #3)
- * ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose returns FAILURE when retried
- * PipelineSequence returns FAILURE NavigateRecovery triggers RecoveryFallback
- * GoalUpdated returns FAILURE and RoundRobin triggers Spin which returns SUCCESS
- * RoundRobin returns SUCCESS and RecoveryFallback returns SUCCESS
- *
- * PipelineSequence is triggered again and ComputePathToPose returns FAILURE (retry #4)
- * ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose returns FAILURE when retried
- * PipelineSequence returns FAILURE NavigateRecovery triggers RecoveryFallback
- * GoalUpdated returns FAILURE and RoundRobin triggers Wait which returns FAILURE
- * RoundRobin triggers BackUp which returns SUCCESS
- * RoundRobin returns SUCCESS and RecoveryFallback returns SUCCESS
- *
- * PipelineSequence is triggered again and ComputePathToPose returns SUCCESS (retry #5)
- * FollowPath returns FAILURE on the first try triggering the controller recovery
- * ClearLocalCostmap-Context returns SUCCESS and FollowPath is retried
- * FollowPath returns FAILURE again and PipelineSequence returns FAILURE
- * NavigateRecovery triggers RecoveryFallback and GoalUpdated returns FAILURE
- * RoundRobin triggers ClearingActions Sequence which returns SUCCESS
- * RoundRobin returns SUCCESS and RecoveryFallback returns SUCCESS
- *
- * PipelineSequence is triggered again and ComputePathToPose returns FAILURE (retry #6)
- * ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose returns FAILURE when retried
- * PipelineSequence returns FAILURE and NavigateRecovery finally also returns FAILURE
+ * PipelineSequence is triggered again and ComputePathToPose returns FAILURE
+ * (retry #6) ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose
+ * returns FAILURE when retried PipelineSequence returns FAILURE and
+ * NavigateRecovery finally also returns FAILURE
  *
  * The behavior tree should return FAILURE
  */
@@ -555,13 +562,14 @@ TEST_F(BehaviorTreeTestFixture, TestNavigateRecoveryComplex)
 /**
  * Test scenario:
  *
- * ComputePathToPose returns FAILURE on the first try triggering the planner recovery
- * ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose returns FAILURE when retried
- * PipelineSequence returns FAILURE and NavigateRecovery triggers RecoveryFallback
- * GoalUpdated returns FAILURE, RoundRobin triggers ClearingActions Sequence which returns SUCCESS
- * RoundRobin returns SUCCESS and RecoveryFallback returns SUCCESS
- * PipelineSequence is triggered again and ComputePathToPose returns SUCCESS
- * FollowPath returns FAILURE on the first try triggering the controller recovery
+ * ComputePathToPose returns FAILURE on the first try triggering the planner
+ * recovery ClearGlobalCostmap-Context returns SUCCESS and ComputePathToPose
+ * returns FAILURE when retried PipelineSequence returns FAILURE and
+ * NavigateRecovery triggers RecoveryFallback GoalUpdated returns FAILURE,
+ * RoundRobin triggers ClearingActions Sequence which returns SUCCESS RoundRobin
+ * returns SUCCESS and RecoveryFallback returns SUCCESS PipelineSequence is
+ * triggered again and ComputePathToPose returns SUCCESS FollowPath returns
+ * FAILURE on the first try triggering the controller recovery
  * ClearLocalCostmap-Context returns SUCCESS and FollowPath is retried
  * FollowPath returns FAILURE and PipelineSequence returns FAILURE
  * NavigateRecovery triggers RecoveryFallback which triggers GoalUpdated

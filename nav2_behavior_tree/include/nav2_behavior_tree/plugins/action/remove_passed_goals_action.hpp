@@ -15,14 +15,14 @@
 #ifndef NAV2_BEHAVIOR_TREE__PLUGINS__ACTION__REMOVE_PASSED_GOALS_ACTION_HPP_
 #define NAV2_BEHAVIOR_TREE__PLUGINS__ACTION__REMOVE_PASSED_GOALS_ACTION_HPP_
 
-#include <vector>
 #include <memory>
 #include <string>
+#include <vector>
 
+#include "behaviortree_cpp_v3/action_node.h"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_util/geometry_utils.hpp"
 #include "nav2_util/robot_utils.hpp"
-#include "behaviortree_cpp_v3/action_node.h"
 
 namespace nav2_behavior_tree
 {
@@ -32,10 +32,7 @@ class RemovePassedGoals : public BT::ActionNodeBase
 public:
   typedef std::vector<geometry_msgs::msg::PoseStamped> Goals;
 
-  RemovePassedGoals(
-    const std::string & xml_tag_name,
-    const BT::NodeConfiguration & conf);
-
+  RemovePassedGoals(const std::string & xml_tag_name, const BT::NodeConfiguration & conf);
 
   static BT::PortsList providedPorts()
   {

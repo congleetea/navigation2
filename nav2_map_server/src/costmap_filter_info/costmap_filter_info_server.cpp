@@ -17,8 +17,8 @@
 
 #include "nav2_map_server/costmap_filter_info_server.hpp"
 
-#include <string>
 #include <memory>
+#include <string>
 #include <utility>
 
 namespace nav2_map_server
@@ -34,12 +34,10 @@ CostmapFilterInfoServer::CostmapFilterInfoServer(const rclcpp::NodeOptions & opt
   declare_parameter("multiplier", 1.0);
 }
 
-CostmapFilterInfoServer::~CostmapFilterInfoServer()
-{
-}
+CostmapFilterInfoServer::~CostmapFilterInfoServer() {}
 
-nav2_util::CallbackReturn
-CostmapFilterInfoServer::on_configure(const rclcpp_lifecycle::State & /*state*/)
+nav2_util::CallbackReturn CostmapFilterInfoServer::on_configure(
+  const rclcpp_lifecycle::State & /*state*/)
 {
   RCLCPP_INFO(get_logger(), "Configuring");
 
@@ -59,8 +57,8 @@ CostmapFilterInfoServer::on_configure(const rclcpp_lifecycle::State & /*state*/)
   return nav2_util::CallbackReturn::SUCCESS;
 }
 
-nav2_util::CallbackReturn
-CostmapFilterInfoServer::on_activate(const rclcpp_lifecycle::State & /*state*/)
+nav2_util::CallbackReturn CostmapFilterInfoServer::on_activate(
+  const rclcpp_lifecycle::State & /*state*/)
 {
   RCLCPP_INFO(get_logger(), "Activating");
 
@@ -74,8 +72,8 @@ CostmapFilterInfoServer::on_activate(const rclcpp_lifecycle::State & /*state*/)
   return nav2_util::CallbackReturn::SUCCESS;
 }
 
-nav2_util::CallbackReturn
-CostmapFilterInfoServer::on_deactivate(const rclcpp_lifecycle::State & /*state*/)
+nav2_util::CallbackReturn CostmapFilterInfoServer::on_deactivate(
+  const rclcpp_lifecycle::State & /*state*/)
 {
   RCLCPP_INFO(get_logger(), "Deactivating");
 
@@ -87,8 +85,8 @@ CostmapFilterInfoServer::on_deactivate(const rclcpp_lifecycle::State & /*state*/
   return nav2_util::CallbackReturn::SUCCESS;
 }
 
-nav2_util::CallbackReturn
-CostmapFilterInfoServer::on_cleanup(const rclcpp_lifecycle::State & /*state*/)
+nav2_util::CallbackReturn CostmapFilterInfoServer::on_cleanup(
+  const rclcpp_lifecycle::State & /*state*/)
 {
   RCLCPP_INFO(get_logger(), "Cleaning up");
 
@@ -97,8 +95,8 @@ CostmapFilterInfoServer::on_cleanup(const rclcpp_lifecycle::State & /*state*/)
   return nav2_util::CallbackReturn::SUCCESS;
 }
 
-nav2_util::CallbackReturn
-CostmapFilterInfoServer::on_shutdown(const rclcpp_lifecycle::State & /*state*/)
+nav2_util::CallbackReturn CostmapFilterInfoServer::on_shutdown(
+  const rclcpp_lifecycle::State & /*state*/)
 {
   RCLCPP_INFO(get_logger(), "Shutting down");
 
@@ -110,6 +108,6 @@ CostmapFilterInfoServer::on_shutdown(const rclcpp_lifecycle::State & /*state*/)
 #include "rclcpp_components/register_node_macro.hpp"
 
 // Register the component with class_loader.
-// This acts as a sort of entry point, allowing the component to be discoverable when its library
-// is being loaded into a running process.
+// This acts as a sort of entry point, allowing the component to be discoverable
+// when its library is being loaded into a running process.
 RCLCPP_COMPONENTS_REGISTER_NODE(nav2_map_server::CostmapFilterInfoServer)

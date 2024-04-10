@@ -21,27 +21,22 @@ namespace nav2_collision_monitor
 /// @brief Velocity for 2D model of motion
 struct Velocity
 {
-  double x;  // x-component of linear velocity
-  double y;  // y-component of linear velocity
+  double x;   // x-component of linear velocity
+  double y;   // y-component of linear velocity
   double tw;  // z-component of angular twist
 
   inline bool operator<(const Velocity & second) const
   {
     const double first_vel = x * x + y * y + tw * tw;
     const double second_vel = second.x * second.x + second.y * second.y + second.tw * second.tw;
-    // This comparison includes rotations in place, where linear velocities are equal to zero
+    // This comparison includes rotations in place, where linear velocities are
+    // equal to zero
     return first_vel < second_vel;
   }
 
-  inline Velocity operator*(const double & mul) const
-  {
-    return {x * mul, y * mul, tw * mul};
-  }
+  inline Velocity operator*(const double & mul) const { return {x * mul, y * mul, tw * mul}; }
 
-  inline bool isZero() const
-  {
-    return x == 0.0 && y == 0.0 && tw == 0.0;
-  }
+  inline bool isZero() const { return x == 0.0 && y == 0.0 && tw == 0.0; }
 };
 
 /// @brief 2D point
@@ -54,18 +49,17 @@ struct Point
 /// @brief 2D Pose
 struct Pose
 {
-  double x;  // x-coordinate of pose
-  double y;  // y-coordinate of pose
+  double x;      // x-coordinate of pose
+  double y;      // y-coordinate of pose
   double theta;  // rotation angle of pose
 };
 
 /// @brief Action type for robot
-enum ActionType
-{
+enum ActionType {
   DO_NOTHING = 0,  // No action
-  STOP = 1,  // Stop the robot
-  SLOWDOWN = 2,  // Slowdown in percentage from current operating speed
-  APPROACH = 3  // Keep constant time interval before collision
+  STOP = 1,        // Stop the robot
+  SLOWDOWN = 2,    // Slowdown in percentage from current operating speed
+  APPROACH = 3     // Keep constant time interval before collision
 };
 
 /// @brief Action for robot

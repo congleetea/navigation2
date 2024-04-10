@@ -36,13 +36,13 @@
 
 #include <gtest/gtest.h>
 
-#include <string>
-#include <memory>
 #include <chrono>
+#include <memory>
+#include <string>
 
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_util/lifecycle_node.hpp"
 #include "nav2_costmap_2d/costmap_filters/filter_values.hpp"
+#include "nav2_util/lifecycle_node.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "dwb_plugins/kinematic_parameters.hpp"
 
@@ -64,25 +64,17 @@ public:
     const std::string node_name = NODE_NAME;
     node_ = nav2_util::LifecycleNode::make_shared(node_name);
 
-    node_->declare_parameter(
-      node_name + ".max_vel_x", rclcpp::ParameterValue(MAX_VEL_X));
-    node_->set_parameter(
-      rclcpp::Parameter(node_name + ".max_vel_x", MAX_VEL_X));
+    node_->declare_parameter(node_name + ".max_vel_x", rclcpp::ParameterValue(MAX_VEL_X));
+    node_->set_parameter(rclcpp::Parameter(node_name + ".max_vel_x", MAX_VEL_X));
 
-    node_->declare_parameter(
-      node_name + ".max_vel_y", rclcpp::ParameterValue(MAX_VEL_Y));
-    node_->set_parameter(
-      rclcpp::Parameter(node_name + ".max_vel_y", MAX_VEL_Y));
+    node_->declare_parameter(node_name + ".max_vel_y", rclcpp::ParameterValue(MAX_VEL_Y));
+    node_->set_parameter(rclcpp::Parameter(node_name + ".max_vel_y", MAX_VEL_Y));
 
-    node_->declare_parameter(
-      node_name + ".max_vel_theta", rclcpp::ParameterValue(MAX_VEL_THETA));
-    node_->set_parameter(
-      rclcpp::Parameter(node_name + ".max_vel_theta", MAX_VEL_THETA));
+    node_->declare_parameter(node_name + ".max_vel_theta", rclcpp::ParameterValue(MAX_VEL_THETA));
+    node_->set_parameter(rclcpp::Parameter(node_name + ".max_vel_theta", MAX_VEL_THETA));
 
-    node_->declare_parameter(
-      node_name + ".max_speed_xy", rclcpp::ParameterValue(MAX_VEL_LINEAR));
-    node_->set_parameter(
-      rclcpp::Parameter(node_name + ".max_speed_xy", MAX_VEL_LINEAR));
+    node_->declare_parameter(node_name + ".max_speed_xy", rclcpp::ParameterValue(MAX_VEL_LINEAR));
+    node_->set_parameter(rclcpp::Parameter(node_name + ".max_speed_xy", MAX_VEL_LINEAR));
   }
 
   ~TestNode() {}

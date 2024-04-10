@@ -39,12 +39,12 @@
 #define NAV2_COSTMAP_2D__INFLATION_LAYER_HPP_
 
 #include <map>
-#include <vector>
 #include <mutex>
+#include <vector>
 
-#include "rclcpp/rclcpp.hpp"
 #include "nav2_costmap_2d/layer.hpp"
 #include "nav2_costmap_2d/layered_costmap.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace nav2_costmap_2d
 {
@@ -82,13 +82,13 @@ class InflationLayer : public Layer
 {
 public:
   /**
-    * @brief A constructor
-    */
+   * @brief A constructor
+   */
   InflationLayer();
 
   /**
-    * @brief A destructor
-    */
+   * @brief A destructor
+   */
   ~InflationLayer();
 
   /**
@@ -97,7 +97,8 @@ public:
   void onInitialize() override;
 
   /**
-   * @brief Update the bounds of the master costmap by this layer's update dimensions
+   * @brief Update the bounds of the master costmap by this layer's update
+   * dimensions
    * @param robot_x X pose of robot
    * @param robot_y Y pose of robot
    * @param robot_yaw Robot orientation
@@ -107,10 +108,8 @@ public:
    * @param max_y Y max map coord of the window to update
    */
   void updateBounds(
-    double robot_x, double robot_y, double robot_yaw, double * min_x,
-    double * min_y,
-    double * max_x,
-    double * max_y) override;
+    double robot_x, double robot_y, double robot_yaw, double * min_x, double * min_y,
+    double * max_x, double * max_y) override;
   /**
    * @brief Update the costs in the master costmap in the window
    * @param master_grid The master costmap grid to update
@@ -120,8 +119,7 @@ public:
    * @param max_y Y max map coord of the window to update
    */
   void updateCosts(
-    nav2_costmap_2d::Costmap2D & master_grid,
-    int min_i, int min_j, int max_i, int max_j) override;
+    nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i, int max_j) override;
 
   /**
    * @brief Match the size of the master costmap
@@ -131,7 +129,7 @@ public:
   /**
    * @brief If clearing operations should be processed on this layer or not
    */
-  virtual bool isClearable() {return false;}
+  virtual bool isClearable() { return false; }
 
   /**
    * @brief Reset this costmap
@@ -167,10 +165,7 @@ public:
   /**
    * @brief Get the mutex of the inflation inforamtion
    */
-  mutex_t * getMutex()
-  {
-    return access_;
-  }
+  mutex_t * getMutex() { return access_; }
 
 protected:
   /**
@@ -187,8 +182,7 @@ protected:
    * @return
    */
   inline double distanceLookup(
-    unsigned int mx, unsigned int my, unsigned int src_x,
-    unsigned int src_y)
+    unsigned int mx, unsigned int my, unsigned int src_x, unsigned int src_y)
   {
     unsigned int dx = (mx > src_x) ? mx - src_x : src_x - mx;
     unsigned int dy = (my > src_y) ? my - src_y : src_y - my;
@@ -204,8 +198,7 @@ protected:
    * @return
    */
   inline unsigned char costLookup(
-    unsigned int mx, unsigned int my, unsigned int src_x,
-    unsigned int src_y)
+    unsigned int mx, unsigned int my, unsigned int src_x, unsigned int src_y)
   {
     unsigned int dx = (mx > src_x) ? mx - src_x : src_x - mx;
     unsigned int dy = (my > src_y) ? my - src_y : src_y - my;
@@ -234,15 +227,14 @@ protected:
    * @brief Enqueue new cells in cache distance update search
    */
   inline void enqueue(
-    unsigned int index, unsigned int mx, unsigned int my,
-    unsigned int src_x, unsigned int src_y);
+    unsigned int index, unsigned int mx, unsigned int my, unsigned int src_x, unsigned int src_y);
 
   /**
    * @brief Callback executed when a parameter change is detected
    * @param event ParameterEvent message
    */
-  rcl_interfaces::msg::SetParametersResult
-  dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters);
+  rcl_interfaces::msg::SetParametersResult dynamicParametersCallback(
+    std::vector<rclcpp::Parameter> parameters);
 
   double inflation_radius_, inscribed_radius_, cost_scaling_factor_;
   bool inflate_unknown_, inflate_around_unknown_;

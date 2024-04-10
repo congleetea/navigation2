@@ -15,12 +15,12 @@
 #ifndef NAV2_COLLISION_MONITOR__COLLISION_MONITOR_NODE_HPP_
 #define NAV2_COLLISION_MONITOR__COLLISION_MONITOR_NODE_HPP_
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
-#include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/twist.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "tf2/time.h"
 #include "tf2_ros/buffer.h"
@@ -29,13 +29,13 @@
 #include "nav2_util/lifecycle_node.hpp"
 #include "nav2_util/robot_utils.hpp"
 
-#include "nav2_collision_monitor/types.hpp"
-#include "nav2_collision_monitor/polygon.hpp"
 #include "nav2_collision_monitor/circle.hpp"
-#include "nav2_collision_monitor/source.hpp"
-#include "nav2_collision_monitor/scan.hpp"
 #include "nav2_collision_monitor/pointcloud.hpp"
+#include "nav2_collision_monitor/polygon.hpp"
 #include "nav2_collision_monitor/range.hpp"
+#include "nav2_collision_monitor/scan.hpp"
+#include "nav2_collision_monitor/source.hpp"
+#include "nav2_collision_monitor/types.hpp"
 
 namespace nav2_collision_monitor
 {
@@ -58,20 +58,22 @@ public:
 
 protected:
   /**
-   * @brief: Initializes and obtains ROS-parameters, creates main subscribers and publishers,
-   * creates polygons and data sources objects
+   * @brief: Initializes and obtains ROS-parameters, creates main subscribers
+   * and publishers, creates polygons and data sources objects
    * @param state Lifecycle Node's state
    * @return Success or Failure
    */
   nav2_util::CallbackReturn on_configure(const rclcpp_lifecycle::State & state) override;
   /**
-   * @brief: Activates LifecyclePublishers, polygons and main processor, creates bond connection
+   * @brief: Activates LifecyclePublishers, polygons and main processor, creates
+   * bond connection
    * @param state Lifecycle Node's state
    * @return Success or Failure
    */
   nav2_util::CallbackReturn on_activate(const rclcpp_lifecycle::State & state) override;
   /**
-   * @brief: Deactivates LifecyclePublishers, polygons and main processor, destroys bond connection
+   * @brief: Deactivates LifecyclePublishers, polygons and main processor,
+   * destroys bond connection
    * @param state Lifecycle Node's state
    * @return Success or Failure
    */
@@ -96,8 +98,8 @@ protected:
    */
   void cmdVelInCallback(geometry_msgs::msg::Twist::ConstSharedPtr msg);
   /**
-   * @brief Publishes output cmd_vel. If robot was stopped more than stop_pub_timeout_ seconds,
-   * quit to publish 0-velocity.
+   * @brief Publishes output cmd_vel. If robot was stopped more than
+   * stop_pub_timeout_ seconds, quit to publish 0-velocity.
    * @param robot_action Robot action to publish
    */
   void publishVelocity(const Action & robot_action);
@@ -109,34 +111,33 @@ protected:
    * is required.
    * @return True if all parameters were obtained or false in failure case
    */
-  bool getParameters(
-    std::string & cmd_vel_in_topic,
-    std::string & cmd_vel_out_topic);
+  bool getParameters(std::string & cmd_vel_in_topic, std::string & cmd_vel_out_topic);
   /**
    * @brief Supporting routine creating and configuring all polygons
    * @param base_frame_id Robot base frame ID
    * @param transform_tolerance Transform tolerance
-   * @return True if all polygons were configured successfully or false in failure case
+   * @return True if all polygons were configured successfully or false in
+   * failure case
    */
   bool configurePolygons(
-    const std::string & base_frame_id,
-    const tf2::Duration & transform_tolerance);
+    const std::string & base_frame_id, const tf2::Duration & transform_tolerance);
   /**
    * @brief Supporting routine creating and configuring all data sources
    * @param base_frame_id Robot base frame ID
    * @param odom_frame_id Odometry frame ID. Used as global frame to get
    * source->base time inerpolated transform.
    * @param transform_tolerance Transform tolerance
-   * @param source_timeout Maximum time interval in which data is considered valid
-   * @param base_shift_correction Whether to correct source data towards to base frame movement,
-   * considering the difference between current time and latest source time
-   * @return True if all sources were configured successfully or false in failure case
+   * @param source_timeout Maximum time interval in which data is considered
+   * valid
+   * @param base_shift_correction Whether to correct source data towards to base
+   * frame movement, considering the difference between current time and latest
+   * source time
+   * @return True if all sources were configured successfully or false in
+   * failure case
    */
   bool configureSources(
-    const std::string & base_frame_id,
-    const std::string & odom_frame_id,
-    const tf2::Duration & transform_tolerance,
-    const rclcpp::Duration & source_timeout,
+    const std::string & base_frame_id, const std::string & odom_frame_id,
+    const tf2::Duration & transform_tolerance, const rclcpp::Duration & source_timeout,
     const bool base_shift_correction);
 
   /**
@@ -151,13 +152,12 @@ protected:
    * @param collision_points Array of 2D obstacle points
    * @param velocity Desired robot velocity
    * @param robot_action Output processed robot action
-   * @return True if returned action is caused by current polygon, otherwise false
+   * @return True if returned action is caused by current polygon, otherwise
+   * false
    */
   bool processStopSlowdown(
-    const std::shared_ptr<Polygon> polygon,
-    const std::vector<Point> & collision_points,
-    const Velocity & velocity,
-    Action & robot_action) const;
+    const std::shared_ptr<Polygon> polygon, const std::vector<Point> & collision_points,
+    const Velocity & velocity, Action & robot_action) const;
 
   /**
    * @brief Processes APPROACH action type
@@ -165,13 +165,12 @@ protected:
    * @param collision_points Array of 2D obstacle points
    * @param velocity Desired robot velocity
    * @param robot_action Output processed robot action
-   * @return True if returned action is caused by current polygon, otherwise false
+   * @return True if returned action is caused by current polygon, otherwise
+   * false
    */
   bool processApproach(
-    const std::shared_ptr<Polygon> polygon,
-    const std::vector<Point> & collision_points,
-    const Velocity & velocity,
-    Action & robot_action) const;
+    const std::shared_ptr<Polygon> polygon, const std::vector<Point> & collision_points,
+    const Velocity & velocity, Action & robot_action) const;
 
   /**
    * @brief Prints robot action and polygon caused it (if it was)

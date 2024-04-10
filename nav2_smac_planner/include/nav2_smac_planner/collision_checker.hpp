@@ -11,10 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
-#include <vector>
 #include "nav2_costmap_2d/footprint_collision_checker.hpp"
 #include "nav2_smac_planner/constants.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
+#include <vector>
 
 #ifndef NAV2_SMAC_PLANNER__COLLISION_CHECKER_HPP_
 #define NAV2_SMAC_PLANNER__COLLISION_CHECKER_HPP_
@@ -27,20 +27,20 @@ namespace nav2_smac_planner
  * @brief A costmap grid collision checker
  */
 class GridCollisionChecker
-  : public nav2_costmap_2d::FootprintCollisionChecker<nav2_costmap_2d::Costmap2D *>
+: public nav2_costmap_2d::FootprintCollisionChecker<nav2_costmap_2d::Costmap2D *>
 {
 public:
   /**
    * @brief A constructor for nav2_smac_planner::GridCollisionChecker
    * for use when regular bin intervals are appropriate
    * @param costmap The costmap to collision check against
-   * @param num_quantizations The number of quantizations to precompute footprint
+   * @param num_quantizations The number of quantizations to precompute
+   * footprint
    * @param node Node to extract clock and logger from
    * orientations for to speed up collision checking
    */
   GridCollisionChecker(
-    nav2_costmap_2d::Costmap2D * costmap,
-    unsigned int num_quantizations,
+    nav2_costmap_2d::Costmap2D * costmap, unsigned int num_quantizations,
     rclcpp_lifecycle::LifecycleNode::SharedPtr node);
 
   /**
@@ -57,11 +57,11 @@ public:
   /**
    * @brief Set the footprint to use with collision checker
    * @param footprint The footprint to collision check against
-   * @param radius Whether or not the footprint is a circle and use radius collision checking
+   * @param radius Whether or not the footprint is a circle and use radius
+   * collision checking
    */
   void setFootprint(
-    const nav2_costmap_2d::Footprint & footprint,
-    const bool & radius,
+    const nav2_costmap_2d::Footprint & footprint, const bool & radius,
     const double & possible_inscribed_cost);
 
   /**
@@ -73,10 +73,7 @@ public:
    * @return boolean if in collision or not.
    */
   bool inCollision(
-    const float & x,
-    const float & y,
-    const float & theta,
-    const bool & traverse_unknown);
+    const float & x, const float & y, const float & theta, const bool & traverse_unknown);
 
   /**
    * @brief Check if in collision with costmap and footprint at pose
@@ -84,9 +81,7 @@ public:
    * @param traverse_unknown Whether or not to traverse in unknown space
    * @return boolean if in collision or not.
    */
-  bool inCollision(
-    const unsigned int & i,
-    const bool & traverse_unknown);
+  bool inCollision(const unsigned int & i, const bool & traverse_unknown);
 
   /**
    * @brief Get cost at footprint pose in costmap
@@ -98,10 +93,7 @@ public:
    * @brief Get the angles of the precomputed footprint orientations
    * @return the ordered vector of angles corresponding to footprints
    */
-  std::vector<float> & getPrecomputedAngles()
-  {
-    return angles_;
-  }
+  std::vector<float> & getPrecomputedAngles() { return angles_; }
 
 private:
   /**

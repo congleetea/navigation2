@@ -42,7 +42,8 @@ namespace costmap_queue
 
 /**
  * @class LimitedCostmapQueue
- * @brief Extension of Costmap Queue where distances are limited to a given distance from source cells.
+ * @brief Extension of Costmap Queue where distances are limited to a given
+ * distance from source cells.
  */
 class LimitedCostmapQueue : public CostmapQueue
 {

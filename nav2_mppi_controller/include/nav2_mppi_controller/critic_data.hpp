@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,19 +22,18 @@
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_core/goal_checker.hpp"
+#include "nav2_mppi_controller/models/path.hpp"
 #include "nav2_mppi_controller/models/state.hpp"
 #include "nav2_mppi_controller/models/trajectories.hpp"
-#include "nav2_mppi_controller/models/path.hpp"
 #include "nav2_mppi_controller/motion_models.hpp"
-
 
 namespace mppi
 {
 
 /**
  * @struct mppi::CriticData
- * @brief Data to pass to critics for scoring, including state, trajectories, path, costs, and
- * important parameters to share
+ * @brief Data to pass to critics for scoring, including state, trajectories,
+ * path, costs, and important parameters to share
  */
 struct CriticData
 {

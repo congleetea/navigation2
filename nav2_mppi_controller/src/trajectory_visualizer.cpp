@@ -1,4 +1,5 @@
-// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey Budyakov
+// Copyright (c) 2022 Samsung Research America, @artofnothingness Alexey
+// Budyakov
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
 #include "nav2_mppi_controller/tools/trajectory_visualizer.hpp"
+#include <memory>
 
 namespace mppi
 {
@@ -65,18 +66,16 @@ void TrajectoryVisualizer::add(
   }
 
   auto add_marker = [&](auto i) {
-      float component = static_cast<float>(i) / static_cast<float>(size);
+    float component = static_cast<float>(i) / static_cast<float>(size);
 
-      auto pose = utils::createPose(trajectory(i, 0), trajectory(i, 1), 0.06);
-      auto scale =
-        i != size - 1 ?
-        utils::createScale(0.03, 0.03, 0.07) :
-        utils::createScale(0.07, 0.07, 0.09);
-      auto color = utils::createColor(0, component, component, 1);
-      auto marker = utils::createMarker(
-        marker_id_++, pose, scale, color, frame_id_, marker_namespace);
-      points_->markers.push_back(marker);
-    };
+    auto pose = utils::createPose(trajectory(i, 0), trajectory(i, 1), 0.06);
+    auto scale =
+      i != size - 1 ? utils::createScale(0.03, 0.03, 0.07) : utils::createScale(0.07, 0.07, 0.09);
+    auto color = utils::createColor(0, component, component, 1);
+    auto marker =
+      utils::createMarker(marker_id_++, pose, scale, color, frame_id_, marker_namespace);
+    points_->markers.push_back(marker);
+  };
 
   for (size_t i = 0; i < size; i++) {
     add_marker(i);
@@ -99,8 +98,8 @@ void TrajectoryVisualizer::add(
       auto pose = utils::createPose(trajectories.x(i, j), trajectories.y(i, j), 0.03);
       auto scale = utils::createScale(0.03, 0.03, 0.03);
       auto color = utils::createColor(0, green_component, blue_component, 1);
-      auto marker = utils::createMarker(
-        marker_id_++, pose, scale, color, frame_id_, marker_namespace);
+      auto marker =
+        utils::createMarker(marker_id_++, pose, scale, color, frame_id_, marker_namespace);
 
       points_->markers.push_back(marker);
     }

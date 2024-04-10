@@ -23,14 +23,14 @@
 #include <utility>
 #include <vector>
 
-#include "nav2_msgs/srv/clear_entire_costmap.hpp"
+#include "nav2_msgs/action/back_up.hpp"
+#include "nav2_msgs/action/compute_path_through_poses.hpp"
 #include "nav2_msgs/action/compute_path_to_pose.hpp"
+#include "nav2_msgs/action/drive_on_heading.hpp"
 #include "nav2_msgs/action/follow_path.hpp"
 #include "nav2_msgs/action/spin.hpp"
-#include "nav2_msgs/action/back_up.hpp"
 #include "nav2_msgs/action/wait.hpp"
-#include "nav2_msgs/action/drive_on_heading.hpp"
-#include "nav2_msgs/action/compute_path_through_poses.hpp"
+#include "nav2_msgs/srv/clear_entire_costmap.hpp"
 
 #include "geometry_msgs/msg/point_stamped.hpp"
 
@@ -38,8 +38,7 @@
 
 #include "dummy_servers.hpp"
 
-class ComputePathToPoseActionServer
-  : public DummyActionServer<nav2_msgs::action::ComputePathToPose>
+class ComputePathToPoseActionServer : public DummyActionServer<nav2_msgs::action::ComputePathToPose>
 {
 public:
   explicit ComputePathToPoseActionServer(const rclcpp::Node::SharedPtr & node)
@@ -79,10 +78,7 @@ public:
 
   void deactivate();
 
-  bool isActive() const
-  {
-    return is_active_;
-  }
+  bool isActive() const { return is_active_; }
 
   void reset() const;
 

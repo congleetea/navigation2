@@ -15,19 +15,19 @@
 #ifndef NAV2_SMAC_PLANNER__NODE_2D_HPP_
 #define NAV2_SMAC_PLANNER__NODE_2D_HPP_
 
-#include <math.h>
-#include <vector>
+#include <functional>
 #include <iostream>
+#include <limits>
+#include <math.h>
 #include <memory>
 #include <queue>
-#include <limits>
 #include <utility>
-#include <functional>
+#include <vector>
 
-#include "nav2_smac_planner/types.hpp"
-#include "nav2_smac_planner/constants.hpp"
 #include "nav2_smac_planner/collision_checker.hpp"
+#include "nav2_smac_planner/constants.hpp"
 #include "nav2_smac_planner/node_hybrid.hpp"
+#include "nav2_smac_planner/types.hpp"
 
 namespace nav2_smac_planner
 {
@@ -50,9 +50,7 @@ public:
   struct Coordinates
   {
     Coordinates() {}
-    Coordinates(const float & x_in, const float & y_in)
-    : x(x_in), y(y_in)
-    {}
+    Coordinates(const float & x_in, const float & y_in) : x(x_in), y(y_in) {}
 
     float x, y;
   };
@@ -74,10 +72,7 @@ public:
    * @param Node2D right hand side node reference
    * @return If cell indicies are equal
    */
-  bool operator==(const Node2D & rhs)
-  {
-    return this->_index == rhs._index;
-  }
+  bool operator==(const Node2D & rhs) { return this->_index == rhs._index; }
 
   /**
    * @brief Reset method for new search
@@ -87,46 +82,31 @@ public:
    * @brief Gets the accumulated cost at this node
    * @return accumulated cost
    */
-  inline float & getAccumulatedCost()
-  {
-    return _accumulated_cost;
-  }
+  inline float & getAccumulatedCost() { return _accumulated_cost; }
 
   /**
    * @brief Sets the accumulated cost at this node
    * @param reference to accumulated cost
    */
-  inline void setAccumulatedCost(const float & cost_in)
-  {
-    _accumulated_cost = cost_in;
-  }
+  inline void setAccumulatedCost(const float & cost_in) { _accumulated_cost = cost_in; }
 
   /**
    * @brief Gets the costmap cost at this node
    * @return costmap cost
    */
-  inline float & getCost()
-  {
-    return _cell_cost;
-  }
+  inline float & getCost() { return _cell_cost; }
 
   /**
    * @brief Gets the costmap cost at this node
    * @return costmap cost
    */
-  inline void setCost(const float & cost)
-  {
-    _cell_cost = cost;
-  }
+  inline void setCost(const float & cost) { _cell_cost = cost; }
 
   /**
    * @brief Gets if cell has been visited in search
    * @param If cell was visited
    */
-  inline bool & wasVisited()
-  {
-    return _was_visited;
-  }
+  inline bool & wasVisited() { return _was_visited; }
 
   /**
    * @brief Sets if cell has been visited in search
@@ -141,27 +121,18 @@ public:
    * @brief Gets if cell is currently queued in search
    * @param If cell was queued
    */
-  inline bool & isQueued()
-  {
-    return _is_queued;
-  }
+  inline bool & isQueued() { return _is_queued; }
 
   /**
    * @brief Sets if cell is currently queued in search
    */
-  inline void queued()
-  {
-    _is_queued = true;
-  }
+  inline void queued() { _is_queued = true; }
 
   /**
    * @brief Gets cell index
    * @return Reference to cell index
    */
-  inline unsigned int & getIndex()
-  {
-    return _index;
-  }
+  inline unsigned int & getIndex() { return _index; }
 
   /**
    * @brief Check if this node is valid
@@ -227,8 +198,7 @@ public:
    * @return Heuristic cost between the nodes
    */
   static float getHeuristicCost(
-    const Coordinates & node_coords,
-    const Coordinates & goal_coordinates,
+    const Coordinates & node_coords, const Coordinates & goal_coordinates,
     const nav2_costmap_2d::Costmap2D * costmap);
 
   /**
@@ -241,11 +211,8 @@ public:
    * @param search_info Search parameters, unused by 2D node
    */
   static void initMotionModel(
-    const MotionModel & motion_model,
-    unsigned int & size_x,
-    unsigned int & size_y,
-    unsigned int & num_angle_quantization,
-    SearchInfo & search_info);
+    const MotionModel & motion_model, unsigned int & size_x, unsigned int & size_y,
+    unsigned int & num_angle_quantization, SearchInfo & search_info);
 
   /**
    * @brief Retrieve all valid neighbors of a node.
@@ -255,9 +222,8 @@ public:
    * @param neighbors Vector of neighbors to be filled
    */
   void getNeighbors(
-    std::function<bool(const unsigned int &, nav2_smac_planner::Node2D * &)> & validity_checker,
-    GridCollisionChecker * collision_checker,
-    const bool & traverse_unknown,
+    std::function<bool(const unsigned int &, nav2_smac_planner::Node2D *&)> & validity_checker,
+    GridCollisionChecker * collision_checker, const bool & traverse_unknown,
     NodeVector & neighbors);
 
   /**

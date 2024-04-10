@@ -15,34 +15,28 @@
 #ifndef BEHAVIOR_TREE__DUMMY_SERVERS_HPP_
 #define BEHAVIOR_TREE__DUMMY_SERVERS_HPP_
 
+#include <chrono>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-#include <chrono>
 
-#include "rclcpp_action/rclcpp_action.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
 
 using namespace std::chrono_literals;  // NOLINT
-using namespace std::chrono;  // NOLINT
-using namespace std::placeholders;  // NOLINT
+using namespace std::chrono;           // NOLINT
+using namespace std::placeholders;     // NOLINT
 
-template<class ServiceT>
+template <class ServiceT>
 class DummyService
 {
 public:
-  explicit DummyService(
-    const rclcpp::Node::SharedPtr & node,
-    std::string service_name)
-  : node_(node),
-    service_name_(service_name),
-    request_count_(0),
-    disabled_(false)
+  explicit DummyService(const rclcpp::Node::SharedPtr & node, std::string service_name)
+  : node_(node), service_name_(service_name), request_count_(0), disabled_(false)
   {
     server_ = node->create_service<ServiceT>(
-      service_name,
-      std::bind(&DummyService::handle_service, this, _1, _2, _3));
+      service_name, std::bind(&DummyService::handle_service, this, _1, _2, _3));
   }
 
   void disable()
@@ -55,8 +49,7 @@ public:
   {
     if (disabled_) {
       server_ = node_->create_service<ServiceT>(
-        service_name_,
-        std::bind(&DummyService::handle_service, this, _1, _2, _3));
+        service_name_, std::bind(&DummyService::handle_service, this, _1, _2, _3));
       disabled_ = false;
     }
   }
@@ -67,18 +60,17 @@ public:
     request_count_ = 0;
   }
 
-  int getRequestCount() const
-  {
-    return request_count_;
-  }
+  int getRequestCount() const { return request_count_; }
 
 protected:
   virtual void fillResponse(
-    const std::shared_ptr<typename ServiceT::Request>/*request*/,
-    const std::shared_ptr<typename ServiceT::Response>/*response*/) {}
+    const std::shared_ptr<typename ServiceT::Request> /*request*/,
+    const std::shared_ptr<typename ServiceT::Response> /*response*/)
+  {
+  }
 
   void handle_service(
-    const std::shared_ptr<rmw_request_id_t>/*request_header*/,
+    const std::shared_ptr<rmw_request_id_t> /*request_header*/,
     const std::shared_ptr<typename ServiceT::Request> request,
     const std::shared_ptr<typename ServiceT::Response> response)
   {
@@ -94,22 +86,16 @@ private:
   bool disabled_;
 };
 
-template<class ActionT>
+template <class ActionT>
 class DummyActionServer
 {
 public:
-  explicit DummyActionServer(
-    const rclcpp::Node::SharedPtr & node,
-    std::string action_name)
-  : action_name_(action_name),
-    goal_count_(0)
+  explicit DummyActionServer(const rclcpp::Node::SharedPtr & node, std::string action_name)
+  : action_name_(action_name), goal_count_(0)
   {
     this->action_server_ = rclcpp_action::create_server<ActionT>(
-      node->get_node_base_interface(),
-      node->get_node_clock_interface(),
-      node->get_node_logging_interface(),
-      node->get_node_waitables_interface(),
-      action_name,
+      node->get_node_base_interface(), node->get_node_clock_interface(),
+      node->get_node_logging_interface(), node->get_node_waitables_interface(), action_name,
       std::bind(&DummyActionServer::handle_goal, this, _1, _2),
       std::bind(&DummyActionServer::handle_cancel, this, _1),
       std::bind(&DummyActionServer::handle_accepted, this, _1));
@@ -132,10 +118,7 @@ public:
     goal_count_ = 0;
   }
 
-  int getGoalCount() const
-  {
-    return goal_count_;
-  }
+  int getGoalCount() const { return goal_count_; }
 
 protected:
   virtual std::shared_ptr<typename ActionT::Result> fillResult()
@@ -144,8 +127,7 @@ protected:
   }
 
   virtual rclcpp_action::GoalResponse handle_goal(
-    const rclcpp_action::GoalUUID &,
-    std::shared_ptr<const typename ActionT::Goal>/*goal*/)
+    const rclcpp_action::GoalUUID &, std::shared_ptr<const typename ActionT::Goal> /*goal*/)
   {
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
   }
@@ -156,14 +138,13 @@ protected:
     return rclcpp_action::CancelResponse::ACCEPT;
   }
 
-  void execute(
-    const typename std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionT>> goal_handle)
+  void execute(const typename std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionT>> goal_handle)
   {
     goal_count_++;
     auto result = fillResult();
 
-    // if current goal index exists in running range, the thread sleeps for 1 second
-    // to simulate a long running action
+    // if current goal index exists in running range, the thread sleeps for 1
+    // second to simulate a long running action
     for (auto & index : running_ranges_) {
       if (goal_count_ >= index.first && goal_count_ <= index.second) {
         std::this_thread::sleep_for(1s);
@@ -183,11 +164,11 @@ protected:
     goal_handle->succeed(result);
   }
 
-  void handle_accepted(
-    const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionT>> goal_handle)
+  void handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionT>> goal_handle)
   {
     using namespace std::placeholders;  // NOLINT
-    // this needs to return quickly to avoid blocking the executor, so spin up a new thread
+    // this needs to return quickly to avoid blocking the executor, so spin up a
+    // new thread
     std::thread{std::bind(&DummyActionServer::execute, this, _1), goal_handle}.detach();
   }
 

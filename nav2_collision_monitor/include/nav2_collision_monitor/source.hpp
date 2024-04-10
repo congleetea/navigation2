@@ -16,8 +16,8 @@
 #define NAV2_COLLISION_MONITOR__SOURCE_HPP_
 
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -42,22 +42,21 @@ public:
    * @param node Collision Monitor node pointer
    * @param source_name Name of data source
    * @param tf_buffer Shared pointer to a TF buffer
-   * @param base_frame_id Robot base frame ID. The output data will be transformed into this frame.
+   * @param base_frame_id Robot base frame ID. The output data will be
+   * transformed into this frame.
    * @param global_frame_id Global frame ID for correct transform calculation
    * @param transform_tolerance Transform tolerance
-   * @param source_timeout Maximum time interval in which data is considered valid
-   * @param base_shift_correction Whether to correct source data towards to base frame movement,
-   * considering the difference between current time and latest source time
+   * @param source_timeout Maximum time interval in which data is considered
+   * valid
+   * @param base_shift_correction Whether to correct source data towards to base
+   * frame movement, considering the difference between current time and latest
+   * source time
    */
   Source(
-    const nav2_util::LifecycleNode::WeakPtr & node,
-    const std::string & source_name,
-    const std::shared_ptr<tf2_ros::Buffer> tf_buffer,
-    const std::string & base_frame_id,
-    const std::string & global_frame_id,
-    const tf2::Duration & transform_tolerance,
-    const rclcpp::Duration & source_timeout,
-    const bool base_shift_correction);
+    const nav2_util::LifecycleNode::WeakPtr & node, const std::string & source_name,
+    const std::shared_ptr<tf2_ros::Buffer> tf_buffer, const std::string & base_frame_id,
+    const std::string & global_frame_id, const tf2::Duration & transform_tolerance,
+    const rclcpp::Duration & source_timeout, const bool base_shift_correction);
   /**
    * @brief Source destructor
    */
@@ -70,13 +69,12 @@ public:
    * @param data Array where the data from source to be added.
    * Added data is transformed to base_frame_id_ coordinate system at curr_time.
    */
-  virtual void getData(
-    const rclcpp::Time & curr_time,
-    std::vector<Point> & data) const = 0;
+  virtual void getData(const rclcpp::Time & curr_time, std::vector<Point> & data) const = 0;
 
 protected:
   /**
-   * @brief Supporting routine obtaining ROS-parameters common for all data sources
+   * @brief Supporting routine obtaining ROS-parameters common for all data
+   * sources
    * @param source_topic Output name of source subscription topic
    */
   void getCommonParameters(std::string & source_topic);
@@ -87,9 +85,7 @@ protected:
    * @param curr_time Current node time for source verification
    * @return True if data source is valid, otherwise false
    */
-  bool sourceValid(
-    const rclcpp::Time & source_time,
-    const rclcpp::Time & curr_time) const;
+  bool sourceValid(const rclcpp::Time & source_time, const rclcpp::Time & curr_time) const;
 
   // ----- Variables -----
 

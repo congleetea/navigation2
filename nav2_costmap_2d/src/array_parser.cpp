@@ -30,8 +30,8 @@
  */
 
 #include <cstdio>  // for EOF
-#include <string>
 #include <sstream>
+#include <string>
 #include <vector>
 
 namespace nav2_costmap_2d

@@ -38,9 +38,9 @@
 #include "nav2_costmap_2d/costmap_filters/speed_filter.hpp"
 
 #include <cmath>
-#include <utility>
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "nav2_costmap_2d/costmap_filters/filter_values.hpp"
 
@@ -48,14 +48,18 @@ namespace nav2_costmap_2d
 {
 
 SpeedFilter::SpeedFilter()
-: filter_info_sub_(nullptr), mask_sub_(nullptr),
-  speed_limit_pub_(nullptr), filter_mask_(nullptr), mask_frame_(""), global_frame_(""),
-  speed_limit_(NO_SPEED_LIMIT), speed_limit_prev_(NO_SPEED_LIMIT)
+: filter_info_sub_(nullptr),
+  mask_sub_(nullptr),
+  speed_limit_pub_(nullptr),
+  filter_mask_(nullptr),
+  mask_frame_(""),
+  global_frame_(""),
+  speed_limit_(NO_SPEED_LIMIT),
+  speed_limit_prev_(NO_SPEED_LIMIT)
 {
 }
 
-void SpeedFilter::initializeFilter(
-  const std::string & filter_info_topic)
+void SpeedFilter::initializeFilter(const std::string & filter_info_topic)
 {
   std::lock_guard<CostmapFilter::mutex_t> guard(*getMutex());
 
@@ -72,8 +76,7 @@ void SpeedFilter::initializeFilter(
   filter_info_topic_ = filter_info_topic;
   // Setting new costmap filter info subscriber
   RCLCPP_INFO(
-    logger_,
-    "SpeedFilter: Subscribing to \"%s\" topic for filter info...",
+    logger_, "SpeedFilter: Subscribing to \"%s\" topic for filter info...",
     filter_info_topic_.c_str());
   filter_info_sub_ = node->create_subscription<nav2_msgs::msg::CostmapFilterInfo>(
     filter_info_topic_, rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
@@ -83,8 +86,8 @@ void SpeedFilter::initializeFilter(
   global_frame_ = layered_costmap_->getGlobalFrameID();
 
   // Create new speed limit publisher
-  speed_limit_pub_ = node->create_publisher<nav2_msgs::msg::SpeedLimit>(
-    speed_limit_topic, rclcpp::QoS(10));
+  speed_limit_pub_ =
+    node->create_publisher<nav2_msgs::msg::SpeedLimit>(speed_limit_topic, rclcpp::QoS(10));
   speed_limit_pub_->on_activate();
 
   // Reset speed conversion states
@@ -93,8 +96,7 @@ void SpeedFilter::initializeFilter(
   percentage_ = false;
 }
 
-void SpeedFilter::filterInfoCallback(
-  const nav2_msgs::msg::CostmapFilterInfo::SharedPtr msg)
+void SpeedFilter::filterInfoCallback(const nav2_msgs::msg::CostmapFilterInfo::SharedPtr msg)
 {
   std::lock_guard<CostmapFilter::mutex_t> guard(*getMutex());
 
@@ -105,14 +107,15 @@ void SpeedFilter::filterInfoCallback(
 
   if (!mask_sub_) {
     RCLCPP_INFO(
-      logger_,
-      "SpeedFilter: Received filter info from %s topic.", filter_info_topic_.c_str());
+      logger_, "SpeedFilter: Received filter info from %s topic.", filter_info_topic_.c_str());
   } else {
     RCLCPP_WARN(
       logger_,
-      "SpeedFilter: New costmap filter info arrived from %s topic. Updating old filter info.",
+      "SpeedFilter: New costmap filter info arrived from %s topic. "
+      "Updating old filter info.",
       filter_info_topic_.c_str());
-    // Resetting previous subscriber each time when new costmap filter information arrives
+    // Resetting previous subscriber each time when new costmap filter
+    // information arrives
     mask_sub_.reset();
   }
 
@@ -131,9 +134,8 @@ void SpeedFilter::filterInfoCallback(
     // Using speed limit in m/s
     percentage_ = false;
     RCLCPP_INFO(
-      logger_,
-      "SpeedFilter: Using absolute speed_limit = %f + filter_mask_data * %f",
-      base_, multiplier_);
+      logger_, "SpeedFilter: Using absolute speed_limit = %f + filter_mask_data * %f", base_,
+      multiplier_);
   } else {
     RCLCPP_ERROR(logger_, "SpeedFilter: Mode is not supported");
     return;
@@ -143,27 +145,23 @@ void SpeedFilter::filterInfoCallback(
 
   // Setting new filter mask subscriber
   RCLCPP_INFO(
-    logger_,
-    "SpeedFilter: Subscribing to \"%s\" topic for filter mask...",
-    mask_topic_.c_str());
+    logger_, "SpeedFilter: Subscribing to \"%s\" topic for filter mask...", mask_topic_.c_str());
   mask_sub_ = node->create_subscription<nav_msgs::msg::OccupancyGrid>(
     mask_topic_, rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),
     std::bind(&SpeedFilter::maskCallback, this, std::placeholders::_1));
 }
 
-void SpeedFilter::maskCallback(
-  const nav_msgs::msg::OccupancyGrid::SharedPtr msg)
+void SpeedFilter::maskCallback(const nav_msgs::msg::OccupancyGrid::SharedPtr msg)
 {
   std::lock_guard<CostmapFilter::mutex_t> guard(*getMutex());
 
   if (!filter_mask_) {
-    RCLCPP_INFO(
-      logger_,
-      "SpeedFilter: Received filter mask from %s topic.", mask_topic_.c_str());
+    RCLCPP_INFO(logger_, "SpeedFilter: Received filter mask from %s topic.", mask_topic_.c_str());
   } else {
     RCLCPP_WARN(
       logger_,
-      "SpeedFilter: New filter mask arrived from %s topic. Updating old filter mask.",
+      "SpeedFilter: New filter mask arrived from %s topic. Updating "
+      "old filter mask.",
       mask_topic_.c_str());
     filter_mask_.reset();
   }
@@ -173,17 +171,14 @@ void SpeedFilter::maskCallback(
 }
 
 void SpeedFilter::process(
-  nav2_costmap_2d::Costmap2D & /*master_grid*/,
-  int /*min_i*/, int /*min_j*/, int /*max_i*/, int /*max_j*/,
-  const geometry_msgs::msg::Pose2D & pose)
+  nav2_costmap_2d::Costmap2D & /*master_grid*/, int /*min_i*/, int /*min_j*/, int /*max_i*/,
+  int /*max_j*/, const geometry_msgs::msg::Pose2D & pose)
 {
   std::lock_guard<CostmapFilter::mutex_t> guard(*getMutex());
 
   if (!filter_mask_) {
     // Show warning message every 2 seconds to not litter an output
-    RCLCPP_WARN_THROTTLE(
-      logger_, *(clock_), 2000,
-      "SpeedFilter: Filter mask was not received");
+    RCLCPP_WARN_THROTTLE(logger_, *(clock_), 2000, "SpeedFilter: Filter mask was not received");
     return;
   }
 
@@ -194,7 +189,8 @@ void SpeedFilter::process(
     return;
   }
 
-  // Converting mask_pose robot position to filter_mask_ indexes (mask_robot_i, mask_robot_j)
+  // Converting mask_pose robot position to filter_mask_ indexes (mask_robot_i,
+  // mask_robot_j)
   unsigned int mask_robot_i, mask_robot_j;
   if (!worldToMask(filter_mask_, mask_pose.x, mask_pose.y, mask_robot_i, mask_robot_j)) {
     return;
@@ -232,7 +228,8 @@ void SpeedFilter::process(
       if (speed_limit_ < 0.0) {
         RCLCPP_WARN(
           logger_,
-          "SpeedFilter: Speed limit in filter_mask[%i, %i] is less than 0 m/s, "
+          "SpeedFilter: Speed limit in filter_mask[%i, %i] is less "
+          "than 0 m/s, "
           "which can not be true. Setting it to no-limit value.",
           mask_robot_i, mask_robot_j);
         speed_limit_ = NO_SPEED_LIMIT;

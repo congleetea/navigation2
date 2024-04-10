@@ -16,13 +16,13 @@
 #ifndef NAV2_BEHAVIOR_TREE__PLUGINS__DECORATOR__SPEED_CONTROLLER_HPP_
 #define NAV2_BEHAVIOR_TREE__PLUGINS__DECORATOR__SPEED_CONTROLLER_HPP_
 
+#include <deque>
 #include <memory>
 #include <string>
 #include <vector>
-#include <deque>
 
-#include "nav_msgs/msg/odometry.hpp"
 #include "nav2_util/odometry_utils.hpp"
+#include "nav_msgs/msg/odometry.hpp"
 
 #include "behaviortree_cpp_v3/decorator_node.h"
 
@@ -30,9 +30,10 @@ namespace nav2_behavior_tree
 {
 
 /**
- * @brief A BT::DecoratorNode that ticks its child every at a rate proportional to
- * the speed of the robot. If the robot travels faster, this node will tick its child at a
- * higher frequency and reduce the tick frequency if the robot slows down
+ * @brief A BT::DecoratorNode that ticks its child every at a rate proportional
+ * to the speed of the robot. If the robot travels faster, this node will tick
+ * its child at a higher frequency and reduce the tick frequency if the robot
+ * slows down
  */
 class SpeedController : public BT::DecoratorNode
 {
@@ -42,9 +43,7 @@ public:
    * @param name Name for the XML tag for this node
    * @param conf BT node configuration
    */
-  SpeedController(
-    const std::string & name,
-    const BT::NodeConfiguration & conf);
+  SpeedController(const std::string & name, const BT::NodeConfiguration & conf);
 
   /**
    * @brief Creates list of BT ports
@@ -74,9 +73,7 @@ private:
   inline double getScaledRate(const double & speed)
   {
     return std::max(
-      std::min(
-        (((speed - min_speed_) / d_speed_) * d_rate_) + min_rate_,
-        max_rate_), min_rate_);
+      std::min((((speed - min_speed_) / d_speed_) * d_rate_) + min_rate_, max_rate_), min_rate_);
   }
 
   /**

@@ -15,19 +15,19 @@
 #ifndef NAV2_CONTROLLER__PLUGINS__POSE_PROGRESS_CHECKER_HPP_
 #define NAV2_CONTROLLER__PLUGINS__POSE_PROGRESS_CHECKER_HPP_
 
+#include "nav2_controller/plugins/simple_progress_checker.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include <string>
 #include <vector>
-#include "rclcpp/rclcpp.hpp"
-#include "nav2_controller/plugins/simple_progress_checker.hpp"
-#include "rclcpp_lifecycle/lifecycle_node.hpp"
 
 namespace nav2_controller
 {
 /**
-* @class PoseProgressChecker
-* @brief This plugin is used to check the position and the angle of the robot to make sure
-* that it is actually progressing or rotating towards a goal.
-*/
+ * @class PoseProgressChecker
+ * @brief This plugin is used to check the position and the angle of the robot
+ * to make sure that it is actually progressing or rotating towards a goal.
+ */
 
 class PoseProgressChecker : public SimpleProgressChecker
 {
@@ -46,8 +46,7 @@ protected:
   bool isRobotMovedEnough(const geometry_msgs::msg::Pose2D & pose);
 
   static double poseAngleDistance(
-    const geometry_msgs::msg::Pose2D &,
-    const geometry_msgs::msg::Pose2D &);
+    const geometry_msgs::msg::Pose2D &, const geometry_msgs::msg::Pose2D &);
 
   double required_movement_angle_;
 
@@ -59,8 +58,8 @@ protected:
    * @brief Callback executed when a paramter change is detected
    * @param parameters list of changed parameters
    */
-  rcl_interfaces::msg::SetParametersResult
-  dynamicParametersCallback(std::vector<rclcpp::Parameter> parameters);
+  rcl_interfaces::msg::SetParametersResult dynamicParametersCallback(
+    std::vector<rclcpp::Parameter> parameters);
 };
 }  // namespace nav2_controller
 

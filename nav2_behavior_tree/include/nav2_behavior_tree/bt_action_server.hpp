@@ -31,30 +31,26 @@ namespace nav2_behavior_tree
  * @class nav2_behavior_tree::BtActionServer
  * @brief An action server that uses behavior tree to execute an action
  */
-template<class ActionT>
+template <class ActionT>
 class BtActionServer
 {
 public:
   using ActionServer = nav2_util::SimpleActionServer<ActionT>;
 
-  typedef std::function<bool (typename ActionT::Goal::ConstSharedPtr)> OnGoalReceivedCallback;
-  typedef std::function<void ()> OnLoopCallback;
-  typedef std::function<void (typename ActionT::Goal::ConstSharedPtr)> OnPreemptCallback;
-  typedef std::function<void (typename ActionT::Result::SharedPtr,
-      nav2_behavior_tree::BtStatus)> OnCompletionCallback;
+  typedef std::function<bool(typename ActionT::Goal::ConstSharedPtr)> OnGoalReceivedCallback;
+  typedef std::function<void()> OnLoopCallback;
+  typedef std::function<void(typename ActionT::Goal::ConstSharedPtr)> OnPreemptCallback;
+  typedef std::function<void(typename ActionT::Result::SharedPtr, nav2_behavior_tree::BtStatus)>
+    OnCompletionCallback;
 
   /**
    * @brief A constructor for nav2_behavior_tree::BtActionServer class
    */
   explicit BtActionServer(
-    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
-    const std::string & action_name,
-    const std::vector<std::string> & plugin_lib_names,
-    const std::string & default_bt_xml_filename,
-    OnGoalReceivedCallback on_goal_received_callback,
-    OnLoopCallback on_loop_callback,
-    OnPreemptCallback on_preempt_callback,
-    OnCompletionCallback on_completion_callback);
+    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent, const std::string & action_name,
+    const std::vector<std::string> & plugin_lib_names, const std::string & default_bt_xml_filename,
+    OnGoalReceivedCallback on_goal_received_callback, OnLoopCallback on_loop_callback,
+    OnPreemptCallback on_preempt_callback, OnCompletionCallback on_completion_callback);
 
   /**
    * @brief A destructor for nav2_behavior_tree::BtActionServer class
@@ -89,9 +85,11 @@ public:
 
   /**
    * @brief Replace current BT with another one
-   * @param bt_xml_filename The file containing the new BT, uses default filename if empty
-   * @return bool true if the resulting BT correspond to the one in bt_xml_filename. false
-   * if something went wrong, and previous BT is maintained
+   * @param bt_xml_filename The file containing the new BT, uses default
+   * filename if empty
+   * @return bool true if the resulting BT correspond to the one in
+   * bt_xml_filename. false if something went wrong, and previous BT is
+   * maintained
    */
   bool loadBehaviorTree(const std::string & bt_xml_filename = "");
 
@@ -99,31 +97,23 @@ public:
    * @brief Getter function for BT Blackboard
    * @return BT::Blackboard::Ptr Shared pointer to current BT blackboard
    */
-  BT::Blackboard::Ptr getBlackboard() const
-  {
-    return blackboard_;
-  }
+  BT::Blackboard::Ptr getBlackboard() const { return blackboard_; }
 
   /**
    * @brief Getter function for current BT XML filename
    * @return string Containing current BT XML filename
    */
-  std::string getCurrentBTFilename() const
-  {
-    return current_bt_xml_filename_;
-  }
+  std::string getCurrentBTFilename() const { return current_bt_xml_filename_; }
 
   /**
    * @brief Getter function for default BT XML filename
    * @return string Containing default BT XML filename
    */
-  std::string getDefaultBTFilename() const
-  {
-    return default_bt_xml_filename_;
-  }
+  std::string getDefaultBTFilename() const { return default_bt_xml_filename_; }
 
   /**
-   * @brief Wrapper function to accept pending goal if a preempt has been requested
+   * @brief Wrapper function to accept pending goal if a preempt has been
+   * requested
    * @return Shared pointer to pending action goal
    */
   const std::shared_ptr<const typename ActionT::Goal> acceptPendingGoal()
@@ -132,12 +122,10 @@ public:
   }
 
   /**
-   * @brief Wrapper function to terminate pending goal if a preempt has been requested
+   * @brief Wrapper function to terminate pending goal if a preempt has been
+   * requested
    */
-  void terminatePendingGoal()
-  {
-    action_server_->terminate_pending_goal();
-  }
+  void terminatePendingGoal() { action_server_->terminate_pending_goal(); }
 
   /**
    * @brief Wrapper function to get current goal
@@ -169,19 +157,14 @@ public:
    * @brief Getter function for the current BT tree
    * @return BT::Tree Current behavior tree
    */
-  const BT::Tree & getTree() const
-  {
-    return tree_;
-  }
+  const BT::Tree & getTree() const { return tree_; }
 
   /**
-   * @brief Function to halt the current tree. It will interrupt the execution of RUNNING nodes
-   * by calling their halt() implementation (only for Async nodes that may return RUNNING)
+   * @brief Function to halt the current tree. It will interrupt the execution
+   * of RUNNING nodes by calling their halt() implementation (only for Async
+   * nodes that may return RUNNING)
    */
-  void haltTree()
-  {
-    tree_.rootNode()->halt();
-  }
+  void haltTree() { tree_.rootNode()->halt(); }
 
 protected:
   /**
@@ -211,7 +194,8 @@ protected:
   // Libraries to pull plugins (BT Nodes) from
   std::vector<std::string> plugin_lib_names_;
 
-  // A regular, non-spinning ROS node that we can use for calls to the action client
+  // A regular, non-spinning ROS node that we can use for calls to the action
+  // client
   rclcpp::Node::SharedPtr client_node_;
 
   // Parent node

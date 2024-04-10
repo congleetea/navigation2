@@ -13,39 +13,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <chrono>
 #include <gtest/gtest.h>
 #include <memory>
-#include <chrono>
 #include <string>
 
 #include "geometry_msgs/msg/point.hpp"
-#include "geometry_msgs/msg/quaternion.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/quaternion.hpp"
 
 #include "behaviortree_cpp_v3/bt_factory.h"
 #include "nav2_behavior_tree/bt_conversions.hpp"
 
-template<typename T>
+template <typename T>
 class TestNode : public BT::SyncActionNode
 {
 public:
   TestNode(const std::string & name, const BT::NodeConfiguration & config)
   : SyncActionNode(name, config)
-  {}
-
-  BT::NodeStatus tick() override
   {
-    return BT::NodeStatus::SUCCESS;
   }
 
-  static BT::PortsList providedPorts()
-  {
-    return {
-      BT::InputPort<T>("test")
-    };
-  }
+  BT::NodeStatus tick() override { return BT::NodeStatus::SUCCESS; }
+
+  static BT::PortsList providedPorts() { return {BT::InputPort<T>("test")}; }
 };
-
 
 TEST(PointPortTest, test_wrong_syntax)
 {

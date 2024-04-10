@@ -28,21 +28,17 @@ class GoalUpdatedConditionTestFixture : public nav2_behavior_tree::BehaviorTreeT
 public:
   void SetUp()
   {
-    bt_node_ = std::make_shared<nav2_behavior_tree::GoalUpdatedCondition>(
-      "goal_updated", *config_);
+    bt_node_ = std::make_shared<nav2_behavior_tree::GoalUpdatedCondition>("goal_updated", *config_);
   }
 
-  void TearDown()
-  {
-    bt_node_.reset();
-  }
+  void TearDown() { bt_node_.reset(); }
 
 protected:
   static std::shared_ptr<nav2_behavior_tree::GoalUpdatedCondition> bt_node_;
 };
 
 std::shared_ptr<nav2_behavior_tree::GoalUpdatedCondition>
-GoalUpdatedConditionTestFixture::bt_node_ = nullptr;
+  GoalUpdatedConditionTestFixture::bt_node_ = nullptr;
 
 TEST_F(GoalUpdatedConditionTestFixture, test_behavior)
 {
