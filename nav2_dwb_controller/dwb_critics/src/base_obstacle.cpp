@@ -60,6 +60,10 @@ void BaseObstacleCritic::onInit()
   node->get_parameter(dwb_plugin_name_ + "." + name_ + ".sum_scores", sum_scores_);
 }
 
+// BaseObstacle评分方法，主要是评估轨迹经过的点在costmap上的代价大小，有两种方式：
+// 选择求和方式，最终的score就是所有的点经过的cost之和。否则就是最后一个点的代价
+// 值大小。
+// 如果点经过障碍物，或者不在地图里面，就报错，该轨迹就失效了。
 double BaseObstacleCritic::scoreTrajectory(const dwb_msgs::msg::Trajectory2D & traj)
 {
   double score = 0.0;

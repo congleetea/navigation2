@@ -239,6 +239,8 @@ geometry_msgs::msg::TwistStamped DWBLocalPlanner::computeVelocityCommands(
   }
 }
 
+// 1. 路径截取并转化到local坐标系中。
+// 2. 路径最后一个点作为目标点，转化到local坐标系中。
 void DWBLocalPlanner::prepareGlobalPlan(
   const nav_2d_msgs::msg::Pose2DStamped & pose, nav_2d_msgs::msg::Path2D & transformed_plan,
   nav_2d_msgs::msg::Pose2DStamped & goal_pose, bool publish_plan)
@@ -265,7 +267,7 @@ nav_2d_msgs::msg::Twist2DStamped DWBLocalPlanner::computeVelocityCommands(
 
   nav_2d_msgs::msg::Path2D transformed_plan;
   nav_2d_msgs::msg::Pose2DStamped goal_pose;
-
+  // 路径截取和转化。目标点转换。
   prepareGlobalPlan(pose, transformed_plan, goal_pose);
 
   nav2_costmap_2d::Costmap2D * costmap = costmap_ros_->getCostmap();
@@ -278,6 +280,8 @@ nav_2d_msgs::msg::Twist2DStamped DWBLocalPlanner::computeVelocityCommands(
   }
 
   try {
+    // 不断生成轨迹，对轨迹进行评分，选出评分最好的轨迹。
+    // 返回最好的轨迹对应的速度。
     dwb_msgs::msg::TrajectoryScore best = coreScoringAlgorithm(pose.pose, velocity, results);
 
     // Return Value
@@ -323,7 +327,8 @@ dwb_msgs::msg::TrajectoryScore DWBLocalPlanner::coreScoringAlgorithm(
   best.total = -1;
   worst.total = -1;
   IllegalTrajectoryTracker tracker;
-
+  // 1. 轨迹生成器根据速度，加速度，时间，生成轨迹;
+  // 2. 然后对每一条轨迹进行评分。
   traj_generator_->startNewIteration(velocity);
   while (traj_generator_->hasMoreTwists()) {
     twist = traj_generator_->nextTwist();
@@ -335,6 +340,7 @@ dwb_msgs::msg::TrajectoryScore DWBLocalPlanner::coreScoringAlgorithm(
       if (results) {
         results->twists.push_back(score);
       }
+      // 更新best和worst信息。
       if (best.total < 0 || score.total < best.total) {
         best = score;
         if (results) {
@@ -378,6 +384,7 @@ dwb_msgs::msg::TrajectoryScore DWBLocalPlanner::coreScoringAlgorithm(
   return best;
 }
 
+// 根据规则对轨迹进行评分。每一类都有一权重系数。
 dwb_msgs::msg::TrajectoryScore DWBLocalPlanner::scoreTrajectory(
   const dwb_msgs::msg::Trajectory2D & traj, double best_score)
 {
@@ -408,6 +415,11 @@ dwb_msgs::msg::TrajectoryScore DWBLocalPlanner::scoreTrajectory(
   return score;
 }
 
+// 处理全局路径：
+// 1. 路径上往后找距离当前位置距离小与prune_dist的第一个点。
+//    往前找距离当前位置距离大与forward_prune_dist的第一个点。
+//    如果配置了prune_plan，那么去掉后面的路径，只保留前面的。
+// 2. 将截取的前后路径取出来转化到local坐标系中。
 nav_2d_msgs::msg::Path2D DWBLocalPlanner::transformGlobalPlan(
   const nav_2d_msgs::msg::Pose2DStamped & pose)
 {

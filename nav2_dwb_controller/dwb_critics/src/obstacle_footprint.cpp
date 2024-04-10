@@ -59,6 +59,7 @@ Footprint getOrientedFootprint(
   return oriented_footprint;
 }
 
+// 获取足迹信息。
 bool ObstacleFootprintCritic::prepare(
   const geometry_msgs::msg::Pose2D &, const nav_2d_msgs::msg::Twist2D &,
   const geometry_msgs::msg::Pose2D &, const nav_2d_msgs::msg::Path2D &)
@@ -82,6 +83,7 @@ double ObstacleFootprintCritic::scorePose(const geometry_msgs::msg::Pose2D & pos
   return scorePose(pose, getOrientedFootprint(pose, footprint_spec_));
 }
 
+// 足迹所有边上的cost最大值。
 double ObstacleFootprintCritic::scorePose(
   const geometry_msgs::msg::Pose2D &, const Footprint & footprint)
 {
@@ -91,6 +93,7 @@ double ObstacleFootprintCritic::scorePose(
   double footprint_cost = 0.0;
 
   // we need to rasterize each line in the footprint
+  // 前后两个足迹点连成线，线上每一个点的代价值取最大的。
   for (unsigned int i = 0; i < footprint.size() - 1; ++i) {
     // get the cell coord of the first point
     if (!costmap_->worldToMap(footprint[i].x, footprint[i].y, x0, y0)) {
